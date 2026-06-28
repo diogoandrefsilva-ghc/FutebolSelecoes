@@ -665,7 +665,7 @@ const COLS=[
   {name:"Meias",   ids:["M101","M102"]},
   {name:"Final",   ids:["M104"]}
 ];
-function koSide(id, side, S, both, pick, score, isWin, locked){
+function koSide(id, side, S, both, pick, score, isWin, locked, hasScore){
   const isPick=pick===side, isDim=pick&&pick!==side, por=S.name===POR;
   const cls=["koteam"];
   if(!S.name) cls.push("tbd");
@@ -675,7 +675,8 @@ function koSide(id, side, S, both, pick, score, isWin, locked){
   if(isWin)  cls.push("kowin");           // vencedor real trancado
   const nm = S.name? pt(S.name) : (S.ph||S.tag||"A definir");
   const flg= S.name? fl(S.name) : "·";
-  const tag= (S.name&&S.tag)? `<span class="src">${S.tag}</span>` : "";
+  // a posição do grupo só faz sentido enquanto o jogo não tem resultado (ao vivo ou terminado)
+  const tag= (S.name&&S.tag&&!hasScore)? `<span class="src">${S.tag}</span>` : "";
   const scEl= Number.isFinite(score)? `<span class="kosc">${score}</span>` : "";
   return `<button class="${cls.join(' ')}" data-id="${id}" data-side="${side}" ${both&&!locked?'':'disabled'}>
     <span class="fl">${flg}</span><span class="nm">${nm}</span>${tag}${scEl}</button>`;
@@ -698,7 +699,7 @@ function koCard(id){
   if(state==="in")cls.push("inplay"); if(fin)cls.push("locked");
   return `<div class="${cls.join(' ')}">
     <div class="jno"><span>JOGO ${num}</span>${chip}${corner}</div>
-    <div class="teams">${koSide(id,'a',A,both,pick,sc?sc.hg:null,winner&&winner===A.name,!!fin)}${koSide(id,'b',B,both,pick,sc?sc.ag:null,winner&&winner===B.name,!!fin)}</div></div>`;
+    <div class="teams">${koSide(id,'a',A,both,pick,sc?sc.hg:null,winner&&winner===A.name,!!fin,!!sc)}${koSide(id,'b',B,both,pick,sc?sc.ag:null,winner&&winner===B.name,!!fin,!!sc)}</div></div>`;
 }
 function renderKnockout(){
   let cols="";
@@ -1087,14 +1088,13 @@ function matchListHTML(selTeam){
     const fin=KO_FINAL[id], lv=KO_LIVE[id];
     const sc = fin ? {hg:fin.hg, ag:fin.ag} : (lv ? {hg:lv.hg, ag:lv.ag} : null);
     const state = fin ? "post" : (lv ? lv.state : null);
-    const chip = state==="in" ? `<span class="mlstate live">${lv&&lv.minute?lv.minute+"'":"a jogar"}</span>`
-               : state==="post" ? `<span class="mlstate done">Fim</span>` : "";
-    const mid = sc ? `<span class="sc">${sc.hg}–${sc.ag}</span>${chip}` : `<span class="sc up">vs</span>`;
+    const liveChip = state==="in" ? `<span class="mlstate live">${lv&&lv.minute?lv.minute+"'":"a jogar"}</span>` : "";
+    const mid = sc ? `<span class="sc">${sc.hg}–${sc.ag}</span>` : `<span class="sc up">vs</span>`;
     h+=`<div class="gpm${tm}${predrow}${state==="in"?" inplay":""}">
       ${side(A.name, A.tag||A.ph||"A definir", oA, 'h', winner&&winner===A.name)}
       <div class="mlmid">${mid}</div>
       ${side(B.name, B.tag||B.ph||"A definir", oB, 'a', winner&&winner===B.name)}
-      <div class="mlin"><span class="v">${schedLabel(id)}</span></div>
+      <div class="mlin"><span class="v">${schedLabel(id)}</span>${liveChip}</div>
     </div>`;
   }
   return h;
