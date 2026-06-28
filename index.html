@@ -416,9 +416,20 @@
   .deferred .ic{font-size:30px;display:block;margin-bottom:10px}
   .deferred b{color:var(--txt)}
   .bracket{min-width:760px}
-  .koteam .kosc{margin-left:auto;font-weight:700;font-size:12px;color:var(--mut);flex:none}
+  .koteam .kosc{margin-left:auto;font-weight:700;font-size:12px;color:var(--mut);flex:none;white-space:nowrap}
   .koteam.pick .kosc{color:var(--lime)}
   .koteam .pen{color:var(--dim);font-size:9px;font-weight:600}
+
+  /* --- banner: estado no canto sup. direito, pílula trocar no canto inf. direito --- */
+  .teamhero{padding-right:128px;align-items:center;min-height:88px}
+  .teamhero .meta{min-width:0}
+  .teamhero .nm{white-space:normal;overflow-wrap:anywhere}
+  .teamhero .seedtag{position:absolute;top:12px;right:12px;margin:0}
+  /* --- badge da fase alinhado ao título --- */
+  .stage .sh{align-items:center}
+  /* --- resultado do percurso (com penáltis) sem quebra de linha --- */
+  .kpath-sc{flex:none;margin-left:auto;white-space:nowrap;font-weight:700;font-size:12.5px;color:var(--cyan)}
+  .oppline.cert .kpath-sc{color:var(--lime)}
 </style>
 </head>
 <body>
@@ -431,12 +442,11 @@
 <div class="wrap">
   <header>
     <div class="topbar"></div>
-    <h1 id="h1">Mundiais<span class="y">das Seleções</span></h1>
+    <h1 id="h1">Competições</h1>
     <div class="edwrap">
       <span class="edlabel">Edição</span>
       <div class="edrow" id="editionRow" role="tablist" aria-label="Escolher Mundial"></div>
     </div>
-    <p class="sub" id="sub"></p>
   </header>
 
   <nav class="tabs">
@@ -447,8 +457,6 @@
 
   <main>
     <section class="panel active" id="p-percurso">
-      <h2 class="panel-h">O percurso da seleção</h2>
-      <p class="panel-d">Toca no <b>banner</b> para trocar de seleção. Vês os jogos da fase de grupos <b>dessa</b> seleção e o caminho no mata-eliminatórias.</p>
       <div id="teamPath"></div>
     </section>
 
@@ -559,8 +567,11 @@ function allTies(){
 
 /* ===================== RENDER: GRUPOS ===================== */
 function renderGroups(){
+  let groups=ED.groups;
+  const selG = SEL_TEAM ? groupOf(SEL_TEAM) : null;   // grupo da seleção escolhida primeiro
+  if(selG) groups=[selG, ...ED.groups.filter(g=>g!==selG)];
   let h="";
-  for(const g of ED.groups){
+  for(const g of groups){
     const tbl=groupStandings(g);
     h+=`<div class="card"><div class="grp-h"><div class="grp-badge">${g.name}</div><div class="nm">Grupo ${g.name}</div></div>
     <table class="tbl"><thead><tr>
@@ -593,7 +604,7 @@ function teamOptions(sel){
   }
   return h;
 }
-function selectTeam(v){ SEL_TEAM=v; renderPercurso(); }
+function selectTeam(v){ SEL_TEAM=v; renderPercurso(); renderGroups(); }
 
 function groupPhaseHTML(t, ts){
   if(!ts) return "";
@@ -642,7 +653,7 @@ function knockoutPathHTML(t){
         <span class="reach ${won?'done':'gone'}">${won?'venceu':'eliminada'}</span></div>
       <div class="oppwrap"><div class="oppline ${won?'cert':''} ${opp===FAV?'por':''}">
         <span class="of">${fl(opp)}</span><span class="on">${pt(opp)}</span>
-        <span class="op">${myg}–${og}${pens}</span></div></div></div>`;
+        <span class="kpath-sc">${myg}–${og}${pens}</span></div></div></div>`;
   }
   h+=`</div>`;
   if(ED.champion===t){
@@ -654,12 +665,7 @@ function knockoutPathHTML(t){
 function renderPercurso(){
   const t=SEL_TEAM, box=document.getElementById("teamPath");
   if(!t||!ED){ box.innerHTML=`<div class="pickhint">Escolhe uma seleção para veres o percurso.</div>`; return; }
-  const ts=teamStanding(t), favc=t===FAV, r=ts?ts.row:null;
-  let recordTxt="";
-  if(r){ const rec=(r.w!=null)?`${r.w}V ${r.d}E ${r.l}D`:"";
-    const goals=(r.gf!=null&&r.ga!=null)?` · ${r.gf} GM-${r.ga} GS`:"";
-    const dg=r.gd!=null?` (${r.gd>0?'+':''}${r.gd})`:"";
-    recordTxt=`${rec}${goals}${dg}`.trim(); }
+  const ts=teamStanding(t), favc=t===FAV;
   const seed=ts?`${ts.pos}.º do Grupo ${ts.name}`:"";
   let tag;
   if(ED.status==="live") tag="EM CURSO";
@@ -668,7 +674,7 @@ function renderPercurso(){
     tag=path.length?path[path.length-1].round.toUpperCase():"FASE DE GRUPOS"; }
   let h=`<div class="teamhero"><span class="bigfl">${fl(t)}</span>
     <div class="meta"><div class="nm ${favc?'por':''}">${pt(t)}</div>
-      <div class="gl"><b>${seed}</b>${recordTxt?` · ${recordTxt}`:""}</div></div>
+      <div class="gl"><b>${seed}</b></div></div>
     <span class="seedtag">${tag}</span>
     <select class="heroSel" aria-label="Trocar de seleção" onchange="selectTeam(this.value)">${teamOptions(t)}</select>
     <span class="heroChev" aria-hidden="true">⇄ Trocar</span></div>`;
@@ -740,10 +746,6 @@ function defaultTeamFor(){
 }
 function applyEditionChrome(){
   document.title=`${ED.title} — Seleções`;
-  const sub=document.getElementById("sub");
-  sub.innerHTML = ED.status==="closed"
-    ? `<b>${ED.host} · ${ED.year}</b> — edição encerrada. Escolhe uma seleção e percorre os seus jogos, do grupo à final.`
-    : `<b>${ED.host} · ${ED.year}</b> — edição <b style="color:var(--cyan)">em curso</b>. Simula o quadro a eliminar e vê o percurso provável de cada seleção.`;
   document.getElementById("gruposDesc").innerHTML = ED.status==="closed"
     ? `Classificações finais. Passam os <b>2 primeiros</b> de cada grupo.`
     : `Classificações da fase de grupos.`;
