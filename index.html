@@ -420,11 +420,22 @@
   .koteam.pick .kosc{color:var(--lime)}
   .koteam .pen{color:var(--dim);font-size:9px;font-weight:600}
 
-  /* --- banner: estado no canto sup. direito, pílula trocar no canto inf. direito --- */
-  .teamhero{padding-right:128px;align-items:center;min-height:88px}
+  /* --- banner: mais baixo; estado no canto sup. direito, pílula trocar no inf. direito --- */
+  .teamhero{padding:11px 128px 11px 12px;align-items:center;min-height:74px;gap:11px}
+  .teamhero .bigfl{font-size:32px}
+  .teamhero .nm{font-size:21px}
   .teamhero .meta{min-width:0}
   .teamhero .nm{white-space:normal;overflow-wrap:anywhere}
-  .teamhero .seedtag{position:absolute;top:12px;right:12px;margin:0}
+  .teamhero .seedtag{position:absolute;top:10px;right:12px;margin:0}
+  .teamhero .heroChev{top:auto;bottom:10px}
+  /* adversários: top 3 + expandir os restantes */
+  .oppdetails{margin-top:5px}
+  .oppdetails > summary{list-style:none;cursor:pointer;font-size:11.5px;font-weight:600;color:var(--cyan);
+    padding:6px 2px 2px;display:flex;align-items:center;gap:6px}
+  .oppdetails > summary:hover{color:var(--lime)}
+  .oppdetails[open] > summary{color:var(--mut)}
+  .oppdetails .oppline{margin-top:5px}
+  .oppline .op.solo{color:var(--lime);font-weight:700;width:auto}
   /* --- badge da fase alinhado ao título --- */
   .stage .sh{align-items:center}
   /* --- resultado do percurso (com penáltis) sem quebra de linha --- */
@@ -478,10 +489,10 @@
 
   <footer id="footer"></footer>
 </div>
-<!-- Módulo live (Anexo C, quadro interativo, simulação Monte Carlo, ESPN) em pausa.
-     O ficheiro live2026.js fica no repo, pronto a reativar num próximo torneio (2028/2030).
-     Para reativar: descomentar a linha abaixo. -->
-<!-- <script src="live2026.js"></script> -->
+<!-- Módulo live do 2026: Anexo C (emparelhamento dos 16-avos), quadro interativo,
+     simulação Monte Carlo do percurso e live ESPN. (Caveat: o Anexo C herdado assume
+     8 grupos; rever para os 12 grupos do formato de 48 num próximo torneio.) -->
+<script src="live2026.js"></script>
 <script>
 "use strict";
 /* =====================================================================
@@ -510,13 +521,25 @@ const FAV = "Portugal";          // seleção destacada (a da casa do utilizador
 let ED = null;        // edição atual (JSON carregado)
 let SEL_TEAM = null;  // seleção escolhida no Percurso
 let PICKS = {};       // escolhas no quadro interativo (edições live) — reservado p/ módulo live
+// registo global de seleções (todas as que participaram em qualquer edição dos dados)
+let REGISTRY = { teams:{}, editions:{} };   // {teams:{nome:{pt,flag}}, editions:{nome:[edId,...]}}
 
 /* ===================== HELPERS DE EQUIPA ===================== */
-const team = n => (ED && ED.teams && ED.teams[n]) || null;
+const team = n => (ED && ED.teams && ED.teams[n]) || REGISTRY.teams[n] || null;
 const pt   = n => { const t=team(n); return t? t.pt   : (n||"—"); };
 const fl   = n => { const t=team(n); return t? t.flag : "🏳️"; };
-const rank = n => { const t=team(n); return t&&Number.isFinite(t.rank)? t.rank : 999; };
+const rank = n => { const t=(ED&&ED.teams&&ED.teams[n])||REGISTRY.teams[n]; return t&&Number.isFinite(t.rank)? t.rank : 999; };
 const _n   = v => (v==null ? "·" : v);
+
+// carrega as fichas de todas as edições uma vez -> lista global alfabética de seleções
+async function buildRegistry(){
+  if(Object.keys(REGISTRY.teams).length) return;
+  await Promise.all(EDITIONS.map(async e=>{
+    try{ const r=await fetch(`data/${e.id}.json`,{cache:"force-cache"}); if(!r.ok) return; const d=await r.json();
+      for(const n in d.teams){ if(!REGISTRY.teams[n]) REGISTRY.teams[n]=d.teams[n]; (REGISTRY.editions[n]=REGISTRY.editions[n]||[]).push(e.id); }
+    }catch(_){}
+  }));
+}
 
 /* ===================== MOTOR: classificação a partir dos jogos ===================== */
 function statsOf(names, matches){
@@ -608,13 +631,10 @@ function renderGroups(){
 
 /* ===================== RENDER: PERCURSO ===================== */
 function teamOptions(sel){
-  let h="";
-  for(const g of ED.groups){
-    h+=`<optgroup label="Grupo ${g.name}">`;
-    for(const r of groupStandings(g)) h+=`<option value="${r.team}" ${r.team===sel?"selected":""}>${pt(r.team)}</option>`;
-    h+=`</optgroup>`;
-  }
-  return h;
+  // todas as seleções de todas as edições, por ordem alfabética
+  const reg = Object.keys(REGISTRY.teams).length ? REGISTRY.teams : (ED?ED.teams:{});
+  const names = Object.keys(reg).sort((a,b)=>(reg[a].pt||a).localeCompare(reg[b].pt||b, "pt"));
+  return names.map(n=>`<option value="${n}" ${n===sel?"selected":""}>${reg[n].pt||n}</option>`).join("");
 }
 function selectTeam(v){ SEL_TEAM=v; renderPercurso(); renderGroups(); }
 
@@ -677,19 +697,26 @@ function knockoutPathHTML(t){
 function renderPercurso(){
   const t=SEL_TEAM, box=document.getElementById("teamPath");
   if(!t||!ED){ box.innerHTML=`<div class="pickhint">Escolhe uma seleção para veres o percurso.</div>`; return; }
-  const ts=teamStanding(t), favc=t===FAV;
-  const seed=ts?`${ts.pos}.º do Grupo ${ts.name}`:"";
+  const ts=teamStanding(t), favc=t===FAV, plays=!!ts;
+  const seed=ts?`${ts.pos}.º do Grupo ${ts.name}`:"não participou";
   let tag;
-  if(ED.status==="live") tag="EM CURSO";
+  if(!plays) tag="N/D";
+  else if(ED.status==="live") tag="EM CURSO";
   else if(ED.champion===t) tag="CAMPEÃO";
   else { const path=allTies().filter(x=>x.home===t||x.away===t);
     tag=path.length?path[path.length-1].round.toUpperCase():"FASE DE GRUPOS"; }
-  let h=`<div class="teamhero"><span class="bigfl">${fl(t)}</span>
+  let h=`<div class="teamhero ${plays?'':'out'}"><span class="bigfl">${fl(t)}</span>
     <div class="meta"><div class="nm ${favc?'por':''}">${pt(t)}</div>
       <div class="gl"><b>${seed}</b></div></div>
     <span class="seedtag">${tag}</span>
     <select class="heroSel" aria-label="Trocar de seleção" onchange="selectTeam(this.value)">${teamOptions(t)}</select>
     <span class="heroChev" aria-hidden="true">⇄ Trocar</span></div>`;
+  if(!plays){   // seleção do registo global que não jogou esta edição
+    const eds=(REGISTRY.editions[t]||[]).filter(id=>id!==ED.id)
+      .map(id=>{ const m=EDITIONS.find(e=>e.id===id); return m?m.year:id; });
+    h+=`<div class="livenote"><span class="ic">🚫</span><div class="tx"><b>${pt(t)}</b> não participou no <b>${ED.title}</b>.${eds.length?` Está nos dados de: <b>${eds.join(", ")}</b> — escolhe essa edição nos chips acima.`:""}</div></div>`;
+    box.innerHTML=h; return;
+  }
   h+=groupPhaseHTML(t, ts);
   if(ED.status==="live"){
     if(ED.id==="2026" && window.LIVE2026){ h+=window.LIVE2026.percursoStagesHTML(t); }
@@ -796,6 +823,7 @@ async function loadEdition(id){
     document.getElementById("teamPath").innerHTML=`<div class="pickhint">Não foi possível carregar a edição (${id}).</div>`;
     hideSplash(); return;
   }
+  await buildRegistry();   // garante a lista global de seleções para o seletor
   SEL_TEAM=defaultTeamFor(); PICKS={};
   applyEditionChrome();
   renderGroups(); renderPercurso(); renderBracket();

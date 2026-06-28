@@ -1,5 +1,5 @@
 /* Service worker — Mundiais das Seleções (cache-first com atualização em rede) */
-const CACHE = "mundiais-v2";
+const CACHE = "mundiais-v3";
 const ASSETS = [
   "./",
   "./index.html",

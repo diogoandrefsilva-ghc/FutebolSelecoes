@@ -790,16 +790,19 @@ function percursoStagesHTML(t){
     const id=path[k]; const rc=sim.reach[lab]||0, p=rc/sim.N;
     const cls=p>=0.999?"done":p>0?"reachable":"gone";
     const rcls=p>=0.999?"done":p<=0?"gone":(p>=0.5?"hi":"");
-    const reachTxt=p>=0.999?"garantido":p<=0?"sem cenários":(p<0.01?"<1%":Math.round(p*100)+"%");
+    const reachTxt = p>=0.999 ? "apuramento garantido"
+                    : p<=0 ? "sem cenários"
+                    : ("probabilidade apuramento "+(p<0.01?"<1":Math.round(p*100))+" %");
     h+=`<div class="stage ${cls}"><div class="sh"><span class="sr">${lab==='16-avos'?'16-avos de final':lab==='Oitavos'?'Oitavos de final':lab==='Quartos'?'Quartos de final':lab}</span>
-      <span class="reach ${rcls}">${k===0?'apurada':('chega '+reachTxt)}</span></div>
+      <span class="reach ${rcls}">${k===0?'apurada':reachTxt}</span></div>
       <div class="when">📅 <span class="v">${schedLabel(id)}</span></div>
       ${oppLinesHTML(sim.opp[lab],rc)}</div>`;
   });
   h+=`</div>`;
   const champP=(sim.reach["Campeão"]||0)/sim.N;
+  const champTxt = champP>=0.999 ? "garantido" : (champP<0.001?'<0,1%':(champP*100).toFixed(champP<0.1?1:0)+"%");
   h+=`<div class="champline"><span class="cup">🏆</span><span class="ct ${t===POR?'por':''}">${pt(t)} campeão</span>
-       <span class="cp">${champP<0.001?'<0,1%':(champP*100).toFixed(champP<0.1?1:0)+"%"}</span></div>`;
+       <span class="cp">${champTxt}</span></div>`;
   const tpRc=sim.reach["3.º/4.º lugar"]||0;
   if(tpRc>0){
     h+=`<div class="card" style="margin-top:12px"><div class="grp-h"><div class="nm" style="font-size:14px">Se perder a meia-final · disputa do 3.º/4.º lugar</div></div>
@@ -808,6 +811,40 @@ function percursoStagesHTML(t){
   }
   return h;
 }
+
+/* item 3/4: top-3 adversários + expandir os restantes; sem "100%" quando é certeza */
+oppLinesHTML=function(map, reachCount){
+  const entries=[...map.entries()].sort((a,b)=>b[1]-a[1]);
+  if(!entries.length||!reachCount) return `<div class="oppmore">—</div>`;
+  const certain = entries.length===1 && entries[0][1]/reachCount>=0.999;
+  const line=([o,c])=>{
+    const p=c/reachCount, por=o===POR?' por':'';
+    if(certain) return `<div class="oppline cert${por}"><span class="of">${fl(o)}</span><span class="on">${pt(o)}</span><span class="op solo">único possível</span></div>`;
+    const pn=p>=0.995?99:(p<0.01?0:Math.round(p*100)), pct=pn<1?'<1%':pn+'%';   // nunca 100% se não é certeza
+    return `<div class="oppline${por}"><span class="of">${fl(o)}</span><span class="on">${pt(o)}</span>
+      <span class="obar"><i style="width:${Math.max(2,Math.round(p*100))}%"></i></span><span class="op">${pct}</span></div>`;
+  };
+  let h=`<div class="oppwrap">`+entries.slice(0,3).map(line).join('');
+  if(entries.length>3){
+    h+=`<details class="oppdetails"><summary>＋ ver os outros ${entries.length-3} adversários possíveis ▾</summary>`
+      + entries.slice(3).map(line).join('') + `</details>`;
+  }
+  return h+`</div>`;
+};
+
+/* item 6: hora portuguesa (converte a hora ET dos jogos para Europe/Lisbon) */
+schedLabel=function(id){ const s=SCHED[id]; if(!s) return "";
+  let day, mon, timeTxt="";
+  const m=s.t && /(\d{1,2}):(\d{2})/.exec(s.t);
+  if(m){
+    const et=new Date(`${s.d}T${m[1].padStart(2,'0')}:${m[2]}:00-04:00`);   // ET = EDT (UTC-4) no verão
+    day=Number(et.toLocaleString('en-GB',{timeZone:'Europe/Lisbon',day:'numeric'}));
+    mon=MONTHS_PT[Number(et.toLocaleString('en-GB',{timeZone:'Europe/Lisbon',month:'numeric'}))-1];
+    const hm=et.toLocaleString('pt-PT',{timeZone:'Europe/Lisbon',hour:'2-digit',minute:'2-digit',hour12:false});
+    timeTxt=' · '+hm.replace(':','h')+' (PT)';
+  } else { const dt=new Date(s.d+'T12:00:00Z'); day=dt.getUTCDate(); mon=MONTHS_PT[dt.getUTCMonth()]; }
+  return `${day} ${mon}${timeTxt} · ${s.v}, ${s.c}`;
+};
 
 window.LIVE2026={ mount, reset, percursoStagesHTML, renderKnockout:function(){ _ensureInit(); renderKnockout(); } };
 
