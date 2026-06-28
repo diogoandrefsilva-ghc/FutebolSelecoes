@@ -896,7 +896,7 @@ function matchListHTML(selTeam){
     const tm=(h===ME||a===ME)?" tm":"";
     const nmH=h?pt(h):(o.phH||"A definir"), flH=h?fl(h):"·";
     const nmA=a?pt(a):(o.phA||"A definir"), flA=a?fl(a):"·";
-    const when=o.when?`<div class="mlin">📅 <span class="v">${o.when}</span></div>`:"";
+    const when=o.when?`<div class="mlin"><span class="v">${o.when}</span></div>`:"";
     return `<div class="gpm${tm}">
       <div class="s h${hw?' win':''}"><span class="nm">${nmH}</span><span class="fl">${flH}</span></div>
       <div class="mlmid"><span class="sc${known?'':' up'}">${sc}</span></div>
