@@ -455,12 +455,13 @@
     font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--cyan)}
   .mlround:first-child{margin-top:2px}
   .mlround .mlx{flex:1;height:0;border-top:1px solid var(--line)}
-  .mllist .gpm{margin-bottom:6px}
+  .mllist .gpm{margin-bottom:8px}
   .mlmid{display:flex;flex-direction:column;align-items:center;gap:3px;min-width:0}
-  .grpl{font-family:Inter,sans-serif;font-size:8.5px;font-weight:700;letter-spacing:.5px;color:var(--dim);text-transform:uppercase;white-space:nowrap}
   .gpm .sc .pk{display:block;font-family:Inter,sans-serif;font-size:8.5px;font-weight:600;color:var(--mut);letter-spacing:.2px;margin-top:1px}
-  .mlwhen{font-family:Inter,sans-serif;font-size:10.5px;color:var(--mut);margin:-2px 2px 10px;padding-left:3px}
-  .mlwhen .v{color:var(--cyan)}
+  /* data/hora/local dentro da própria caixa do jogo (linha a toda a largura, por baixo do placar) */
+  .gpm .mlin{grid-column:1/-1;font-family:Inter,sans-serif;font-size:10px;color:var(--mut);text-align:center;
+    margin-top:8px;padding-top:7px;border-top:1px dashed var(--line)}
+  .gpm .mlin .v{color:var(--cyan)}
 </style>
 </head>
 <body>
@@ -498,9 +499,7 @@
     </section>
 
     <section class="panel" id="p-quadro">
-      <h2 class="panel-h">Playoffs</h2>
-      <p class="panel-d" id="quadroDesc"></p>
-      <div class="oddsmode" id="poModes" role="tablist" aria-label="Vista dos playoffs">
+      <div class="oddsmode" id="poModes" role="tablist" aria-label="Vista dos playoffs" style="margin:20px 0 14px">
         <button class="omode active" data-po="lista" role="tab" aria-selected="true">Lista de jogos</button>
         <button class="omode" data-po="bracket" role="tab" aria-selected="false">Bracket</button>
       </div>
@@ -508,10 +507,10 @@
         <div id="matchList" class="mllist"></div>
       </div>
       <div class="posub" id="po-bracket">
-        <div class="btnrow" id="koReset" style="display:none;margin:0 0 10px">
+        <div id="knockout"></div>
+        <div class="btnrow" id="koReset" style="display:none;margin:22px 0 0">
           <button class="btn ghost" onclick="window.LIVE2026&&window.LIVE2026.reset()">↺ Limpar escolhas do quadro</button>
         </div>
-        <div id="knockout"></div>
       </div>
     </section>
   </main>
@@ -802,7 +801,6 @@ function renderBracket(){
   if(ED.status==="live"){
     if(ED.id==="2026" && window.LIVE2026){
       reset.style.display="flex";
-      document.getElementById("quadroDesc").innerHTML="Lista cronológica dos jogos e bracket interativo. Os 16-avos saem das contas (Anexo C); daí para a frente, <b>tocas na equipa que avança</b>.";
       window.LIVE2026.mount({onChange:()=>{renderPercurso(); renderMatchList();}});
     }else{
       reset.style.display="none";
@@ -834,20 +832,18 @@ function renderBracket(){
     <div class="bracket-scroll"><div class="bracket">${cols}</div></div>${champ}${tp}`;
 }
 
-/* ===================== RENDER: LISTA DE JOGOS (cronológica) ===================== */
-// uma linha de jogo (casa | resultado | fora); winner força o destaque (mata-eliminatórias);
-// topLabel = etiqueta pequena por cima do resultado (ex.: "Grupo A")
-function mlRow(h,a,hg,ag,pens,winner,topLabel){
+/* ===================== RENDER: LISTA DE JOGOS (só playoffs) ===================== */
+// uma linha de jogo (casa | resultado | fora); winner força o destaque (penáltis incluídos)
+function mlRow(h,a,hg,ag,pens,winner){
   const known=hg!=null&&ag!=null;
   const hw=winner?winner===h:(known&&hg>ag);
   const aw=winner?winner===a:(known&&ag>hg);
   const sc=known?`${hg}–${ag}`:"—";
   const pk=(pens&&pens.length===2)?`<span class="pk">gp ${pens[0]}–${pens[1]}</span>`:"";
   const tm=(h===SEL_TEAM||a===SEL_TEAM)?" tm":"";
-  const lbl=topLabel?`<span class="grpl">${topLabel}</span>`:"";
   return `<div class="gpm${tm}">
     <div class="s h${hw?' win':''}"><span class="nm">${pt(h)}</span><span class="fl">${fl(h)}</span></div>
-    <div class="mlmid">${lbl}<span class="sc${known?'':' up'}">${sc}${pk}</span></div>
+    <div class="mlmid"><span class="sc${known?'':' up'}">${sc}${pk}</span></div>
     <div class="s a${aw?' win':''}"><span class="fl">${fl(a)}</span><span class="nm">${pt(a)}</span></div>
   </div>`;
 }
@@ -863,25 +859,12 @@ function renderMatchList(){
   }
   let h="";
   const hdr=name=>`<div class="mlround"><span>${name}</span><span class="mlx"></span></div>`;
-  // FASE DE GRUPOS — intercalada por jornada (aproximação cronológica: todos jogam a J1 antes da J2)
-  const groups=ED.groups.filter(g=>g.matches);
-  if(groups.length){
-    const chunk=g=>Math.max(1,Math.floor(groupNames(g).length/2));
-    const maxMd=Math.max(...groups.map(g=>Math.ceil(g.matches.length/chunk(g))));
-    for(let md=0;md<maxMd;md++){
-      let rows="";
-      for(const g of groups){ const c=chunk(g);
-        for(const m of g.matches.slice(md*c,(md+1)*c)) rows+=mlRow(m[0],m[1],m[2],m[3],null,null,"Grupo "+g.name);
-      }
-      if(rows) h+=hdr(`Fase de grupos · Jornada ${md+1}`)+rows;
-    }
-  }
-  // MATA-ELIMINATÓRIAS — por ronda; a disputa do 3.º/4.º vem antes da final
+  // SÓ PLAYOFFS — por ronda; a disputa do 3.º/4.º vem antes da final
   if(ED.knockout){
     const ko=ED.knockout, rounds=ko.rounds.slice();
     const finalR=rounds.length?rounds[rounds.length-1]:null;
     const emit=(name,ties)=>{ let rows="";
-      for(const t of ties){ if(!t) continue; rows+=mlRow(t.home,t.away,t.hg,t.ag,t.pens||null,tieWinner(t),null); }
+      for(const t of ties){ if(!t) continue; rows+=mlRow(t.home,t.away,t.hg,t.ag,t.pens||null,tieWinner(t)); }
       if(rows) h+=hdr(name)+rows; };
     for(const r of (finalR?rounds.slice(0,-1):rounds)) emit(r.name, r.ties.map(id=>ko.ties[id]));
     if(ko.third) emit("Disputa do 3.º/4.º lugar", [ko.third]);
@@ -902,9 +885,6 @@ function applyEditionChrome(){
     : (ED.groups.length===12
         ? `Passam os <b>2 primeiros</b> de cada grupo e os <b>8 melhores terceiros</b> (marcados a verde).`
         : `Classificações da fase de grupos.`);
-  document.getElementById("quadroDesc").innerHTML = ED.status==="closed"
-    ? `Todos os jogos por ordem cronológica, ou o quadro a eliminar.${ED.champion?` <b>${pt(ED.champion)}</b> sagrou-se campeã.`:""}`
-    : `Em preparação para esta edição em curso.`;
   document.getElementById("footer").innerHTML =
     `${ED.title} · ${ED.host}<br><span style="color:var(--dim)">${ED.source||""}</span>`;
   renderEditionRow();
