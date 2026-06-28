@@ -262,6 +262,8 @@ function simulateTeam(team, N){
   const winDist={}, loseDist={};
   function computeMatch(id){
     if(winDist[id]) return;
+    const f=KO_FINAL[id];
+    if(f){ winDist[id]=new Map([[f.winner,1]]); loseDist[id]=new Map([[f.loser,1]]); return; }   // jogo já decidido: determinista
     if(R32DEF[id]){ const [a,b]=r32[id];
       winDist[id]=new Map([[a,pWin(a,b)],[b,pWin(b,a)]]);
       loseDist[id]=new Map([[a,pWin(b,a)],[b,pWin(a,b)]]); return; }
@@ -287,10 +289,19 @@ function simulateTeam(team, N){
     else { const prev=path[k-1];
       const otherM=LATERDEF[id].map(s=>s.split(":")).find(([,m])=>m!==prev);
       oppDist = otherM[0]==="win" ? winDist[otherM[1]] : loseDist[otherM[1]]; }
-    reach[lab]=reachP; let winHere=0;
-    for(const [o,pc] of oppDist){ if(pc<=0) continue;
-      opp[lab].set(o,(opp[lab].get(o)||0)+reachP*pc); winHere += pc*pWin(team,o); }
-    const winP=reachP*winHere;
+    reach[lab]=reachP;
+    let winP;
+    const fl=KO_FINAL[id];
+    if(fl){   // jogo da própria seleção já jogado: adversário e resultado reais (determinista)
+      const o = fl.winner===team ? fl.loser : fl.winner;
+      opp[lab].set(o,(opp[lab].get(o)||0)+reachP);
+      winP = fl.winner===team ? reachP : 0;
+    } else {
+      let winHere=0;
+      for(const [o,pc] of oppDist){ if(pc<=0) continue;
+        opp[lab].set(o,(opp[lab].get(o)||0)+reachP*pc); winHere += pc*pWin(team,o); }
+      winP = reachP*winHere;
+    }
     if(id==="M104") reach["Campeão"]=winP;
     if(id==="M101"||id==="M102"){            // se perder a meia-final -> disputa do 3.º/4.º lugar
       const lossP=reachP-winP, sl=loseDist[id==="M101"?"M102":"M101"];
@@ -314,7 +325,26 @@ const ESPN_ABBR={MEX:"Mexico",RSA:"South Africa",KOR:"South Korea",CZE:"Czechia"
   NED:"Netherlands",JPN:"Japan",SWE:"Sweden",TUN:"Tunisia",
   BEL:"Belgium",EGY:"Egypt",IRN:"Iran",NZL:"New Zealand",
   ESP:"Spain",CPV:"Cape Verde",URU:"Uruguay",KSA:"Saudi Arabia",
-  FRA:"France",NOR:"Norway",SEN:"Senegal",IRQ:"Iraq"};
+  FRA:"France",NOR:"Norway",SEN:"Senegal",IRQ:"Iraq",
+  // equipas dos grupos J/K/L (necessárias para casar os jogos do mata-eliminatórias)
+  ARG:"Argentina",AUT:"Austria",ALG:"Algeria",JOR:"Jordan",
+  COL:"Colombia",POR:"Portugal",COD:"DR Congo",UZB:"Uzbekistan",
+  ENG:"England",GHA:"Ghana",CRO:"Croatia",PAN:"Panama"};
+// fallback por nome: normaliza (sem acentos/pontuação) e cobre alguns alias comuns da ESPN
+const _norm=s=>(s||"").toLowerCase().normalize("NFD").replace(/[^a-z]/g,"");   // sem acentos/pontuação/espaços
+const NAME_TO_TEAM={};
+for(const n in T) NAME_TO_TEAM[_norm(n)]=n;
+[["unitedstates","USA"],["czechrepublic","Czechia"],["korearepublic","South Korea"],
+ ["iriran","Iran"],["cotedivoire","Ivory Coast"],["caboverde","Cape Verde"],
+ ["bosniaandherzegovina","Bosnia & Herzegovina"],["democraticrepublicofcongo","DR Congo"],
+ ["congodr","DR Congo"],["turkiye","Turkey"]
+].forEach(([k,v])=>{ if(T[v]) NAME_TO_TEAM[k]=v; });
+function espnTeamToInternal(c){
+  const t=c&&c.team; if(!t) return null;
+  if(t.abbreviation&&ESPN_ABBR[t.abbreviation]) return ESPN_ABBR[t.abbreviation];
+  for(const k of [t.displayName,t.shortDisplayName,t.name,t.location]){ const n=NAME_TO_TEAM[_norm(k)]; if(n) return n; }
+  return null;
+}
 function statVal(stats,names){ if(!Array.isArray(stats)) return null;
   for(const s of stats){ if(names.includes(s.name)||names.includes(s.type)){ const v=Number(s.value); if(Number.isFinite(v)) return v; } }
   return null; }
@@ -358,10 +388,12 @@ let SEL_TEAM = POR;     // seleção escolhida no separador Percurso (banner = s
 let CUR = null;
 let ODDS = null;
 let LIVE = { J:[{},{}], K:[{},{}], L:[{},{}] };   // {state,minute} por jogo (preenchido pelo ESPN)
+let KO_FINAL = {};   // "M##" -> {winner,loser,hg,ag} resultado real trancado do mata-eliminatórias (persiste)
+let KO_LIVE  = {};   // "M##" -> {hg,ag,state,minute} snapshot transitório por fetch (placar nos cartões)
 let VIEW = "prob";   // "prob" = probabilidades pré-jogo · "result" = adversário com o resultado atual
 
 const LS_KEY="mundial2026:v2";
-function saveState(){ try{ localStorage.setItem(LS_KEY, JSON.stringify({scores:SCORES, view:VIEW, manual:[...MANUAL], final:FINAL})); }catch(e){} }
+function saveState(){ try{ localStorage.setItem(LS_KEY, JSON.stringify({scores:SCORES, view:VIEW, manual:[...MANUAL], final:FINAL, koFinal:KO_FINAL})); }catch(e){} }
 function loadState(){
   try{
     const o=JSON.parse(localStorage.getItem(LS_KEY)||"null"); if(!o) return;
@@ -371,6 +403,10 @@ function loadState(){
       if(/^[JKL]:[01]$/.test(k)&&Array.isArray(s)&&Number.isFinite(s[0])&&Number.isFinite(s[1])){
         FINAL[k]=[s[0]|0,s[1]|0]; LSCORE[k[0]][+k[2]]=FINAL[k].slice();   // o resultado final trancado é também a verdade live
       } }
+    if(o.koFinal&&typeof o.koFinal==="object") for(const id in o.koFinal){ const f=o.koFinal[id];
+      if(/^M\d+$/.test(id)&&ALLDEF[id]&&f&&f.winner&&f.loser)
+        KO_FINAL[id]={winner:f.winner, loser:f.loser, hg:f.hg|0, ag:f.ag|0};   // PICKS sincronizados após recompute()
+    }
     if(o.view==="result"||o.view==="prob") VIEW=o.view;
   }catch(e){}
 }
@@ -629,18 +665,20 @@ const COLS=[
   {name:"Meias",   ids:["M101","M102"]},
   {name:"Final",   ids:["M104"]}
 ];
-function koSide(id, side, S, both, pick){
+function koSide(id, side, S, both, pick, score, isWin, locked){
   const isPick=pick===side, isDim=pick&&pick!==side, por=S.name===POR;
   const cls=["koteam"];
   if(!S.name) cls.push("tbd");
   if(isPick) cls.push("pick");
   if(isDim)  cls.push("dim");
   if(por)    cls.push("por");
+  if(isWin)  cls.push("kowin");           // vencedor real trancado
   const nm = S.name? pt(S.name) : (S.ph||S.tag||"A definir");
   const flg= S.name? fl(S.name) : "·";
   const tag= (S.name&&S.tag)? `<span class="src">${S.tag}</span>` : "";
-  return `<button class="${cls.join(' ')}" data-id="${id}" data-side="${side}" ${both?'':'disabled'}>
-    <span class="fl">${flg}</span><span class="nm">${nm}</span>${tag}</button>`;
+  const scEl= Number.isFinite(score)? `<span class="kosc">${score}</span>` : "";
+  return `<button class="${cls.join(' ')}" data-id="${id}" data-side="${side}" ${both&&!locked?'':'disabled'}>
+    <span class="fl">${flg}</span><span class="nm">${nm}</span>${tag}${scEl}</button>`;
 }
 function koCard(id){
   const def=ALLDEF[id];
@@ -648,10 +686,19 @@ function koCard(id){
   const both=!!A.name && !!B.name, pick=PICKS[id];
   const haspor=A.name===POR||B.name===POR, champ=id==="M104";
   const num=id.slice(1);
+  // placar/estado ao vivo: o resultado trancado tem prioridade; senão o snapshot do fetch atual
+  const fin=KO_FINAL[id], lv=KO_LIVE[id];
+  const sc = fin ? {hg:fin.hg, ag:fin.ag} : (lv ? {hg:lv.hg, ag:lv.ag} : null);
+  const state = fin ? "post" : (lv ? lv.state : null);
+  const winner = fin ? fin.winner : null;
+  const chip = state==="in" ? `<span class="kostate live">${lv&&lv.minute?lv.minute+"'":"a jogar"}</span>`
+             : state==="post" ? `<span class="kostate done">Fim</span>` : "";
   const corner = champ?'<span>🏆</span>':(id==='M103'?'<span>3.º/4.º</span>':'');
-  return `<div class="ko ${haspor?'haspor':''} ${champ?'champ':''}">
-    <div class="jno"><span>JOGO ${num}</span>${corner}</div>
-    <div class="teams">${koSide(id,'a',A,both,pick)}${koSide(id,'b',B,both,pick)}</div></div>`;
+  const cls=["ko"]; if(haspor)cls.push("haspor"); if(champ)cls.push("champ");
+  if(state==="in")cls.push("inplay"); if(fin)cls.push("locked");
+  return `<div class="${cls.join(' ')}">
+    <div class="jno"><span>JOGO ${num}</span>${chip}${corner}</div>
+    <div class="teams">${koSide(id,'a',A,both,pick,sc?sc.hg:null,winner&&winner===A.name,!!fin)}${koSide(id,'b',B,both,pick,sc?sc.ag:null,winner&&winner===B.name,!!fin)}</div></div>`;
 }
 function renderKnockout(){
   let cols="";
@@ -673,6 +720,56 @@ function renderKnockout(){
 }
 
 
+/* ===================== LIVE DO MATA-ELIMINATÓRIAS ===================== */
+function koPairKey(a,b){ return [a,b].sort().join("|"); }
+// vencedor de um jogo ESPN entre A e B: usa a flag oficial 'winner'; senão, maior golo (cobre prolongamento);
+// empate sem vencedor declarado (ex.: penáltis sem dados) -> null (não tranca).
+function koWinnerOf(g,A,B){
+  if(g.winner===A||g.winner===B) return g.winner;
+  const sa=g.score[A], sb=g.score[B];
+  if(Number.isFinite(sa)&&Number.isFinite(sb)&&sa!==sb) return sa>sb?A:B;
+  return null;
+}
+// alinha PICKS com os vencedores já trancados em KO_FINAL (ordem do quadro: R32 antes das fases seguintes,
+// para que resolveSrc("win:M##") já tenha o predecessor resolvido). Descarta um tranco que deixou de encaixar.
+function syncKoPicks(){
+  for(const id in ALLDEF){ const f=KO_FINAL[id]; if(!f) continue;
+    const a=resolveSrc(ALLDEF[id][0]).name, b=resolveSrc(ALLDEF[id][1]).name;
+    if(f.winner===a) PICKS[id]="a";
+    else if(f.winner===b) PICKS[id]="b";
+    else delete KO_FINAL[id];   // a estrutura do quadro mudou; este resultado já não pertence a este cartão
+  }
+}
+// casa cada jogo real (por par de equipas) ao cartão correspondente; tranca vencedores e regista o placar ao vivo
+function applyKnockoutLive(espnGames){
+  const byPair={}; for(const g of espnGames) byPair[koPairKey(g.teams[0],g.teams[1])]=g;
+  KO_LIVE={};                       // snapshot transitório reconstruído a cada fetch
+  let changed=false, lockedNew=true, guard=0;
+  while(lockedNew && guard++<8){ lockedNew=false;
+    for(const id in ALLDEF){
+      const A=resolveSrc(ALLDEF[id][0]).name, B=resolveSrc(ALLDEF[id][1]).name;
+      if(!A||!B) continue;                                   // cartão ainda sem as duas equipas definidas
+      const g=byPair[koPairKey(A,B)]; if(!g) continue;       // sem jogo real correspondente
+      const hg=g.score[A], ag=g.score[B];
+      if(g.state==="post"){
+        const w=koWinnerOf(g,A,B); if(!w) continue;          // empate sem vencedor declarado: não tranca
+        KO_LIVE[id]={hg,ag,state:"post",minute:90};
+        const prev=KO_FINAL[id];
+        if(!prev || prev.winner!==w){
+          if(prev && prev.winner!==w) clearDescendants(id);  // correção de um resultado já trancado -> limpa o ramo
+          KO_FINAL[id]={winner:w, loser:w===A?B:A, hg:hg|0, ag:ag|0};
+          PICKS[id]= w===A ? "a" : "b";
+          changed=true; lockedNew=true;                      // novo tranco -> re-resolver os ramos seguintes
+        }
+      } else if(g.state==="in" && !KO_FINAL[id]){
+        KO_LIVE[id]={hg,ag,state:"in",minute:g.minute|0};
+        changed=true;                                        // jogo a decorrer -> refresca o cartão
+      }
+    }
+  }
+  return changed;
+}
+
 const LIVE_ENABLED = true;
 const ESPN_URL = "https://site.api.espn.com/apis/site/v2/sports/soccer/fifa.world/scoreboard";
 // Mesma ordem do GROUPS[*].rem, em siglas ESPN. Casamos por sigla -> casa/fora e indiferente.
@@ -684,12 +781,16 @@ const ESPN_PAIRS = {
 function setLiveStatus(txt,cls){ const el=document.getElementById("liveStatus"); if(el){ el.textContent=txt; el.className="livestatus"+(cls?(" "+cls):""); } }
 // datas (YYYYMMDD) dos jogos para pedir ao ESPN — o scoreboard "de hoje" deixa de listar jogos já terminados,
 // por isso pedimos explicitamente os dias de cada jogo (e o anterior, por fuso) para apanhar os resultados finais.
+function ymd(t){ const d=new Date(t); return ""+d.getUTCFullYear()+String(d.getUTCMonth()+1).padStart(2,"0")+String(d.getUTCDate()).padStart(2,"0"); }
 function espnDates(){
-  const set=new Set();
-  for(const G in KICKOFF){ const t=koTs(G);
-    for(const off of [-1,0]){ const d=new Date(t+off*86400000);
-      set.add(""+d.getUTCFullYear()+String(d.getUTCMonth()+1).padStart(2,"0")+String(d.getUTCDate()).padStart(2,"0")); }
-  }
+  const set=new Set(), now=Date.now();
+  // hoje e ontem (±1 dia por causa do fuso) — apanha jogos a decorrer e os que terminaram há pouco
+  for(const off of [-1,0]) set.add(ymd(now+off*86400000));
+  // jogos de grupo (J/K/L) ainda em aberto
+  for(const G in KICKOFF){ const t=koTs(G); for(const off of [-1,0]) set.add(ymd(t+off*86400000)); }
+  // jogos do mata-eliminatórias já agendados (≤ hoje) e ainda por trancar — re-consulta o dia para apanhar o resultado
+  for(const id in SCHED){ if(KO_FINAL[id]) continue; const t=Date.parse(SCHED[id].d+"T12:00:00Z");
+    if(Number.isFinite(t) && t<=now+86400000) for(const off of [-1,0]) set.add(ymd(t+off*86400000)); }
   return [...set].sort();
 }
 function stateRank(s){ return s==="post"?2 : s==="in"?1 : 0; }
@@ -722,7 +823,8 @@ async function fetchLive(manual){
     for(const j of jsons){ if(j&&Array.isArray(j.events)) events.push(...j.events); }
     if(!events.length) throw new Error("sem eventos");
 
-    const gmap={};                         // sigla ESPN -> {score, state, minute}
+    const gmap={};                         // sigla ESPN -> {score, state, minute} (usado pelos grupos J/K/L)
+    const egame={};                        // id do jogo -> {teams,score,winner,state,minute} (usado pelo mata-eliminatórias)
     for(const ev of events){
       const comp=ev.competitions&&ev.competitions[0]; if(!comp) continue;
       const st=comp.status||ev.status||{};
@@ -733,13 +835,21 @@ async function fetchLive(manual){
         else if(Number.isFinite(st.clock)) minute=Math.round(st.clock/60);
         else minute = state==="post" ? 90 : 0;
       }
+      const parts=[];
       for(const c of (comp.competitors||[])){
-        const ab=c.team&&c.team.abbreviation, sc=parseInt(c.score,10);
-        if(!ab) continue;
-        const prev=gmap[ab]; if(prev && stateRank(prev.state)>stateRank(state)) continue;  // mantém o estado mais avançado (post > in > pre)
-        gmap[ab]={score:Number.isFinite(sc)?sc:null, state, minute};
+        const ab=c.team&&c.team.abbreviation, sc=parseInt(c.score,10), score=Number.isFinite(sc)?sc:null;
+        if(ab){ const prev=gmap[ab]; if(!(prev && stateRank(prev.state)>stateRank(state))) gmap[ab]={score, state, minute}; }
+        const nm=espnTeamToInternal(c); if(nm) parts.push({name:nm, score, winner:c.winner===true});
+      }
+      if(parts.length===2 && parts[0].name!==parts[1].name){
+        const id=ev.id||(parts[0].name+"|"+parts[1].name), prev=egame[id];
+        if(!(prev && stateRank(prev.state)>stateRank(state)))
+          egame[id]={teams:[parts[0].name,parts[1].name],
+            score:{[parts[0].name]:parts[0].score,[parts[1].name]:parts[1].score},
+            winner:parts[0].winner?parts[0].name:(parts[1].winner?parts[1].name:null), state, minute};
       }
     }
+    const espnGames=Object.values(egame);
 
     const rem={}, live={};
     for(const G of "JKL".split("")){
@@ -758,17 +868,20 @@ async function fetchLive(manual){
       }
     }
 
+    // mata-eliminatórias: casa os jogos reais aos cartões do quadro (por par de equipas) e tranca vencedores
+    const koChanged=applyKnockoutLive(espnGames);
+
     const updated=new Date().toLocaleTimeString("pt-PT",{hour:"2-digit",minute:"2-digit"});
-    // o live só mexe em LSCORE; quando o placar/estado de J/K/L muda, recalcula todo o mundo
-    if(applyLive({rem})||finalsChanged) scoreChanged();
-    const allDone="JKL".split("").every(G=>[0,1].every(mi=>FINAL[G+":"+mi]));
-    setLiveStatus(allDone?("terminado · "+updated):("ao vivo · "+updated), allDone?"":"ok");
+    // o live só mexe em LSCORE; quando o placar/estado de J/K/L (ou do mata-eliminatórias) muda, recalcula todo o mundo
+    if(applyLive({rem})||finalsChanged||koChanged) scoreChanged();
+    const champ=!!KO_FINAL["M104"];
+    setLiveStatus(champ?("terminado · "+updated):("ao vivo · "+updated), champ?"":"ok");
   }catch(e){ setLiveStatus(manual?"sem ligação — tenta de novo":"sem ligação","warn"); }
 }
 
 /* ===================== INTEGRAÇÃO COM O HUB ===================== */
 let _inited=false,_mounted=false,_hubOnChange=null;
-function _ensureInit(){ if(_inited) return; _inited=true; loadState(); recompute(); }
+function _ensureInit(){ if(_inited) return; _inited=true; loadState(); recompute(); syncKoPicks(); }
 
 /* renders que pertencem ao hub (grupos/terceiros/percurso completo) ficam neutralizados;
    quando o motor quer refrescar o percurso, pede ao hub via _hubOnChange */
@@ -780,6 +893,7 @@ function scoreChanged(){ recompute(); renderKnockout(); saveState(); if(_hubOnCh
 function _onKoClick(e){
   const b=e.target.closest("button.koteam"); if(!b||b.disabled) return;
   const id=b.dataset.id, side=b.dataset.side;
+  if(KO_FINAL[id]) return;   // resultado real trancado: não se altera manualmente
   if(PICKS[id]===side) delete PICKS[id]; else PICKS[id]=side;
   clearDescendants(id); renderKnockout(); if(_hubOnChange) _hubOnChange();
 }
@@ -792,7 +906,7 @@ function mount(opts){
     if(LIVE_ENABLED){ fetchLive(false); setInterval(()=>fetchLive(false),60000); } }
   renderKnockout();
 }
-function reset(){ PICKS={}; renderKnockout(); if(_hubOnChange) _hubOnChange(); }
+function reset(){ PICKS={}; syncKoPicks(); recompute(); renderKnockout(); saveState(); if(_hubOnChange) _hubOnChange(); }   // limpa escolhas manuais; resultados reais trancados mantêm-se
 
 /* percurso: o mata-eliminatórias, no MESMO timeline da fase de grupos (prefix = etapa de grupos do hub) */
 function percursoStagesHTML(t, prefix){
