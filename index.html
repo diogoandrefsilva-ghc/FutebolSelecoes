@@ -481,10 +481,17 @@
   .gpm .predline.p2{opacity:.82}
   .gpm .predline.p2 .pp{color:var(--mut)}
   .gpm .predline.pe{margin-top:1px;opacity:.92}
-  .gpm .predline.sel .nm{color:var(--cyan)}
+  .gpm .predline.sel .nm{color:var(--cyan);font-weight:700}
   .gpm .s.me .nm{color:var(--cyan)}
   /* jogo do caminho possível da seleção: realce mais leve (tracejado) que o jogo certo */
-  .gpm.tm.poss{border-style:dashed;background:linear-gradient(90deg,rgba(54,224,200,.06),transparent)}
+  .gpm.tm.poss{border-style:dashed;border-color:rgba(54,224,200,.5);
+    background:linear-gradient(90deg,rgba(54,224,200,.12),rgba(54,224,200,.02))}
+  /* ênfase reforçada dos jogos da seleção na lista: barra lateral + halo subtil */
+  .mllist .gpm.tm{border-color:rgba(198,255,61,.55);
+    background:linear-gradient(90deg,rgba(198,255,61,.14),transparent);
+    box-shadow:inset 4px 0 0 var(--lime),0 0 14px rgba(198,255,61,.13)}
+  .mllist .gpm.tm.poss{border-color:rgba(54,224,200,.55);
+    box-shadow:inset 4px 0 0 var(--cyan),0 0 14px rgba(54,224,200,.13)}
 </style>
 </head>
 <body>
