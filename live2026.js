@@ -871,6 +871,61 @@ schedLabel=function(id){ const s=SCHED[id]; if(!s) return "";
   return `${wd}, ${day} ${mon}${timeTxt} · ${s.v}, ${s.c}`;
 };
 
-window.LIVE2026={ mount, reset, percursoStagesHTML, renderKnockout:function(){ _ensureInit(); renderKnockout(); } };
+/* ===== HUB · fase atual de uma seleção apurada (reflete os picks do bracket interativo) ===== */
+function currentStage(t){
+  _ensureInit();
+  const m0=teamR32Match(t);
+  if(!m0 || r32TeamsOf(m0).includes(null)) return null;          // eliminada nos grupos / grupos por fechar
+  let cur=m0;
+  while(WIN_PARENT[cur] && matchWinner(cur)===t) cur=WIN_PARENT[cur];   // sobe enquanto for a vencedora escolhida
+  if(cur==="M104" && matchWinner("M104")===t) return {label:"Campeão", cls:"win"};
+  const FULL={"16-avos":"16-avos de final","Oitavos":"Oitavos de final","Quartos":"Quartos de final","Meias-finais":"Meias-finais","Final":"Final"};
+  const lab=ROUND_OF2[cur]||"16-avos";
+  return {label:FULL[lab]||lab, cls:"live"};
+}
+
+/* ===== HUB · lista cronológica: jogos J/K/L + calendário oficial do mata-eliminatórias ===== */
+function matchListHTML(selTeam){
+  _ensureInit();
+  const ME=selTeam||SEL_TEAM;
+  const hdr=name=>`<div class="mlround"><span>${name}</span><span class="mlx"></span></div>`;
+  const row=(h,a,hg,ag,o)=>{ o=o||{};
+    const known=hg!=null&&ag!=null;
+    const hw=o.winner?o.winner===h:(known&&hg>ag), aw=o.winner?o.winner===a:(known&&ag>hg);
+    const sc=known?`${hg}–${ag}`:(o.scTxt||"—");
+    const tm=(h===ME||a===ME)?" tm":"";
+    const lbl=o.label?`<span class="grpl">${o.label}</span>`:"";
+    const nmH=h?pt(h):(o.phH||"A definir"), flH=h?fl(h):"·";
+    const nmA=a?pt(a):(o.phA||"A definir"), flA=a?fl(a):"·";
+    return `<div class="gpm${tm}">
+      <div class="s h${hw?' win':''}"><span class="nm">${nmH}</span><span class="fl">${flH}</span></div>
+      <div class="mlmid">${lbl}<span class="sc${known?'':' up'}">${sc}</span></div>
+      <div class="s a${aw?' win':''}"><span class="fl">${flA}</span><span class="nm">${nmA}</span></div>
+    </div>`; };
+  let h="";
+  // Fase de grupos — só J/K/L têm jogo-a-jogo nesta edição (A–I entram como classificação final)
+  for(const G of "JKL".split("")){
+    const ms=groupMatches(G); if(!ms) continue;
+    h+=hdr(`Fase de grupos · Grupo ${G}`);
+    for(const m of ms) h+=row(m.h,m.a,m.hg,m.ag,{scTxt:m.inplay?"a jogar":"por jogar"});
+  }
+  h+=`<div class="livenote" style="margin-top:12px"><span class="ic">ℹ️</span><div class="tx">Os grupos <b>A–I</b> entram nos dados como <b>classificação final</b> — vê-os no separador <b>Grupos</b>.</div></div>`;
+  // Mata-eliminatórias — calendário oficial FIFA, ordenado por data · hora
+  const tmin=s=>{ const m=s&&s.t&&/(\d{1,2}):(\d{2})/.exec(s.t); return m?(+m[1]*60+ +m[2]):0; };
+  const ids=Object.keys(SCHED).sort((x,y)=>{ const a=SCHED[x],b=SCHED[y]; return a.d!==b.d?(a.d<b.d?-1:1):(tmin(a)-tmin(b)); });
+  const FULL={"16-avos":"16-avos de final","Oitavos":"Oitavos de final","Quartos":"Quartos de final"};
+  let cur="";
+  for(const id of ids){
+    const rlab=FULL[ROUND_OF2[id]]||ROUND_OF2[id];
+    if(rlab!==cur){ cur=rlab; h+=hdr(rlab); }
+    const def=ALLDEF[id], A=resolveSrc(def[0]), B=resolveSrc(def[1]);
+    h+=row(A.name,B.name,null,null,{scTxt:"vs", winner:matchWinner(id),
+      phH:A.tag||A.ph||"A definir", phA:B.tag||B.ph||"A definir"});
+    h+=`<div class="mlwhen">📅 <span class="v">${schedLabel(id)}</span></div>`;
+  }
+  return h;
+}
+
+window.LIVE2026={ mount, reset, percursoStagesHTML, currentStage, matchListHTML, renderKnockout:function(){ _ensureInit(); renderKnockout(); } };
 
 })();
