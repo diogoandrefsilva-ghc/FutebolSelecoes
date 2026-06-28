@@ -199,14 +199,14 @@ function teamGroupResult(team){
 
 /* ============ CALENDÁRIO DO MATA-ELIMINATÓRIAS (oficial FIFA 2026) ============ */
 const SCHED={
-  M73:{d:"2026-06-28",v:"SoFi Stadium",c:"Los Angeles"},        M74:{d:"2026-06-29",v:"Gillette Stadium",c:"Boston"},
-  M75:{d:"2026-06-29",v:"Estádio BBVA",c:"Monterrey"},          M76:{d:"2026-06-29",v:"NRG Stadium",c:"Houston"},
-  M77:{d:"2026-06-30",v:"MetLife Stadium",c:"Nova Iorque/NJ"},  M78:{d:"2026-06-30",v:"AT&T Stadium",c:"Dallas"},
-  M79:{d:"2026-06-30",v:"Estádio Azteca",c:"Cidade do México"}, M80:{d:"2026-07-01",v:"Mercedes-Benz Stadium",c:"Atlanta"},
-  M81:{d:"2026-07-01",v:"Levi's Stadium",c:"São Francisco"},    M82:{d:"2026-07-01",v:"Lumen Field",c:"Seattle"},
-  M83:{d:"2026-07-02",v:"BMO Field",c:"Toronto"},               M84:{d:"2026-07-02",v:"SoFi Stadium",c:"Los Angeles"},
-  M85:{d:"2026-07-02",v:"BC Place",c:"Vancouver"},              M86:{d:"2026-07-03",v:"Hard Rock Stadium",c:"Miami"},
-  M87:{d:"2026-07-03",v:"Arrowhead Stadium",c:"Kansas City"},   M88:{d:"2026-07-03",v:"AT&T Stadium",c:"Dallas"},
+  M73:{d:"2026-06-28",t:"15:00 ET",v:"SoFi Stadium",c:"Los Angeles"},        M74:{d:"2026-06-29",t:"16:30 ET",v:"Gillette Stadium",c:"Boston"},
+  M75:{d:"2026-06-29",t:"21:00 ET",v:"Estádio BBVA",c:"Monterrey"},          M76:{d:"2026-06-29",t:"13:00 ET",v:"NRG Stadium",c:"Houston"},
+  M77:{d:"2026-06-30",t:"17:00 ET",v:"MetLife Stadium",c:"Nova Iorque/NJ"},  M78:{d:"2026-06-30",t:"13:00 ET",v:"AT&T Stadium",c:"Dallas"},
+  M79:{d:"2026-06-30",t:"21:00 ET",v:"Estádio Azteca",c:"Cidade do México"}, M80:{d:"2026-07-01",t:"12:00 ET",v:"Mercedes-Benz Stadium",c:"Atlanta"},
+  M81:{d:"2026-07-01",t:"20:00 ET",v:"Levi's Stadium",c:"São Francisco"},    M82:{d:"2026-07-01",t:"16:00 ET",v:"Lumen Field",c:"Seattle"},
+  M83:{d:"2026-07-02",t:"19:00 ET",v:"BMO Field",c:"Toronto"},               M84:{d:"2026-07-02",t:"15:00 ET",v:"SoFi Stadium",c:"Los Angeles"},
+  M85:{d:"2026-07-02",t:"23:00 ET",v:"BC Place",c:"Vancouver"},              M86:{d:"2026-07-03",t:"18:00 ET",v:"Hard Rock Stadium",c:"Miami"},
+  M87:{d:"2026-07-03",t:"21:30 ET",v:"Arrowhead Stadium",c:"Kansas City"},   M88:{d:"2026-07-03",t:"14:00 ET",v:"AT&T Stadium",c:"Dallas"},
   M89:{d:"2026-07-04",t:"17:00 ET",v:"Lincoln Financial Field",c:"Filadélfia"},
   M90:{d:"2026-07-04",t:"13:00 ET",v:"NRG Stadium",c:"Houston"},
   M91:{d:"2026-07-05",t:"16:00 ET",v:"MetLife Stadium",c:"Nova Iorque/NJ"},
@@ -247,40 +247,61 @@ function pWin(a,b){ return 1/(1+Math.pow(10,(eloRating(b)-eloRating(a))/400)); }
 /* ============ SIMULAÇÃO DO PERCURSO DE UMA SELEÇÃO (Monte Carlo) ============ */
 function r32TeamsOf(id){ return ALLDEF[id].map(src=>resolveSrc(src).name); }   // equipas concretas nos 16-avos
 function teamR32Match(team){ for(const id in R32DEF){ if(r32TeamsOf(id).includes(team)) return id; } return null; }
-// Devolve, para 'team': prob. de chegar a cada fase e a distribuição de adversários (condicional a lá chegar)
+// Devolve, para 'team': prob. de chegar a cada fase e a distribuição de adversários (condicional a lá chegar).
+// Cálculo EXACTO por propagação de probabilidades no quadro (em vez de Monte Carlo): cada jogo é
+// independente e a sua distribuição de vencedor/perdedor sai das distribuições dos dois jogos-filho.
+// Vantagem: TODO o adversário estruturalmente possível aparece com a sua probabilidade real (por mais
+// ínfima que seja — ex.: a África do Sul ou o Paraguai numa meia-final), sem ruído de amostragem.
+// reach[fase] = probabilidade (0..1) de a equipa lá chegar; opp[fase] = Map(adversário -> prob. CONJUNTA
+// de chegar a essa fase e defrontá-lo). Mantém N=1 para o consumo a jusante (p = reach/N, cond = conj/reach).
 function simulateTeam(team, N){
   const m0=teamR32Match(team); if(!m0) return null;
   const r32={}; for(const id in R32DEF) r32[id]=r32TeamsOf(id);
   if(r32[m0].includes(null)) return {m0, incomplete:true};
+  // distribuição de quem EMERGE (vence) e de quem PERDE cada jogo
+  const winDist={}, loseDist={};
+  function computeMatch(id){
+    if(winDist[id]) return;
+    if(R32DEF[id]){ const [a,b]=r32[id];
+      winDist[id]=new Map([[a,pWin(a,b)],[b,pWin(b,a)]]);
+      loseDist[id]=new Map([[a,pWin(b,a)],[b,pWin(a,b)]]); return; }
+    const sides=LATERDEF[id].map(s=>{ const [k,m]=s.split(":"); computeMatch(m); return k==="win"?winDist[m]:loseDist[m]; });
+    const [D1,D2]=sides, w=new Map(), l=new Map();
+    for(const [t1,p1] of D1) for(const [t2,p2] of D2){ const pp=p1*p2; if(pp<=0) continue;
+      const a=pWin(t1,t2);
+      w.set(t1,(w.get(t1)||0)+pp*a);     w.set(t2,(w.get(t2)||0)+pp*(1-a));
+      l.set(t2,(l.get(t2)||0)+pp*a);     l.set(t1,(l.get(t1)||0)+pp*(1-a)); }
+    winDist[id]=w; loseDist[id]=l;
+  }
+  for(const id of SIM_ORDER) computeMatch(id);
+
   const STAGES=["16-avos","Oitavos","Quartos","Meias-finais","Final","3.º/4.º lugar","Campeão"];
   const reach={}, opp={}; STAGES.forEach(s=>{reach[s]=0; opp[s]=new Map();});
-  N=N||30000;
-  for(let n=0;n<N;n++){
-    const win={}, lose={};
-    for(const id in R32DEF){ const [a,b]=r32[id]; const w=Math.random()<pWin(a,b)?a:b; win[id]=w; lose[id]=w===a?b:a; }
-    for(const id of SIM_ORDER){
-      const [a,b]=LATERDEF[id].map(s=>{ const [k,m]=s.split(":"); return k==="win"?win[m]:lose[m]; });
-      const w=Math.random()<pWin(a,b)?a:b; win[id]=w; lose[id]=w===a?b:a;
+  const path=[]; { let c=m0; path.push(c); while(WIN_PARENT[c]){ c=WIN_PARENT[c]; path.push(c);} }
+  let reachP=1;
+  for(let k=0;k<path.length;k++){
+    const id=path[k], lab=ROUND_OF2[id];
+    // distribuição do adversário neste jogo (o vencedor do OUTRO ramo)
+    let oppDist;
+    if(R32DEF[id]){ const o=r32[id].find(t=>t!==team); oppDist=new Map([[o,1]]); }
+    else { const prev=path[k-1];
+      const otherM=LATERDEF[id].map(s=>s.split(":")).find(([,m])=>m!==prev);
+      oppDist = otherM[0]==="win" ? winDist[otherM[1]] : loseDist[otherM[1]]; }
+    reach[lab]=reachP; let winHere=0;
+    for(const [o,pc] of oppDist){ if(pc<=0) continue;
+      opp[lab].set(o,(opp[lab].get(o)||0)+reachP*pc); winHere += pc*pWin(team,o); }
+    const winP=reachP*winHere;
+    if(id==="M104") reach["Campeão"]=winP;
+    if(id==="M101"||id==="M102"){            // se perder a meia-final -> disputa do 3.º/4.º lugar
+      const lossP=reachP-winP, sl=loseDist[id==="M101"?"M102":"M101"];
+      let tot=0; for(const [,p] of sl) tot+=p;
+      reach["3.º/4.º lugar"]=lossP;
+      for(const [o,p] of sl){ if(p<=0||tot<=0) continue;
+        opp["3.º/4.º lugar"].set(o,(opp["3.º/4.º lugar"].get(o)||0)+lossP*(p/tot)); }
     }
-    const teamsAt=id=> R32DEF[id]? r32[id]
-      : LATERDEF[id].map(s=>{ const [k,m]=s.split(":"); return k==="win"?win[m]:lose[m]; });
-    // percorre o caminho da equipa enquanto for vencendo
-    let cur=m0;
-    while(true){
-      const [a,b]=teamsAt(cur); const o=a===team?b:a; const rn=ROUND_OF2[cur];
-      reach[rn]++; if(o) opp[rn].set(o,(opp[rn].get(o)||0)+1);
-      if(win[cur]!==team){
-        if((cur==="M101"||cur==="M102")){       // perdeu a meia-final -> joga o 3.º/4.º lugar
-          const m3="M103", [c,d]=teamsAt(m3), o3=c===team?d:c;
-          reach["3.º/4.º lugar"]++; if(o3) opp["3.º/4.º lugar"].set(o3,(opp["3.º/4.º lugar"].get(o3)||0)+1);
-        }
-        break;
-      }
-      if(cur==="M104"){ reach["Campeão"]++; break; }
-      cur=WIN_PARENT[cur];
-    }
+    reachP=winP;
   }
-  return {m0, reach, opp, N, r32Opp:r32[m0].find(t=>t!==team)};
+  return {m0, reach, opp, N:1, r32Opp:r32[m0].find(t=>t!==team)};
 }
 
 /* ============ CLASSIFICAÇÕES AO VIVO (ESPN) — completa os golos dos grupos A–I ============ */
@@ -773,19 +794,20 @@ function mount(opts){
 }
 function reset(){ PICKS={}; renderKnockout(); if(_hubOnChange) _hubOnChange(); }
 
-/* percurso: SÓ a parte do mata-eliminatórias (o hero/grupos são do hub) */
-function percursoStagesHTML(t){
+/* percurso: o mata-eliminatórias, no MESMO timeline da fase de grupos (prefix = etapa de grupos do hub) */
+function percursoStagesHTML(t, prefix){
   _ensureInit();
+  prefix=prefix||"";
   const m0=teamR32Match(t);
-  if(!m0) return `<div class="resultline">Não se apurou para o mata-eliminatórias.</div>`;
+  if(!m0) return `<div class="stagewrap">${prefix}</div>`;   // eliminada nos grupos (a etapa de grupos já o diz)
   if(r32TeamsOf(m0).includes(null))
-    return `<div class="livenote"><span class="ic">🧭</span><div class="tx">A aguardar o fecho dos grupos para traçar o caminho.</div></div>`;
+    return `<div class="stagewrap">${prefix}</div><div class="livenote"><span class="ic">🧭</span><div class="tx">A aguardar o fecho dos grupos para traçar o caminho.</div></div>`;
   const sim=simulateTeam(t,40000);
   if(!sim||sim.incomplete)
-    return `<div class="livenote"><span class="ic">🧭</span><div class="tx">A aguardar o fecho dos grupos.</div></div>`;
+    return `<div class="stagewrap">${prefix}</div><div class="livenote"><span class="ic">🧭</span><div class="tx">A aguardar o fecho dos grupos.</div></div>`;
   const path=teamPathMatches(m0);
   const labels=["16-avos","Oitavos","Quartos","Meias-finais","Final"];
-  let h=`<div class="stagewrap">`;
+  let h=`<div class="stagewrap">`+prefix;
   labels.forEach((lab,k)=>{
     const id=path[k]; const rc=sim.reach[lab]||0, p=rc/sim.N;
     const cls=p>=0.999?"done":p>0?"reachable":"gone";
@@ -819,31 +841,34 @@ oppLinesHTML=function(map, reachCount){
   const certain = entries.length===1 && entries[0][1]/reachCount>=0.999;
   const line=([o,c])=>{
     const p=c/reachCount, por=o===POR?' por':'';
-    if(certain) return `<div class="oppline cert${por}"><span class="of">${fl(o)}</span><span class="on">${pt(o)}</span><span class="op solo">único possível</span></div>`;
+    if(certain) return `<div class="oppline cert${por}"><span class="of">${fl(o)}</span><span class="on">${pt(o)}</span></div>`;   // 100% = jogo já agendado: sem rótulo
     const pn=p>=0.995?99:(p<0.01?0:Math.round(p*100)), pct=pn<1?'<1%':pn+'%';   // nunca 100% se não é certeza
     return `<div class="oppline${por}"><span class="of">${fl(o)}</span><span class="on">${pt(o)}</span>
       <span class="obar"><i style="width:${Math.max(2,Math.round(p*100))}%"></i></span><span class="op">${pct}</span></div>`;
   };
   let h=`<div class="oppwrap">`+entries.slice(0,3).map(line).join('');
   if(entries.length>3){
-    h+=`<details class="oppdetails"><summary>＋ ver os outros ${entries.length-3} adversários possíveis ▾</summary>`
+    const more=entries.length-3, lbl=more===1?'o outro adversário possível':('os outros '+more+' adversários possíveis');
+    h+=`<details class="oppdetails"><summary>＋ ver ${lbl} ▾</summary>`
       + entries.slice(3).map(line).join('') + `</details>`;
   }
   return h+`</div>`;
 };
 
-/* item 6: hora portuguesa (converte a hora ET dos jogos para Europe/Lisbon) */
+/* item 6: hora portuguesa (converte a hora ET dos jogos para Europe/Lisbon) + dia da semana */
+const WEEKDAYS_PT=["dom","seg","ter","qua","qui","sex","sáb"];
 schedLabel=function(id){ const s=SCHED[id]; if(!s) return "";
-  let day, mon, timeTxt="";
+  let day, mon, wd, timeTxt="";
   const m=s.t && /(\d{1,2}):(\d{2})/.exec(s.t);
   if(m){
     const et=new Date(`${s.d}T${m[1].padStart(2,'0')}:${m[2]}:00-04:00`);   // ET = EDT (UTC-4) no verão
     day=Number(et.toLocaleString('en-GB',{timeZone:'Europe/Lisbon',day:'numeric'}));
     mon=MONTHS_PT[Number(et.toLocaleString('en-GB',{timeZone:'Europe/Lisbon',month:'numeric'}))-1];
+    wd=WEEKDAYS_PT[new Date(et.toLocaleString('en-US',{timeZone:'Europe/Lisbon'})).getDay()];
     const hm=et.toLocaleString('pt-PT',{timeZone:'Europe/Lisbon',hour:'2-digit',minute:'2-digit',hour12:false});
     timeTxt=' · '+hm.replace(':','h')+' (PT)';
-  } else { const dt=new Date(s.d+'T12:00:00Z'); day=dt.getUTCDate(); mon=MONTHS_PT[dt.getUTCMonth()]; }
-  return `${day} ${mon}${timeTxt} · ${s.v}, ${s.c}`;
+  } else { const dt=new Date(s.d+'T12:00:00Z'); day=dt.getUTCDate(); mon=MONTHS_PT[dt.getUTCMonth()]; wd=WEEKDAYS_PT[dt.getUTCDay()]; }
+  return `${wd}, ${day} ${mon}${timeTxt} · ${s.v}, ${s.c}`;
 };
 
 window.LIVE2026={ mount, reset, percursoStagesHTML, renderKnockout:function(){ _ensureInit(); renderKnockout(); } };

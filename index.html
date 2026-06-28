@@ -428,6 +428,12 @@
   .teamhero .nm{white-space:normal;overflow-wrap:anywhere}
   .teamhero .seedtag{position:absolute;top:10px;right:12px;margin:0}
   .teamhero .heroChev{top:auto;bottom:10px}
+  /* badge da classificação final, por baixo do nome da seleção */
+  .teamhero .finalclass{display:inline-block;margin-top:6px;font-family:Inter,sans-serif;font-size:10.5px;font-weight:800;
+    letter-spacing:.4px;text-transform:uppercase;border:1px solid var(--line2);color:var(--mut);border-radius:20px;padding:3px 10px;line-height:1}
+  .teamhero .finalclass.win{border-color:var(--gold);color:var(--gold)}
+  .teamhero .finalclass.out{border-color:var(--red);color:var(--red)}
+  .teamhero .finalclass.live{border-color:var(--cyan);color:var(--cyan)}
   /* adversários: top 3 + expandir os restantes */
   .oppdetails{margin-top:5px}
   .oppdetails > summary{list-style:none;cursor:pointer;font-size:11.5px;font-weight:600;color:var(--cyan);
@@ -638,43 +644,69 @@ function teamOptions(sel){
 }
 function selectTeam(v){ SEL_TEAM=v; renderPercurso(); renderGroups(); }
 
-function groupPhaseHTML(t, ts){
+// apurou-se da fase de grupos? (1.º/2.º sempre; 3.º só nas edições de 12 grupos, se for dos 8 melhores)
+function advancedFromGroup(t, ts){
+  if(!ts) return false;
+  if(ts.pos<=2) return true;
+  if(ts.pos===3 && ED.groups.length===12) return bestThirds().has(t);
+  return false;
+}
+// classificação final da seleção: fase de eliminação ou pódio (Vencedor/Finalista/3.º/4.º)
+function finalClassification(t, ts){
+  if(!ts) return null;
+  if(ED.status==="live"){
+    return advancedFromGroup(t,ts) ? {label:"Em curso", cls:"live"} : {label:"Fase de grupos", cls:"out"};
+  }
+  if(ED.champion===t) return {label:"Vencedor", cls:"win"};
+  const ties=allTies().filter(x=>x.home===t||x.away===t);
+  if(!ties.length) return {label:"Fase de grupos", cls:"out"};
+  const tp=ties.find(x=>x.id==="TP");
+  if(tp) return tieWinner(tp)===t ? {label:"3.º Lugar", cls:"win"} : {label:"4.º Lugar", cls:"out"};
+  const last=ties[ties.length-1];
+  if(/Final/i.test(last.roundFull) && tieWinner(last)!==t) return {label:"Finalista", cls:""};
+  return {label:last.roundFull, cls:"out"};
+}
+
+// Fase de grupos como PRIMEIRA etapa do timeline (bolinha à esquerda); badge = lugar + apuramento/eliminação
+function groupStageHTML(t, ts){
   if(!ts) return "";
-  const G=ts.name, gm=teamGroupMatches(t);
+  const G=ts.name, adv=advancedFromGroup(t, ts), cls=adv?"done":"gone";
+  const badge=`${adv?'apurada':'eliminada'} em ${ts.pos}.º lugar`;
+  let body, gm=teamGroupMatches(t);
   if(gm){   // só os jogos desta seleção
-    let r=`<div class="gp-h">Fase de grupos · Grupo ${G} · jogos de ${pt(t)}</div><div class="gpmatches">`;
+    body=`<div class="gpmatches">`;
     for(const m of gm){
       const hw=m.hg>m.ag, aw=m.ag>m.hg;
-      r+=`<div class="gpm tm">
+      body+=`<div class="gpm tm">
         <div class="s h${hw?' win':''}"><span class="nm">${pt(m.h)}</span><span class="fl">${fl(m.h)}</span></div>
         <span class="sc">${m.hg}–${m.ag}</span>
         <div class="s a${aw?' win':''}"><span class="fl">${fl(m.a)}</span><span class="nm">${pt(m.a)}</span></div>
       </div>`;
     }
-    return r+`</div>`;
-  }
-  // sem jogo-a-jogo nesta edição -> classificação do grupo com a seleção destacada
-  let r=`<div class="gp-h">Fase de grupos · Grupo ${G}</div>
-    <table class="tbl" style="margin:0 0 6px"><thead><tr>
+    body+=`</div>`;
+  } else {   // sem jogo-a-jogo -> classificação do grupo com a seleção destacada
+    body=`<table class="tbl" style="margin:2px 0 0"><thead><tr>
       <th class="l">Equipa</th><th>J</th><th>DG</th><th>Pts</th></tr></thead><tbody>`;
-  ts.table.forEach((row,i)=>{
-    const me=row.team===t;
-    const j=(row.w!=null)?row.w+row.d+row.l:3;
-    const dg=row.gd!=null?`${row.gd>0?'+':''}${row.gd}`:"·";
-    r+=`<tr ${me?'class="row-por"':''}>
-      <td class="l"><span class="pos ${i<2?'q1':''}">${i+1}</span><span class="tflag">${fl(row.team)}</span><span class="tname">${pt(row.team)}</span></td>
-      <td>${j}</td><td>${dg}</td><td class="pts">${_n(row.pts)}</td></tr>`;
-  });
-  return r+`</tbody></table><div class="oppmore">Resultados jogo-a-jogo indisponíveis nesta edição (grupo encerrado por classificação).</div>`;
+    ts.table.forEach((row,i)=>{
+      const me=row.team===t;
+      const j=(row.w!=null)?row.w+row.d+row.l:3;
+      const dg=row.gd!=null?`${row.gd>0?'+':''}${row.gd}`:"·";
+      body+=`<tr ${me?'class="row-por"':''}>
+        <td class="l"><span class="pos ${i<2?'q1':''}">${i+1}</span><span class="tflag">${fl(row.team)}</span><span class="tname">${pt(row.team)}</span></td>
+        <td>${j}</td><td>${dg}</td><td class="pts">${_n(row.pts)}</td></tr>`;
+    });
+    body+=`</tbody></table>`;
+  }
+  return `<div class="stage ${cls}">
+    <div class="sh"><span class="sr">Grupo ${G}</span><span class="reach ${cls}">${badge}</span></div>
+    ${body}</div>`;
 }
 
-function knockoutPathHTML(t){
+function knockoutPathHTML(t, prefix){
+  prefix=prefix||"";
   const path=allTies().filter(x=>x.home===t||x.away===t);
-  if(!path.length){
-    const ts=teamStanding(t);
-    return `<div class="resultline">Terminou no <span class="wl out">${ts?ts.pos+'.º lugar':'fundo'}</span> do grupo e não se apurou para o mata-eliminatórias.</div>`;
-  }
-  let h=`<div class="stagewrap">`;
+  if(!path.length) return `<div class="stagewrap">${prefix}</div>`;   // eliminada nos grupos (a etapa de grupos já o diz)
+  let h=`<div class="stagewrap">`+prefix;
   for(const tie of path){
     const opp=tie.home===t?tie.away:tie.home;
     const won=tieWinner(tie)===t;
@@ -698,17 +730,10 @@ function renderPercurso(){
   const t=SEL_TEAM, box=document.getElementById("teamPath");
   if(!t||!ED){ box.innerHTML=`<div class="pickhint">Escolhe uma seleção para veres o percurso.</div>`; return; }
   const ts=teamStanding(t), favc=t===FAV, plays=!!ts;
-  const seed=ts?`${ts.pos}.º do Grupo ${ts.name}`:"não participou";
-  let tag;
-  if(!plays) tag="N/D";
-  else if(ED.status==="live") tag="EM CURSO";
-  else if(ED.champion===t) tag="CAMPEÃO";
-  else { const path=allTies().filter(x=>x.home===t||x.away===t);
-    tag=path.length?path[path.length-1].round.toUpperCase():"FASE DE GRUPOS"; }
+  const fc=plays?finalClassification(t,ts):null;
   let h=`<div class="teamhero ${plays?'':'out'}"><span class="bigfl">${fl(t)}</span>
     <div class="meta"><div class="nm ${favc?'por':''}">${pt(t)}</div>
-      <div class="gl"><b>${seed}</b></div></div>
-    <span class="seedtag">${tag}</span>
+      ${fc?`<div class="finalclass ${fc.cls}">${fc.label}</div>`:`<div class="gl"><b>não participou</b></div>`}</div>
     <select class="heroSel" aria-label="Trocar de seleção" onchange="selectTeam(this.value)">${teamOptions(t)}</select>
     <span class="heroChev" aria-hidden="true">⇄ Trocar</span></div>`;
   if(!plays){   // seleção do registo global que não jogou esta edição
@@ -717,12 +742,12 @@ function renderPercurso(){
     h+=`<div class="livenote"><span class="ic">🚫</span><div class="tx"><b>${pt(t)}</b> não participou no <b>${ED.title}</b>.${eds.length?` Está nos dados de: <b>${eds.join(", ")}</b> — escolhe essa edição nos chips acima.`:""}</div></div>`;
     box.innerHTML=h; return;
   }
-  h+=groupPhaseHTML(t, ts);
+  const gstage=groupStageHTML(t, ts);   // fase de grupos = 1.ª etapa do timeline
   if(ED.status==="live"){
-    if(ED.id==="2026" && window.LIVE2026){ h+=window.LIVE2026.percursoStagesHTML(t); }
-    else h+=`<div class="livenote"><span class="ic">🧭</span><div class="tx">O <b>mata-eliminatórias</b> desta edição em curso está em pausa (emparelhamento por reativar). Vê os apurados, incluindo os <span class="hl">melhores terceiros</span>, no separador <b>Grupos</b>.</div></div>`;
+    if(ED.id==="2026" && window.LIVE2026){ h+=window.LIVE2026.percursoStagesHTML(t, gstage); }
+    else h+=`<div class="stagewrap">${gstage}</div><div class="livenote"><span class="ic">🧭</span><div class="tx">O <b>mata-eliminatórias</b> desta edição em curso está em pausa (emparelhamento por reativar). Vê os apurados, incluindo os <span class="hl">melhores terceiros</span>, no separador <b>Grupos</b>.</div></div>`;
   }else{
-    h+=knockoutPathHTML(t);
+    h+=knockoutPathHTML(t, gstage);
   }
   box.innerHTML=h;
 }
