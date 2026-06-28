@@ -969,7 +969,8 @@ function matchListHTML(selTeam){
     const concreteMe=A.name===ME||B.name===ME, onPath=PATH.has(id);
     const tm = concreteMe ? " tm" : (onPath ? " tm poss" : "");   // jogo possível da seleção destacada
     const pin = (onPath && ME && !concreteMe) ? `<span class="mepin">🧭 ${fl(ME)} ${pt(ME)}</span>` : "";
-    h+=`<div class="gpm${tm}">
+    const predrow = (oA||oB) ? " predrow" : "";   // jogo por definir -> lados alinhados ao topo
+    h+=`<div class="gpm${tm}${predrow}">
       ${side(A.name, A.tag||A.ph||"A definir", oA, 'h', winner&&winner===A.name)}
       <div class="mlmid"><span class="sc up">vs</span></div>
       ${side(B.name, B.tag||B.ph||"A definir", oB, 'a', winner&&winner===B.name)}

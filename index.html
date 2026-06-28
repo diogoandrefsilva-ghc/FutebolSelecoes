@@ -460,9 +460,12 @@
   .gpm .sc .pk{display:block;font-family:Inter,sans-serif;font-size:8.5px;font-weight:600;color:var(--mut);letter-spacing:.2px;margin-top:1px}
   /* data/hora/local dentro da própria caixa do jogo (linha a toda a largura, por baixo do placar) */
   .gpm .mlin{grid-column:1/-1;font-family:Inter,sans-serif;font-size:10px;color:var(--dim);text-align:center;
-    margin-top:8px;padding-top:7px;border-top:1px dashed var(--line)}
+    margin-top:3px;padding-top:6px;border-top:1px dashed var(--line)}
   .gpm .mlin .v{color:var(--dim)}
   /* previsão dos ocupantes nos jogos por definir + realce da seleção destacada */
+  /* lados alinhados ao topo: com 2 prováveis de um lado e 3 do outro, o 3.º fica em baixo (não centrado) */
+  .gpm.predrow{align-items:start}
+  .gpm.predrow .mlmid{padding-top:13px}   /* "vs" alinhado com a 1.ª linha (compensa o rótulo) */
   .gpm .s.pred{align-items:stretch}
   .gpm .predcol{display:flex;flex-direction:column;gap:2px;min-width:0;width:100%}
   .gpm .s.h .predcol{align-items:flex-end}
