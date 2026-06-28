@@ -558,7 +558,7 @@ function renderSelecao(){
     h+=`<div class="stage ${cls}">
       <div class="sh"><span class="sr">${lab==='16-avos'?'16-avos de final':lab==='Oitavos'?'Oitavos de final':lab==='Quartos'?'Quartos de final':lab}</span>
         <span class="reach ${rcls}">${k===0?'apurada':('chega '+reachTxt)}</span></div>
-      <div class="when">📅 <span class="v">${schedLabel(id)}</span></div>
+      <div class="when"><span class="v">${schedLabel(id)}</span></div>
       ${oppLinesHTML(sim.opp[lab], rc)}</div>`;
   });
   h+=`</div>`;
@@ -570,7 +570,7 @@ function renderSelecao(){
   const tpRc=sim.reach["3.º/4.º lugar"]||0;
   if(tpRc>0){
     h+=`<div class="card" style="margin-top:12px"><div class="grp-h"><div class="nm" style="font-size:14px">Se perder a meia-final · disputa do 3.º/4.º lugar</div></div>
-      <div class="when" style="margin:0 0 8px">📅 <span class="v">${schedLabel("M103")}</span></div>
+      <div class="when" style="margin:0 0 8px"><span class="v">${schedLabel("M103")}</span></div>
       ${oppLinesHTML(sim.opp["3.º/4.º lugar"], tpRc)}</div>`;
   }
   box.innerHTML=h;
@@ -932,7 +932,7 @@ function percursoStagesHTML(t, prefix){
                     : ("probabilidade apuramento "+(p<0.01?"<1":Math.round(p*100))+" %");
     h+=`<div class="stage ${cls}"><div class="sh"><span class="sr">${lab==='16-avos'?'16-avos de final':lab==='Oitavos'?'Oitavos de final':lab==='Quartos'?'Quartos de final':lab}</span>
       <span class="reach ${rcls}">${k===0?'apurada':reachTxt}</span></div>
-      <div class="when">📅 <span class="v">${schedLabel(id)}</span></div>
+      <div class="when"><span class="v">${schedLabel(id)}</span></div>
       ${oppLinesHTML(sim.opp[lab],rc)}</div>`;
   });
   h+=`</div>`;
@@ -943,7 +943,7 @@ function percursoStagesHTML(t, prefix){
   const tpRc=sim.reach["3.º/4.º lugar"]||0;
   if(tpRc>0){
     h+=`<div class="card" style="margin-top:12px"><div class="grp-h"><div class="nm" style="font-size:14px">Se perder a meia-final · disputa do 3.º/4.º lugar</div></div>
-      <div class="when" style="margin:0 0 8px">📅 <span class="v">${schedLabel("M103")}</span></div>
+      <div class="when" style="margin:0 0 8px"><span class="v">${schedLabel("M103")}</span></div>
       ${oppLinesHTML(sim.opp["3.º/4.º lugar"],tpRc)}</div>`;
   }
   return h;
