@@ -61,8 +61,8 @@ const GROUPS={
      fixed:[["England","Croatia",4,2],["Ghana","Panama",1,0],["England","Ghana",0,0],["Croatia","Panama",1,0]],
      rem:[["Panama","England"],["Croatia","Ghana"]]}
 };
-// cenário base (chalk): vencedores actuais aguentam
-const DEFAULT={ J:[[1,1],[0,2]], K:[[1,1],[2,0]], L:[[0,2],[1,1]] };
+// resultados reais dos jogos da 3.ª jornada de J/K/L (fase de grupos concluída)
+const DEFAULT={ J:[[3,3],[1,3]], K:[[0,0],[3,1]], L:[[0,2],[2,1]] };
 
 /* ===================== MOTOR ===================== */
 function statsOf(names, matches){
