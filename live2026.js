@@ -884,25 +884,76 @@ function currentStage(t){
   return {label:FULL[lab]||lab, cls:"live"};
 }
 
-/* ===== HUB · lista cronológica: jogos J/K/L + calendário oficial do mata-eliminatórias ===== */
+/* ===== PREVISÃO DOS SLOTS POR DEFINIR (quem ocupa cada lado de cada jogo) =====
+   Para cada jogo, a distribuição de quem o VENCE e de quem o PERDE, propagada pelo modelo de
+   força (a mesma matemática do percurso) mas RESPEITANDO as escolhas já feitas (PICKS): um jogo
+   decidido pelo utilizador vira certeza e empurra-a para a frente. Serve para sugerir, nos jogos
+   ainda sem adversário ("Vencedor/Perdedor Mxx"), as seleções mais prováveis em vez de "A definir". */
+function bracketDists(){
+  const r32={}; for(const id in R32DEF) r32[id]=r32TeamsOf(id);
+  const winDist={}, loseDist={};
+  function comp(id){
+    if(winDist[id]) return;
+    const wn=matchWinner(id);                                    // já escolhido na lista/bracket?
+    if(wn){ winDist[id]=new Map([[wn,1]]); loseDist[id]=new Map([[matchLoser(id)||wn,1]]); return; }
+    if(R32DEF[id]){ const [a,b]=r32[id];
+      if(a==null||b==null){ winDist[id]=new Map(); loseDist[id]=new Map(); return; }
+      winDist[id]=new Map([[a,pWin(a,b)],[b,pWin(b,a)]]);
+      loseDist[id]=new Map([[a,pWin(b,a)],[b,pWin(a,b)]]); return; }
+    const sides=LATERDEF[id].map(s=>{ const [k,m]=s.split(":"); comp(m); return k==="win"?winDist[m]:loseDist[m]; });
+    const [D1,D2]=sides, w=new Map(), l=new Map();
+    for(const [t1,p1] of D1) for(const [t2,p2] of D2){ const pp=p1*p2; if(pp<=0) continue;
+      const a=pWin(t1,t2);
+      w.set(t1,(w.get(t1)||0)+pp*a);  w.set(t2,(w.get(t2)||0)+pp*(1-a));
+      l.set(t2,(l.get(t2)||0)+pp*a);  l.set(t1,(l.get(t1)||0)+pp*(1-a)); }
+    winDist[id]=w; loseDist[id]=l;
+  }
+  for(const id in ALLDEF) comp(id);
+  return {winDist, loseDist};
+}
+// caminho estrutural (do vencedor) de uma seleção: todos os jogos onde ela PODE vir a jogar
+function selPathSet(team){
+  const m0=team&&teamR32Match(team); if(!m0) return new Set();
+  const set=new Set([m0]); let c=m0;
+  while(WIN_PARENT[c]){ c=WIN_PARENT[c]; set.add(c); }
+  if(set.has("M101")||set.has("M102")) set.add("M103");         // se perder a meia, vai ao 3.º/4.º
+  return set;
+}
+// previsão ordenada (desc) de quem ocupa um slot "win:Mxx"/"lose:Mxx"; null nos slots concretos
+function slotPrediction(src, BD){
+  const p=src.split(":"), k=p[0], m=p[1];
+  if(k!=="win"&&k!=="lose") return null;
+  const d = k==="win" ? BD.winDist[m] : BD.loseDist[m];
+  if(!d||!d.size) return null;
+  return [...d.entries()].sort((a,b)=>b[1]-a[1]);
+}
+
+/* ===== HUB · lista cronológica: calendário oficial do mata-eliminatórias (só playoffs) ===== */
 function matchListHTML(selTeam){
   _ensureInit();
   const ME=selTeam||SEL_TEAM;
+  const BD=bracketDists(), PATH=selPathSet(ME);
   const hdr=name=>`<div class="mlround"><span>${name}</span><span class="mlx"></span></div>`;
-  const row=(h,a,hg,ag,o)=>{ o=o||{};
-    const known=hg!=null&&ag!=null;
-    const hw=o.winner?o.winner===h:(known&&hg>ag), aw=o.winner?o.winner===a:(known&&ag>hg);
-    const sc=known?`${hg}–${ag}`:(o.scTxt||"—");
-    const tm=(h===ME||a===ME)?" tm":"";
-    const nmH=h?pt(h):(o.phH||"A definir"), flH=h?fl(h):"·";
-    const nmA=a?pt(a):(o.phA||"A definir"), flA=a?fl(a):"·";
-    const when=o.when?`<div class="mlin"><span class="v">${o.when}</span></div>`:"";
-    return `<div class="gpm${tm}">
-      <div class="s h${hw?' win':''}"><span class="nm">${nmH}</span><span class="fl">${flH}</span></div>
-      <div class="mlmid"><span class="sc${known?'':' up'}">${sc}</span></div>
-      <div class="s a${aw?' win':''}"><span class="fl">${flA}</span><span class="nm">${nmA}</span></div>
-      ${when}
-    </div>`; };
+  const fmt=p=>{ const pn=p>=0.995?99:(p<0.01?0:Math.round(p*100)); return pn<1?'<1%':pn+'%'; };
+  // distribuição (top-2 + a seleção destacada, se ficar de fora) de um slot por definir
+  const predOf=src=>{ const pr=slotPrediction(src,BD); if(!pr||!pr.length) return null;
+    const total=pr.reduce((s,e)=>s+e[1],0)||1, top=pr.slice(0,2); let extra=null;
+    if(ME && !top.some(e=>e[0]===ME)){ const f=pr.find(e=>e[0]===ME); if(f) extra=f; }
+    return {total, top, extra}; };
+  const predLines=o=>{
+    const line=(e,rk)=>`<span class="predline ${rk}${e[0]===ME?' sel':''}">`
+      +`<span class="fl">${fl(e[0])}</span><span class="nm">${pt(e[0])}</span><span class="pp">${fmt(e[1]/o.total)}</span></span>`;
+    return o.top.map((e,i)=>line(e,i===0?'p1':'p2')).join('')+(o.extra?line(o.extra,'pe'):''); };
+  // um lado do jogo: concreto, ou previsão dos prováveis ocupantes, ou rótulo seco
+  const side=(name,ph,o,which,win)=>{
+    const cls=`s ${which}${win?' win':''}${name&&name===ME?' me':''}${!name&&o?' pred':''}`;
+    if(name){ const nmfl=which==='h'
+        ? `<span class="nm">${pt(name)}</span><span class="fl">${fl(name)}</span>`
+        : `<span class="fl">${fl(name)}</span><span class="nm">${pt(name)}</span>`;
+      return `<div class="${cls}">${nmfl}</div>`; }
+    if(o) return `<div class="${cls}"><span class="predcol"><span class="plabel">${ph}</span>${predLines(o)}</span></div>`;
+    return `<div class="${cls}"><span class="nm">${ph}</span><span class="fl">·</span></div>`;
+  };
   let h="";
   // Só playoffs — calendário oficial FIFA, ordenado por data · hora; data/hora/local dentro da caixa
   const tmin=s=>{ const m=s&&s.t&&/(\d{1,2}):(\d{2})/.exec(s.t); return m?(+m[1]*60+ +m[2]):0; };
@@ -913,8 +964,17 @@ function matchListHTML(selTeam){
     const rlab=FULL[ROUND_OF2[id]]||ROUND_OF2[id];
     if(rlab!==cur){ cur=rlab; h+=hdr(rlab); }
     const def=ALLDEF[id], A=resolveSrc(def[0]), B=resolveSrc(def[1]);
-    h+=row(A.name,B.name,null,null,{scTxt:"vs", winner:matchWinner(id), when:schedLabel(id),
-      phH:A.tag||A.ph||"A definir", phA:B.tag||B.ph||"A definir"});
+    const oA=A.name?null:predOf(def[0]), oB=B.name?null:predOf(def[1]);
+    const winner=matchWinner(id);
+    const concreteMe=A.name===ME||B.name===ME, onPath=PATH.has(id);
+    const tm = concreteMe ? " tm" : (onPath ? " tm poss" : "");   // jogo possível da seleção destacada
+    const pin = (onPath && ME && !concreteMe) ? `<span class="mepin">🧭 ${fl(ME)} ${pt(ME)}</span>` : "";
+    h+=`<div class="gpm${tm}">
+      ${side(A.name, A.tag||A.ph||"A definir", oA, 'h', winner&&winner===A.name)}
+      <div class="mlmid"><span class="sc up">vs</span></div>
+      ${side(B.name, B.tag||B.ph||"A definir", oB, 'a', winner&&winner===B.name)}
+      <div class="mlin"><span class="v">${schedLabel(id)}</span>${pin}</div>
+    </div>`;
   }
   return h;
 }

@@ -462,6 +462,27 @@
   .gpm .mlin{grid-column:1/-1;font-family:Inter,sans-serif;font-size:10px;color:var(--dim);text-align:center;
     margin-top:8px;padding-top:7px;border-top:1px dashed var(--line)}
   .gpm .mlin .v{color:var(--dim)}
+  /* previsão dos ocupantes nos jogos por definir + realce da seleção destacada */
+  .gpm .s.pred{align-items:stretch}
+  .gpm .predcol{display:flex;flex-direction:column;gap:2px;min-width:0;width:100%}
+  .gpm .s.h .predcol{align-items:flex-end}
+  .gpm .s.a .predcol{align-items:flex-start}
+  .gpm .predcol .plabel{font-family:Inter,sans-serif;font-size:8.5px;letter-spacing:.4px;
+    color:var(--dim);text-transform:uppercase}
+  .gpm .predline{display:flex;align-items:center;gap:5px;max-width:100%}
+  .gpm .predline .fl{font-size:13px;flex:none}
+  .gpm .predline .nm{font-weight:600;font-size:12px;color:var(--mut);
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .gpm .predline .pp{font-weight:700;font-size:10.5px;color:var(--cyan);flex:none}
+  .gpm .predline.p1 .nm{color:var(--txt)}
+  .gpm .predline.p2{opacity:.82}
+  .gpm .predline.p2 .pp{color:var(--mut)}
+  .gpm .predline.pe{margin-top:1px;opacity:.92}
+  .gpm .predline.sel .nm{color:var(--cyan)}
+  .gpm .s.me .nm{color:var(--cyan)}
+  /* jogo do caminho possível da seleção: realce mais leve (tracejado) que o jogo certo */
+  .gpm.tm.poss{border-style:dashed;background:linear-gradient(90deg,rgba(54,224,200,.06),transparent)}
+  .gpm .mlin .mepin{margin-left:8px;color:var(--cyan);font-weight:600}
 </style>
 </head>
 <body>
@@ -664,7 +685,7 @@ function teamOptions(sel){
   const names = Object.keys(reg).sort((a,b)=>(reg[a].pt||a).localeCompare(reg[b].pt||b, "pt"));
   return names.map(n=>`<option value="${n}" ${n===sel?"selected":""}>${reg[n].pt||n}</option>`).join("");
 }
-function selectTeam(v){ SEL_TEAM=v; renderPercurso(); renderGroups(); }
+function selectTeam(v){ SEL_TEAM=v; renderPercurso(); renderGroups(); renderMatchList(); }
 
 // apurou-se da fase de grupos? (1.º/2.º sempre; 3.º só nas edições de 12 grupos, se for dos 8 melhores)
 function advancedFromGroup(t, ts){
