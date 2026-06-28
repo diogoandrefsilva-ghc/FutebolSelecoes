@@ -478,7 +478,10 @@
 
   <footer id="footer"></footer>
 </div>
-<script src="live2026.js"></script>
+<!-- Módulo live (Anexo C, quadro interativo, simulação Monte Carlo, ESPN) em pausa.
+     O ficheiro live2026.js fica no repo, pronto a reativar num próximo torneio (2028/2030).
+     Para reativar: descomentar a linha abaixo. -->
+<!-- <script src="live2026.js"></script> -->
 <script>
 "use strict";
 /* =====================================================================
@@ -566,10 +569,19 @@ function allTies(){
 }
 
 /* ===================== RENDER: GRUPOS ===================== */
+// Marca os melhores terceiros nas edições de 48 (12 grupos): passam 2.º + 8 melhores 3.º.
+// (não precisa do Anexo C — esse só decide o EMPARELHAMENTO, não o apuramento.)
+function bestThirds(){
+  if(ED.groups.length!==12) return new Set();
+  const arr=ED.groups.map(g=>{ const r=groupStandings(g)[2]; return {team:r.team,pts:r.pts,gd:r.gd,gf:r.gf}; });
+  arr.sort((a,b)=> b.pts-a.pts || b.gd-a.gd || b.gf-a.gf || rank(a.team)-rank(b.team));
+  return new Set(arr.slice(0,8).map(t=>t.team));
+}
 function renderGroups(){
   let groups=ED.groups;
   const selG = SEL_TEAM ? groupOf(SEL_TEAM) : null;   // grupo da seleção escolhida primeiro
   if(selG) groups=[selG, ...ED.groups.filter(g=>g!==selG)];
+  const thirds=bestThirds();
   let h="";
   for(const g of groups){
     const tbl=groupStandings(g);
@@ -578,7 +590,7 @@ function renderGroups(){
       <th class="l">#</th><th class="l">Equipa</th><th>J</th><th>V</th><th>E</th><th>D</th><th>GM</th><th>GS</th><th>DG</th><th>P</th>
     </tr></thead><tbody>`;
     tbl.forEach((s,i)=>{
-      const pc=i===0?"q1":i===1?"q2":"";
+      const pc=i===0?"q1":i===1?"q2":(i===2&&thirds.has(s.team)?"q3":"");
       const favc=s.team===FAV?" row-por":"";
       const J=(s.w!=null)?(s.w+s.d+s.l):3;
       const dg=s.gd!=null?((s.gd>=0?'+':'')+s.gd):"·";
@@ -681,7 +693,7 @@ function renderPercurso(){
   h+=groupPhaseHTML(t, ts);
   if(ED.status==="live"){
     if(ED.id==="2026" && window.LIVE2026){ h+=window.LIVE2026.percursoStagesHTML(t); }
-    else h+=`<div class="livenote"><span class="ic">🧭</span><div class="tx">O <b>mata-eliminatórias</b> e a <span class="hl">simulação</span> desta edição em curso estão em preparação. Vê o separador <b>Quadro</b>.</div></div>`;
+    else h+=`<div class="livenote"><span class="ic">🧭</span><div class="tx">O <b>mata-eliminatórias</b> desta edição em curso está em pausa (emparelhamento por reativar). Vê os apurados, incluindo os <span class="hl">melhores terceiros</span>, no separador <b>Grupos</b>.</div></div>`;
   }else{
     h+=knockoutPathHTML(t);
   }
@@ -714,7 +726,9 @@ function renderBracket(){
     }else{
       reset.style.display="none";
       box.innerHTML=`<div class="deferred"><span class="ic">🧮</span>
-        <b>Simulação do quadro em preparação.</b><br>Esta edição em curso ainda não tem módulo live.</div>`;
+        <b>Quadro a eliminar em pausa nesta edição.</b><br>
+        O emparelhamento dos 16-avos (Anexo C) será reativado num próximo torneio.
+        Os apurados — <b>1.º, 2.º e os 8 melhores 3.º</b> — estão marcados no separador <b>Grupos</b>.</div>`;
     }
     return;
   }
@@ -748,7 +762,9 @@ function applyEditionChrome(){
   document.title=`${ED.title} — Seleções`;
   document.getElementById("gruposDesc").innerHTML = ED.status==="closed"
     ? `Classificações finais. Passam os <b>2 primeiros</b> de cada grupo.`
-    : `Classificações da fase de grupos.`;
+    : (ED.groups.length===12
+        ? `Passam os <b>2 primeiros</b> de cada grupo e os <b>8 melhores terceiros</b> (marcados a verde).`
+        : `Classificações da fase de grupos.`);
   document.getElementById("quadroDesc").innerHTML = ED.status==="closed"
     ? `Resultados reais do mata-eliminatórias.${ED.champion?` <b>${pt(ED.champion)}</b> sagrou-se campeã.`:""}`
     : `Em preparação para esta edição em curso.`;
