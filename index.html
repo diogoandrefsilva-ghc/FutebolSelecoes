@@ -387,6 +387,10 @@
   .edchip .edyear{font-family:Anton,sans-serif;font-size:23px;line-height:1;letter-spacing:.5px;color:var(--txt)}
   .edchip .edmeta{display:flex;flex-direction:column;gap:4px;line-height:1}
   .edchip .edhost{font-size:12px;font-weight:600;color:var(--mut);white-space:nowrap}
+  .edchip .edcomp{font-size:8.5px;font-weight:800;letter-spacing:.7px;text-transform:uppercase;
+    align-self:flex-start;padding:1.5px 6px;border-radius:6px;border:1px solid var(--line2);color:var(--dim)}
+  .edchip .edcomp.euro{color:var(--cyan);border-color:rgba(34,211,238,.4)}
+  .edchip .edcomp.wc{color:var(--lime);border-color:rgba(198,255,61,.35)}
   .edchip .edstatus{font-size:9px;font-weight:800;letter-spacing:.6px;text-transform:uppercase;color:var(--dim);
     display:inline-flex;align-items:center;gap:5px}
   .edchip .edstatus::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--dim)}
@@ -452,7 +456,7 @@
 <body>
 <div id="splash">
   <div class="splash-bar"></div>
-  <div class="splash-logo">Mundiais<span>das Seleções</span></div>
+  <div class="splash-logo">Seleções<span>Mundiais &amp; Euros</span></div>
   <div class="splash-spin"></div>
   <div class="splash-sub">a preparar o quadro…</div>
 </div>
@@ -462,7 +466,7 @@
     <h1 id="h1">Competições</h1>
     <div class="edwrap">
       <span class="edlabel">Edição</span>
-      <div class="edrow" id="editionRow" role="tablist" aria-label="Escolher Mundial"></div>
+      <div class="edrow" id="editionRow" role="tablist" aria-label="Escolher edição"></div>
     </div>
   </header>
 
@@ -511,14 +515,22 @@
    ===================================================================== */
 
 /* ===================== REGISTO DE EDIÇÕES ===================== */
+// Régua única por ano: Mundiais (comp:"wc") e Europeus (comp:"euro") lado a lado.
 const EDITIONS = [
-  { id:"2026", year:2026, host:"EUA · Canadá · México", status:"live" },
-  { id:"2022", year:2022, host:"Catar",                 status:"closed" },
-  { id:"2018", year:2018, host:"Rússia",                status:"closed" },
-  { id:"2014", year:2014, host:"Brasil",                status:"closed" },
-  { id:"2010", year:2010, host:"África do Sul",         status:"closed" },
-  { id:"2006", year:2006, host:"Alemanha",              status:"closed" },
-  { id:"2002", year:2002, host:"Coreia/Japão",          status:"closed" }
+  { id:"2026",     year:2026, host:"EUA · Canadá · México", status:"live",   comp:"wc"   },
+  { id:"euro2024", year:2024, host:"Alemanha",              status:"closed", comp:"euro" },
+  { id:"2022",     year:2022, host:"Catar",                 status:"closed", comp:"wc"   },
+  { id:"euro2020", year:2020, host:"Europa (multi-sede)",   status:"closed", comp:"euro" },
+  { id:"2018",     year:2018, host:"Rússia",                status:"closed", comp:"wc"   },
+  { id:"euro2016", year:2016, host:"França",                status:"closed", comp:"euro" },
+  { id:"2014",     year:2014, host:"Brasil",                status:"closed", comp:"wc"   },
+  { id:"euro2012", year:2012, host:"Polónia · Ucrânia",     status:"closed", comp:"euro" },
+  { id:"2010",     year:2010, host:"África do Sul",         status:"closed", comp:"wc"   },
+  { id:"euro2008", year:2008, host:"Áustria · Suíça",       status:"closed", comp:"euro" },
+  { id:"2006",     year:2006, host:"Alemanha",              status:"closed", comp:"wc"   },
+  { id:"euro2004", year:2004, host:"Portugal",              status:"closed", comp:"euro" },
+  { id:"2002",     year:2002, host:"Coreia/Japão",          status:"closed", comp:"wc"   },
+  { id:"euro2000", year:2000, host:"Bélgica · Países Baixos",status:"closed",comp:"euro" }
 ];
 const DEFAULT_EDITION = "2026";
 const FAV = "Portugal";          // seleção destacada (a da casa do utilizador)
@@ -536,6 +548,10 @@ const pt   = n => { const t=team(n); return t? t.pt   : (n||"—"); };
 const fl   = n => { const t=team(n); return t? t.flag : "🏳️"; };
 const rank = n => { const t=(ED&&ED.teams&&ED.teams[n])||REGISTRY.teams[n]; return t&&Number.isFinite(t.rank)? t.rank : 999; };
 const _n   = v => (v==null ? "·" : v);
+// competição da edição atual: rótulo do campeão muda entre Mundial e Europeu
+const isEuro      = () => !!(ED && ED.competition==="euro");
+const champTitle  = () => isEuro() ? "campeão da Europa" : "campeão do mundo";
+const champTitleUC= () => isEuro() ? "CAMPEÃO DA EUROPA" : "CAMPEÃO DO MUNDO";
 
 // carrega as fichas de todas as edições uma vez -> lista global alfabética de seleções
 async function buildRegistry(){
@@ -559,14 +575,35 @@ function statsOf(names, matches){
   names.forEach(n=>s[n].gd=s[n].gf-s[n].ga);
   return s;
 }
-// desempate dos apuramentos conhecidos: pontos · DG · GM · ranking (suficiente p/ dados fechados)
+// desempate global (fallback): pontos · DG · GM · ranking
 const cmpStd = (a,b)=> b.pts-a.pts || b.gd-a.gd || b.gf-a.gf || rank(a.team)-rank(b.team);
+
+// desempate UEFA: para equipas niveladas em pontos aplica-se primeiro o
+// CONFRONTO DIRETO (mini-tabela: pontos · DG · GM entre elas) e só depois
+// DG/GM gerais e ranking. Necessário para os Europeus (ex.: Euro 2024 grupo E,
+// todos com 4 pts; Euro 2012 grupo A, Grécia passa à frente da Rússia).
+function orderGroup(teams, matches){
+  const s=statsOf(teams, matches);
+  const rows=teams.map(t=>Object.assign({team:t}, s[t]));
+  rows.sort((a,b)=>{
+    if(b.pts!==a.pts) return b.pts-a.pts;
+    const lvl=rows.filter(r=>r.pts===a.pts).map(r=>r.team);
+    if(lvl.length>1 && lvl.length<teams.length){
+      const sub=statsOf(lvl, matches.filter(m=>lvl.includes(m[0])&&lvl.includes(m[1])));
+      const sa=sub[a.team], sb=sub[b.team];
+      if(sb.pts!==sa.pts) return sb.pts-sa.pts;
+      if(sb.gd!==sa.gd)   return sb.gd-sa.gd;
+      if(sb.gf!==sa.gf)   return sb.gf-sa.gf;
+    }
+    return b.gd-a.gd || b.gf-a.gf || rank(a.team)-rank(b.team);
+  });
+  return rows;
+}
 
 function groupNames(g){ return g.matches ? g.teams : g.standings.map(r=>r.team); }
 function groupStandings(g){
   if(g.matches){
-    const s=statsOf(g.teams, g.matches);
-    return g.teams.map(t=>Object.assign({team:t}, s[t])).sort(cmpStd);
+    return orderGroup(g.teams, g.matches);
   }
   // classificação já ordenada (grupo encerrado sem jogo-a-jogo)
   return g.standings.map(r=>({team:r.team,pts:r.pts,gd:r.gd,gf:r.gf,ga:r.ga,w:null,d:null,l:null}));
@@ -600,11 +637,17 @@ function allTies(){
 /* ===================== RENDER: GRUPOS ===================== */
 // Marca os melhores terceiros nas edições de 48 (12 grupos): passam 2.º + 8 melhores 3.º.
 // (não precisa do Anexo C — esse só decide o EMPARELHAMENTO, não o apuramento.)
+// quantos terceiros classificados avançam: Mundial de 48 (12 grupos) → 8; Euro de 24 (6 grupos) → 4
+function bestThirdsCount(){
+  if(ED.groups.length===12) return 8;
+  if(ED.groups.length===6)  return 4;
+  return 0;
+}
 function bestThirds(){
-  if(ED.groups.length!==12) return new Set();
+  const n=bestThirdsCount(); if(!n) return new Set();
   const arr=ED.groups.map(g=>{ const r=groupStandings(g)[2]; return {team:r.team,pts:r.pts,gd:r.gd,gf:r.gf}; });
   arr.sort((a,b)=> b.pts-a.pts || b.gd-a.gd || b.gf-a.gf || rank(a.team)-rank(b.team));
-  return new Set(arr.slice(0,8).map(t=>t.team));
+  return new Set(arr.slice(0,n).map(t=>t.team));
 }
 function renderGroups(){
   let groups=ED.groups;
@@ -648,7 +691,7 @@ function selectTeam(v){ SEL_TEAM=v; renderPercurso(); renderGroups(); }
 function advancedFromGroup(t, ts){
   if(!ts) return false;
   if(ts.pos<=2) return true;
-  if(ts.pos===3 && ED.groups.length===12) return bestThirds().has(t);
+  if(ts.pos===3 && bestThirdsCount()>0) return bestThirds().has(t);
   return false;
 }
 // classificação final da seleção: fase de eliminação ou pódio (Vencedor/Finalista/3.º/4.º)
@@ -721,7 +764,7 @@ function knockoutPathHTML(t, prefix){
   }
   h+=`</div>`;
   if(ED.champion===t){
-    h+=`<div class="champline"><span class="cup">🏆</span><span class="ct ${t===FAV?'por':''}">${pt(t)} campeão do mundo</span><span class="cp">${ED.year}</span></div>`;
+    h+=`<div class="champline"><span class="cup">🏆</span><span class="ct ${t===FAV?'por':''}">${pt(t)} ${champTitle()}</span><span class="cp">${ED.year}</span></div>`;
   }
   return h;
 }
@@ -796,7 +839,7 @@ function renderBracket(){
   }
   const champ=ED.champion
     ? `<div class="champ-banner"><span class="cup">🏆</span><span class="fl">${fl(ED.champion)}</span>
-         <span class="cwrap"><span class="cn ${ED.champion===FAV?'por':''}">${pt(ED.champion)}</span><span class="ct">CAMPEÃO DO MUNDO ${ED.year}</span></span></div>`
+         <span class="cwrap"><span class="cn ${ED.champion===FAV?'por':''}">${pt(ED.champion)}</span><span class="ct">${champTitleUC()} ${ED.year}</span></span></div>`
     : "";
   const tp=ko.third
     ? `<div class="thirdplace"><div class="tp-h">Disputa do 3.º / 4.º lugar</div>${koCardClosed(Object.assign({id:"TP",round:"3.º/4.º"}, ko.third), "3.º/4.º lugar")}</div>`
@@ -812,11 +855,13 @@ function defaultTeamFor(){
 }
 function applyEditionChrome(){
   document.title=`${ED.title} — Seleções`;
+  const nThird=bestThirdsCount();
+  const passamTxt = nThird>0
+    ? `Passam os <b>2 primeiros</b> de cada grupo e os <b>${nThird} melhores terceiros</b> (marcados a verde).`
+    : `Passam os <b>2 primeiros</b> de cada grupo.`;
   document.getElementById("gruposDesc").innerHTML = ED.status==="closed"
-    ? `Classificações finais. Passam os <b>2 primeiros</b> de cada grupo.`
-    : (ED.groups.length===12
-        ? `Passam os <b>2 primeiros</b> de cada grupo e os <b>8 melhores terceiros</b> (marcados a verde).`
-        : `Classificações da fase de grupos.`);
+    ? `Classificações finais. ${passamTxt}`
+    : (nThird>0 ? passamTxt : `Classificações da fase de grupos.`);
   document.getElementById("quadroDesc").innerHTML = ED.status==="closed"
     ? `Resultados reais do mata-eliminatórias.${ED.champion?` <b>${pt(ED.champion)}</b> sagrou-se campeã.`:""}`
     : `Em preparação para esta edição em curso.`;
@@ -828,7 +873,9 @@ function renderEditionRow(){
   const row=document.getElementById("editionRow");
   row.innerHTML=EDITIONS.map(e=>`<button class="edchip ${ED&&e.id===ED.id?'active':''}" data-ed="${e.id}" role="tab" aria-selected="${ED&&e.id===ED.id}">
     <span class="edyear">${e.year}</span>
-    <span class="edmeta"><span class="edhost">${e.host}</span>
+    <span class="edmeta">
+      <span class="edcomp ${e.comp}">${e.comp==="euro"?"Europeu":"Mundial"}</span>
+      <span class="edhost">${e.host}</span>
       <span class="edstatus ${e.status}">${e.status==="live"?"em curso":"concluído"}</span></span>
   </button>`).join("");
   const act=row.querySelector(".edchip.active"); if(act) act.scrollIntoView({inline:"center",block:"nearest"});

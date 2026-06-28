@@ -1,0 +1,111 @@
+{
+  "id": "euro2016",
+  "year": 2016,
+  "competition": "euro",
+  "host": "França",
+  "title": "Euro 2016",
+  "status": "closed",
+  "champion": "Portugal",
+  "source": "Resultados oficiais UEFA Euro 2016 (24 equipas, 6 grupos: passam 2 primeiros + 4 melhores terceiros).",
+  "teams": {
+    "Albania": {"pt": "Albânia", "flag": "🇦🇱", "rank": 42},
+    "Austria": {"pt": "Áustria", "flag": "🇦🇹", "rank": 10},
+    "Belgium": {"pt": "Bélgica", "flag": "🇧🇪", "rank": 2},
+    "Croatia": {"pt": "Croácia", "flag": "🇭🇷", "rank": 25},
+    "Czech Republic": {"pt": "Chéquia", "flag": "🇨🇿", "rank": 28},
+    "England": {"pt": "Inglaterra", "flag": "🏴󠁧󠁢󠁥󠁮󠁧󠁿", "rank": 11},
+    "France": {"pt": "França", "flag": "🇫🇷", "rank": 17},
+    "Germany": {"pt": "Alemanha", "flag": "🇩🇪", "rank": 4},
+    "Hungary": {"pt": "Hungria", "flag": "🇭🇺", "rank": 20},
+    "Iceland": {"pt": "Islândia", "flag": "🇮🇸", "rank": 34},
+    "Italy": {"pt": "Itália", "flag": "🇮🇹", "rank": 12},
+    "Northern Ireland": {"pt": "Irlanda do Norte", "flag": "🇬🇧", "rank": 25},
+    "Poland": {"pt": "Polónia", "flag": "🇵🇱", "rank": 27},
+    "Portugal": {"pt": "Portugal", "flag": "🇵🇹", "rank": 8},
+    "Republic of Ireland": {"pt": "Irlanda", "flag": "🇮🇪", "rank": 33},
+    "Romania": {"pt": "Roménia", "flag": "🇷🇴", "rank": 22},
+    "Russia": {"pt": "Rússia", "flag": "🇷🇺", "rank": 29},
+    "Slovakia": {"pt": "Eslováquia", "flag": "🇸🇰", "rank": 24},
+    "Spain": {"pt": "Espanha", "flag": "🇪🇸", "rank": 6},
+    "Sweden": {"pt": "Suécia", "flag": "🇸🇪", "rank": 35},
+    "Switzerland": {"pt": "Suíça", "flag": "🇨🇭", "rank": 15},
+    "Turkey": {"pt": "Turquia", "flag": "🇹🇷", "rank": 18},
+    "Ukraine": {"pt": "Ucrânia", "flag": "🇺🇦", "rank": 19},
+    "Wales": {"pt": "País de Gales", "flag": "🏴󠁧󠁢󠁷󠁬󠁳󠁿", "rank": 26}
+  },
+  "groups": [
+    {"name": "A", "teams": ["France", "Switzerland", "Albania", "Romania"], "matches": [
+      ["France", "Romania", 2, 1],
+      ["Albania", "Switzerland", 0, 1],
+      ["Romania", "Switzerland", 1, 1],
+      ["France", "Albania", 2, 0],
+      ["Romania", "Albania", 0, 1],
+      ["Switzerland", "France", 0, 0]
+    ]},
+    {"name": "B", "teams": ["Wales", "England", "Slovakia", "Russia"], "matches": [
+      ["Wales", "Slovakia", 2, 1],
+      ["England", "Russia", 1, 1],
+      ["Russia", "Slovakia", 1, 2],
+      ["England", "Wales", 2, 1],
+      ["Russia", "Wales", 0, 3],
+      ["Slovakia", "England", 0, 0]
+    ]},
+    {"name": "C", "teams": ["Germany", "Poland", "Northern Ireland", "Ukraine"], "matches": [
+      ["Poland", "Northern Ireland", 1, 0],
+      ["Germany", "Ukraine", 2, 0],
+      ["Ukraine", "Northern Ireland", 0, 2],
+      ["Germany", "Poland", 0, 0],
+      ["Ukraine", "Poland", 0, 1],
+      ["Northern Ireland", "Germany", 0, 1]
+    ]},
+    {"name": "D", "teams": ["Croatia", "Spain", "Turkey", "Czech Republic"], "matches": [
+      ["Turkey", "Croatia", 0, 1],
+      ["Spain", "Czech Republic", 1, 0],
+      ["Czech Republic", "Croatia", 2, 2],
+      ["Spain", "Turkey", 3, 0],
+      ["Czech Republic", "Turkey", 0, 2],
+      ["Croatia", "Spain", 2, 1]
+    ]},
+    {"name": "E", "teams": ["Italy", "Belgium", "Republic of Ireland", "Sweden"], "matches": [
+      ["Republic of Ireland", "Sweden", 1, 1],
+      ["Belgium", "Italy", 0, 2],
+      ["Italy", "Sweden", 1, 0],
+      ["Belgium", "Republic of Ireland", 3, 0],
+      ["Italy", "Republic of Ireland", 0, 1],
+      ["Sweden", "Belgium", 0, 1]
+    ]},
+    {"name": "F", "teams": ["Hungary", "Iceland", "Portugal", "Austria"], "matches": [
+      ["Austria", "Hungary", 0, 2],
+      ["Portugal", "Iceland", 1, 1],
+      ["Iceland", "Hungary", 1, 1],
+      ["Portugal", "Austria", 0, 0],
+      ["Iceland", "Austria", 2, 1],
+      ["Hungary", "Portugal", 3, 3]
+    ]}
+  ],
+  "knockout": {
+    "rounds": [
+      {"name": "Oitavos de final", "short": "Oitavos", "ties": ["R16-1", "R16-2", "R16-3", "R16-4", "R16-5", "R16-6", "R16-7", "R16-8"]},
+      {"name": "Quartos de final", "short": "Quartos", "ties": ["QF-1", "QF-2", "QF-3", "QF-4"]},
+      {"name": "Meias-finais", "short": "Meias", "ties": ["SF-1", "SF-2"]},
+      {"name": "Final", "short": "Final", "ties": ["FIN"]}
+    ],
+    "ties": {
+      "R16-1": {"round": "Oitavos", "home": "Switzerland", "away": "Poland", "hg": 1, "ag": 1, "pens": [4, 5]},
+      "R16-2": {"round": "Oitavos", "home": "Wales", "away": "Northern Ireland", "hg": 1, "ag": 0},
+      "R16-3": {"round": "Oitavos", "home": "Croatia", "away": "Portugal", "hg": 0, "ag": 1},
+      "R16-4": {"round": "Oitavos", "home": "France", "away": "Republic of Ireland", "hg": 2, "ag": 1},
+      "R16-5": {"round": "Oitavos", "home": "Germany", "away": "Slovakia", "hg": 3, "ag": 0},
+      "R16-6": {"round": "Oitavos", "home": "Hungary", "away": "Belgium", "hg": 0, "ag": 4},
+      "R16-7": {"round": "Oitavos", "home": "Italy", "away": "Spain", "hg": 2, "ag": 0},
+      "R16-8": {"round": "Oitavos", "home": "England", "away": "Iceland", "hg": 1, "ag": 2},
+      "QF-1": {"round": "Quartos", "home": "Poland", "away": "Portugal", "hg": 1, "ag": 1, "pens": [3, 5]},
+      "QF-2": {"round": "Quartos", "home": "Wales", "away": "Belgium", "hg": 3, "ag": 1},
+      "QF-3": {"round": "Quartos", "home": "Germany", "away": "Italy", "hg": 1, "ag": 1, "pens": [6, 5]},
+      "QF-4": {"round": "Quartos", "home": "France", "away": "Iceland", "hg": 5, "ag": 2},
+      "SF-1": {"round": "Meias", "home": "Portugal", "away": "Wales", "hg": 2, "ag": 0},
+      "SF-2": {"round": "Meias", "home": "Germany", "away": "France", "hg": 0, "ag": 2},
+      "FIN": {"round": "Final", "home": "Portugal", "away": "France", "hg": 1, "ag": 0}
+    }
+  }
+}

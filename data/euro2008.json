@@ -1,0 +1,78 @@
+{
+  "id": "euro2008",
+  "year": 2008,
+  "competition": "euro",
+  "host": "Áustria · Suíça",
+  "title": "Euro 2008",
+  "status": "closed",
+  "champion": "Spain",
+  "source": "Resultados oficiais UEFA Euro 2008.",
+  "teams": {
+    "Austria": {"pt": "Áustria", "flag": "🇦🇹", "rank": 30},
+    "Croatia": {"pt": "Croácia", "flag": "🇭🇷", "rank": 10},
+    "Czech Republic": {"pt": "Chéquia", "flag": "🇨🇿", "rank": 9},
+    "France": {"pt": "França", "flag": "🇫🇷", "rank": 5},
+    "Germany": {"pt": "Alemanha", "flag": "🇩🇪", "rank": 4},
+    "Greece": {"pt": "Grécia", "flag": "🇬🇷", "rank": 12},
+    "Italy": {"pt": "Itália", "flag": "🇮🇹", "rank": 3},
+    "Netherlands": {"pt": "Países Baixos", "flag": "🇳🇱", "rank": 8},
+    "Poland": {"pt": "Polónia", "flag": "🇵🇱", "rank": 22},
+    "Portugal": {"pt": "Portugal", "flag": "🇵🇹", "rank": 6},
+    "Romania": {"pt": "Roménia", "flag": "🇷🇴", "rank": 18},
+    "Russia": {"pt": "Rússia", "flag": "🇷🇺", "rank": 20},
+    "Spain": {"pt": "Espanha", "flag": "🇪🇸", "rank": 2},
+    "Sweden": {"pt": "Suécia", "flag": "🇸🇪", "rank": 16},
+    "Switzerland": {"pt": "Suíça", "flag": "🇨🇭", "rank": 24},
+    "Turkey": {"pt": "Turquia", "flag": "🇹🇷", "rank": 26}
+  },
+  "groups": [
+    {"name": "A", "teams": ["Portugal", "Turkey", "Czech Republic", "Switzerland"], "matches": [
+      ["Switzerland", "Czech Republic", 0, 1],
+      ["Portugal", "Turkey", 2, 0],
+      ["Czech Republic", "Portugal", 1, 3],
+      ["Switzerland", "Turkey", 1, 2],
+      ["Switzerland", "Portugal", 2, 0],
+      ["Turkey", "Czech Republic", 3, 2]
+    ]},
+    {"name": "B", "teams": ["Croatia", "Germany", "Austria", "Poland"], "matches": [
+      ["Austria", "Croatia", 0, 1],
+      ["Germany", "Poland", 2, 0],
+      ["Croatia", "Germany", 2, 1],
+      ["Austria", "Poland", 1, 1],
+      ["Poland", "Croatia", 0, 1],
+      ["Austria", "Germany", 0, 1]
+    ]},
+    {"name": "C", "teams": ["Netherlands", "Italy", "Romania", "France"], "matches": [
+      ["Romania", "France", 0, 0],
+      ["Netherlands", "Italy", 3, 0],
+      ["Italy", "Romania", 1, 1],
+      ["Netherlands", "France", 4, 1],
+      ["Netherlands", "Romania", 2, 0],
+      ["France", "Italy", 0, 2]
+    ]},
+    {"name": "D", "teams": ["Spain", "Russia", "Sweden", "Greece"], "matches": [
+      ["Spain", "Russia", 4, 1],
+      ["Greece", "Sweden", 0, 2],
+      ["Sweden", "Spain", 1, 2],
+      ["Russia", "Greece", 1, 0],
+      ["Greece", "Spain", 1, 2],
+      ["Russia", "Sweden", 2, 0]
+    ]}
+  ],
+  "knockout": {
+    "rounds": [
+      {"name": "Quartos de final", "short": "Quartos", "ties": ["QF-1", "QF-2", "QF-3", "QF-4"]},
+      {"name": "Meias-finais", "short": "Meias", "ties": ["SF-1", "SF-2"]},
+      {"name": "Final", "short": "Final", "ties": ["FIN"]}
+    ],
+    "ties": {
+      "QF-1": {"round": "Quartos", "home": "Portugal", "away": "Germany", "hg": 2, "ag": 3},
+      "QF-2": {"round": "Quartos", "home": "Croatia", "away": "Turkey", "hg": 1, "ag": 1, "pens": [1, 3]},
+      "QF-3": {"round": "Quartos", "home": "Netherlands", "away": "Russia", "hg": 1, "ag": 3},
+      "QF-4": {"round": "Quartos", "home": "Spain", "away": "Italy", "hg": 0, "ag": 0, "pens": [4, 2]},
+      "SF-1": {"round": "Meias", "home": "Germany", "away": "Turkey", "hg": 3, "ag": 2},
+      "SF-2": {"round": "Meias", "home": "Russia", "away": "Spain", "hg": 0, "ag": 3},
+      "FIN": {"round": "Final", "home": "Germany", "away": "Spain", "hg": 0, "ag": 1}
+    }
+  }
+}
