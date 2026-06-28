@@ -447,6 +447,21 @@
   /* --- resultado do percurso (com penáltis) sem quebra de linha --- */
   .kpath-sc{flex:none;margin-left:auto;white-space:nowrap;font-weight:700;font-size:12.5px;color:var(--cyan)}
   .oppline.cert .kpath-sc{color:var(--lime)}
+
+  /* --- PLAYOFFS: sub-menu (lista/bracket) + lista cronológica de jogos --- */
+  .posub{display:none}
+  .posub.active{display:block;animation:fade .18s ease}
+  .mlround{display:flex;align-items:center;gap:10px;margin:18px 2px 9px;font-family:Inter,sans-serif;
+    font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--cyan)}
+  .mlround:first-child{margin-top:2px}
+  .mlround .mlx{flex:1;height:0;border-top:1px solid var(--line)}
+  .mllist .gpm{margin-bottom:8px}
+  .mlmid{display:flex;flex-direction:column;align-items:center;gap:3px;min-width:0}
+  .gpm .sc .pk{display:block;font-family:Inter,sans-serif;font-size:8.5px;font-weight:600;color:var(--mut);letter-spacing:.2px;margin-top:1px}
+  /* data/hora/local dentro da própria caixa do jogo (linha a toda a largura, por baixo do placar) */
+  .gpm .mlin{grid-column:1/-1;font-family:Inter,sans-serif;font-size:10px;color:var(--mut);text-align:center;
+    margin-top:8px;padding-top:7px;border-top:1px dashed var(--line)}
+  .gpm .mlin .v{color:var(--cyan)}
 </style>
 </head>
 <body>
@@ -469,7 +484,7 @@
   <nav class="tabs">
     <button class="tab active" data-tab="percurso">Percurso</button>
     <button class="tab" data-tab="grupos">Grupos</button>
-    <button class="tab" data-tab="quadro">Quadro</button>
+    <button class="tab" data-tab="quadro">Playoffs</button>
   </nav>
 
   <main>
@@ -484,12 +499,19 @@
     </section>
 
     <section class="panel" id="p-quadro">
-      <h2 class="panel-h">Quadro a eliminar</h2>
-      <p class="panel-d" id="quadroDesc"></p>
-      <div class="btnrow" id="koReset" style="display:none;margin:0 0 10px">
-        <button class="btn ghost" onclick="window.LIVE2026&&window.LIVE2026.reset()">↺ Limpar escolhas do quadro</button>
+      <div class="oddsmode" id="poModes" role="tablist" aria-label="Vista dos playoffs" style="margin:20px 0 14px">
+        <button class="omode active" data-po="lista" role="tab" aria-selected="true">Lista de jogos</button>
+        <button class="omode" data-po="bracket" role="tab" aria-selected="false">Bracket</button>
       </div>
-      <div id="knockout"></div>
+      <div class="posub active" id="po-lista">
+        <div id="matchList" class="mllist"></div>
+      </div>
+      <div class="posub" id="po-bracket">
+        <div id="knockout"></div>
+        <div class="btnrow" id="koReset" style="display:none;margin:22px 0 0">
+          <button class="btn ghost" onclick="window.LIVE2026&&window.LIVE2026.reset()">↺ Limpar escolhas do quadro</button>
+        </div>
+      </div>
     </section>
   </main>
 
@@ -655,7 +677,10 @@ function advancedFromGroup(t, ts){
 function finalClassification(t, ts){
   if(!ts) return null;
   if(ED.status==="live"){
-    return advancedFromGroup(t,ts) ? {label:"Em curso", cls:"live"} : {label:"Fase de grupos", cls:"out"};
+    if(!advancedFromGroup(t,ts)) return {label:"Fase de grupos", cls:"out"};
+    // seleção apurada numa edição em curso: mostra a fase em que está (módulo live)
+    const cs=(ED.id==="2026"&&window.LIVE2026&&window.LIVE2026.currentStage)?window.LIVE2026.currentStage(t):null;
+    return cs || {label:"Em curso", cls:"live"};
   }
   if(ED.champion===t) return {label:"Vencedor", cls:"win"};
   const ties=allTies().filter(x=>x.home===t||x.away===t);
@@ -663,7 +688,10 @@ function finalClassification(t, ts){
   const tp=ties.find(x=>x.id==="TP");
   if(tp) return tieWinner(tp)===t ? {label:"3.º Lugar", cls:"win"} : {label:"4.º Lugar", cls:"out"};
   const last=ties[ties.length-1];
-  if(/Final/i.test(last.roundFull) && tieWinner(last)!==t) return {label:"Finalista", cls:""};
+  // só a FINAL verdadeira (última ronda do quadro) faz "Finalista";
+  // "Quartos de final"/"Oitavos de final" contêm "final" mas NÃO são a final.
+  const finalName=ED.knockout&&ED.knockout.rounds.length?ED.knockout.rounds[ED.knockout.rounds.length-1].name:null;
+  if(finalName && last.roundFull===finalName && tieWinner(last)!==t) return {label:"Finalista", cls:""};
   return {label:last.roundFull, cls:"out"};
 }
 
@@ -773,8 +801,7 @@ function renderBracket(){
   if(ED.status==="live"){
     if(ED.id==="2026" && window.LIVE2026){
       reset.style.display="flex";
-      document.getElementById("quadroDesc").innerHTML="Os cruzamentos dos 16-avos saem das contas (Anexo C). Daí para a frente, <b>tocas na equipa que avança</b>.";
-      window.LIVE2026.mount({onChange:()=>renderPercurso()});
+      window.LIVE2026.mount({onChange:()=>{renderPercurso(); renderMatchList();}});
     }else{
       reset.style.display="none";
       box.innerHTML=`<div class="deferred"><span class="ic">🧮</span>
@@ -805,6 +832,47 @@ function renderBracket(){
     <div class="bracket-scroll"><div class="bracket">${cols}</div></div>${champ}${tp}`;
 }
 
+/* ===================== RENDER: LISTA DE JOGOS (só playoffs) ===================== */
+// uma linha de jogo (casa | resultado | fora); winner força o destaque (penáltis incluídos)
+function mlRow(h,a,hg,ag,pens,winner){
+  const known=hg!=null&&ag!=null;
+  const hw=winner?winner===h:(known&&hg>ag);
+  const aw=winner?winner===a:(known&&ag>hg);
+  const sc=known?`${hg}–${ag}`:"—";
+  const pk=(pens&&pens.length===2)?`<span class="pk">gp ${pens[0]}–${pens[1]}</span>`:"";
+  const tm=(h===SEL_TEAM||a===SEL_TEAM)?" tm":"";
+  return `<div class="gpm${tm}">
+    <div class="s h${hw?' win':''}"><span class="nm">${pt(h)}</span><span class="fl">${fl(h)}</span></div>
+    <div class="mlmid"><span class="sc${known?'':' up'}">${sc}${pk}</span></div>
+    <div class="s a${aw?' win':''}"><span class="fl">${fl(a)}</span><span class="nm">${pt(a)}</span></div>
+  </div>`;
+}
+function renderMatchList(){
+  const box=document.getElementById("matchList"); if(!box) return;
+  if(!ED){ box.innerHTML=""; return; }
+  // edição em curso: delega no módulo live (jogos J/K/L + calendário oficial do mata-eliminatórias)
+  if(ED.status==="live"){
+    box.innerHTML=(ED.id==="2026"&&window.LIVE2026&&window.LIVE2026.matchListHTML)
+      ? window.LIVE2026.matchListHTML(SEL_TEAM)
+      : `<div class="deferred">Lista de jogos indisponível para esta edição em curso.</div>`;
+    return;
+  }
+  let h="";
+  const hdr=name=>`<div class="mlround"><span>${name}</span><span class="mlx"></span></div>`;
+  // SÓ PLAYOFFS — por ronda; a disputa do 3.º/4.º vem antes da final
+  if(ED.knockout){
+    const ko=ED.knockout, rounds=ko.rounds.slice();
+    const finalR=rounds.length?rounds[rounds.length-1]:null;
+    const emit=(name,ties)=>{ let rows="";
+      for(const t of ties){ if(!t) continue; rows+=mlRow(t.home,t.away,t.hg,t.ag,t.pens||null,tieWinner(t)); }
+      if(rows) h+=hdr(name)+rows; };
+    for(const r of (finalR?rounds.slice(0,-1):rounds)) emit(r.name, r.ties.map(id=>ko.ties[id]));
+    if(ko.third) emit("Disputa do 3.º/4.º lugar", [ko.third]);
+    if(finalR) emit(finalR.name, finalR.ties.map(id=>ko.ties[id]));
+  }
+  box.innerHTML=h||`<div class="deferred">Sem jogos para listar nesta edição.</div>`;
+}
+
 /* ===================== CHROME DA EDIÇÃO ===================== */
 function defaultTeamFor(){
   if(ED.teams && ED.teams[FAV]) return FAV;
@@ -817,9 +885,6 @@ function applyEditionChrome(){
     : (ED.groups.length===12
         ? `Passam os <b>2 primeiros</b> de cada grupo e os <b>8 melhores terceiros</b> (marcados a verde).`
         : `Classificações da fase de grupos.`);
-  document.getElementById("quadroDesc").innerHTML = ED.status==="closed"
-    ? `Resultados reais do mata-eliminatórias.${ED.champion?` <b>${pt(ED.champion)}</b> sagrou-se campeã.`:""}`
-    : `Em preparação para esta edição em curso.`;
   document.getElementById("footer").innerHTML =
     `${ED.title} · ${ED.host}<br><span style="color:var(--dim)">${ED.source||""}</span>`;
   renderEditionRow();
@@ -849,9 +914,11 @@ async function loadEdition(id){
     hideSplash(); return;
   }
   await buildRegistry();   // garante a lista global de seleções para o seletor
-  SEL_TEAM=defaultTeamFor(); PICKS={};
+  // mantém a seleção escolhida ao trocar de edição; só usa o default no 1.º arranque
+  if(!SEL_TEAM) SEL_TEAM=defaultTeamFor();
+  PICKS={};
   applyEditionChrome();
-  renderGroups(); renderPercurso(); renderBracket();
+  renderGroups(); renderPercurso(); renderBracket(); renderMatchList();
   requestAnimationFrame(()=>setTimeout(hideSplash,150));
 }
 
@@ -863,6 +930,15 @@ document.querySelectorAll(".tab").forEach(tb=>tb.addEventListener("click",()=>{
   const top=document.querySelector(".tabs").getBoundingClientRect().top+window.scrollY-2;
   if(window.scrollY>top) window.scrollTo({top});
 }));
+
+/* sub-menu dos Playoffs: Lista de jogos / Bracket */
+document.getElementById("poModes").addEventListener("click",e=>{
+  const b=e.target.closest(".omode"); if(!b) return;
+  const m=b.dataset.po;
+  document.querySelectorAll("#poModes .omode").forEach(x=>{ const on=x===b; x.classList.toggle("active",on); x.setAttribute("aria-selected",on); });
+  document.getElementById("po-lista").classList.toggle("active",m==="lista");
+  document.getElementById("po-bracket").classList.toggle("active",m==="bracket");
+});
 
 /* seletor de edição (régua de chips) */
 document.getElementById("editionRow").addEventListener("click",e=>{
