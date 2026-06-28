@@ -1,0 +1,141 @@
+{
+  "id": "2026",
+  "year": 2026,
+  "host": "EUA · Canadá · México",
+  "title": "Mundial 2026",
+  "status": "live",
+  "champion": null,
+  "source": "Fase de grupos: A–I encerrados (Anexo C FIFA); J/K/L com cenário base. Live via ESPN no módulo de simulação (em preparação).",
+  "note": "Edição em curso. Grupos A–I em classificação; J/K/L jogo-a-jogo. O quadro a eliminar e a simulação ficam no módulo live (a reativar).",
+  "teams": {
+    "Mexico": {"pt": "México", "flag": "🇲🇽", "rank": 15},
+    "South Africa": {"pt": "África do Sul", "flag": "🇿🇦", "rank": 33},
+    "South Korea": {"pt": "Coreia do Sul", "flag": "🇰🇷", "rank": 21},
+    "Switzerland": {"pt": "Suíça", "flag": "🇨🇭", "rank": 18},
+    "Canada": {"pt": "Canadá", "flag": "🇨🇦", "rank": 27},
+    "Bosnia & Herzegovina": {"pt": "Bósnia e Herz.", "flag": "🇧🇦", "rank": 35},
+    "Brazil": {"pt": "Brasil", "flag": "🇧🇷", "rank": 5},
+    "Morocco": {"pt": "Marrocos", "flag": "🇲🇦", "rank": 11},
+    "Scotland": {"pt": "Escócia", "flag": "🏴󠁧󠁢󠁳󠁣󠁴󠁿", "rank": 36},
+    "USA": {"pt": "Estados Unidos", "flag": "🇺🇸", "rank": 14},
+    "Australia": {"pt": "Austrália", "flag": "🇦🇺", "rank": 25},
+    "Paraguay": {"pt": "Paraguai", "flag": "🇵🇾", "rank": 37},
+    "Germany": {"pt": "Alemanha", "flag": "🇩🇪", "rank": 9},
+    "Ivory Coast": {"pt": "Costa do Marfim", "flag": "🇨🇮", "rank": 28},
+    "Ecuador": {"pt": "Equador", "flag": "🇪🇨", "rank": 20},
+    "Netherlands": {"pt": "Países Baixos", "flag": "🇳🇱", "rank": 6},
+    "Japan": {"pt": "Japão", "flag": "🇯🇵", "rank": 17},
+    "Sweden": {"pt": "Suécia", "flag": "🇸🇪", "rank": 23},
+    "Belgium": {"pt": "Bélgica", "flag": "🇧🇪", "rank": 8},
+    "Egypt": {"pt": "Egito", "flag": "🇪🇬", "rank": 26},
+    "Iran": {"pt": "Irão", "flag": "🇮🇷", "rank": 19},
+    "Spain": {"pt": "Espanha", "flag": "🇪🇸", "rank": 1},
+    "Cape Verde": {"pt": "Cabo Verde", "flag": "🇨🇻", "rank": 32},
+    "Uruguay": {"pt": "Uruguai", "flag": "🇺🇾", "rank": 13},
+    "France": {"pt": "França", "flag": "🇫🇷", "rank": 3},
+    "Norway": {"pt": "Noruega", "flag": "🇳🇴", "rank": 24},
+    "Senegal": {"pt": "Senegal", "flag": "🇸🇳", "rank": 16},
+    "Argentina": {"pt": "Argentina", "flag": "🇦🇷", "rank": 2},
+    "Austria": {"pt": "Áustria", "flag": "🇦🇹", "rank": 22},
+    "Algeria": {"pt": "Argélia", "flag": "🇩🇿", "rank": 30},
+    "Jordan": {"pt": "Jordânia", "flag": "🇯🇴", "rank": 39},
+    "Colombia": {"pt": "Colômbia", "flag": "🇨🇴", "rank": 12},
+    "Portugal": {"pt": "Portugal", "flag": "🇵🇹", "rank": 7},
+    "DR Congo": {"pt": "RD Congo", "flag": "🇨🇩", "rank": 34},
+    "Uzbekistan": {"pt": "Usbequistão", "flag": "🇺🇿", "rank": 38},
+    "England": {"pt": "Inglaterra", "flag": "🏴󠁧󠁢󠁥󠁮󠁧󠁿", "rank": 4},
+    "Ghana": {"pt": "Gana", "flag": "🇬🇭", "rank": 31},
+    "Croatia": {"pt": "Croácia", "flag": "🇭🇷", "rank": 10},
+    "Panama": {"pt": "Panamá", "flag": "🇵🇦", "rank": 29},
+    "Czechia": {"pt": "Chéquia", "flag": "🇨🇿", "rank": 40},
+    "Qatar": {"pt": "Catar", "flag": "🇶🇦", "rank": 50},
+    "Haiti": {"pt": "Haiti", "flag": "🇭🇹", "rank": 80},
+    "Turkey": {"pt": "Turquia", "flag": "🇹🇷", "rank": 45},
+    "Curacao": {"pt": "Curaçao", "flag": "🇨🇼", "rank": 90},
+    "Tunisia": {"pt": "Tunísia", "flag": "🇹🇳", "rank": 41},
+    "New Zealand": {"pt": "Nova Zelândia", "flag": "🇳🇿", "rank": 85},
+    "Saudi Arabia": {"pt": "Arábia Saudita", "flag": "🇸🇦", "rank": 60},
+    "Iraq": {"pt": "Iraque", "flag": "🇮🇶", "rank": 58}
+  },
+  "groups": [
+    {"name": "A", "standings": [
+      {"team": "Mexico", "pts": 9, "gd": 6, "gf": null, "ga": null},
+      {"team": "South Africa", "pts": 4, "gd": -1, "gf": null, "ga": null},
+      {"team": "South Korea", "pts": 3, "gd": -1, "gf": 2, "ga": 3},
+      {"team": "Czechia", "pts": 1, "gd": -4, "gf": null, "ga": null}
+    ]},
+    {"name": "B", "standings": [
+      {"team": "Switzerland", "pts": 7, "gd": 4, "gf": null, "ga": null},
+      {"team": "Canada", "pts": 4, "gd": 5, "gf": null, "ga": null},
+      {"team": "Bosnia & Herzegovina", "pts": 4, "gd": -1, "gf": 5, "ga": 6},
+      {"team": "Qatar", "pts": 1, "gd": -8, "gf": null, "ga": null}
+    ]},
+    {"name": "C", "standings": [
+      {"team": "Brazil", "pts": 7, "gd": 6, "gf": null, "ga": null},
+      {"team": "Morocco", "pts": 7, "gd": 3, "gf": null, "ga": null},
+      {"team": "Scotland", "pts": 3, "gd": -3, "gf": 1, "ga": 4},
+      {"team": "Haiti", "pts": 0, "gd": -6, "gf": null, "ga": null}
+    ]},
+    {"name": "D", "standings": [
+      {"team": "USA", "pts": 6, "gd": 4, "gf": 8, "ga": 4},
+      {"team": "Australia", "pts": 4, "gd": 0, "gf": 2, "ga": 2},
+      {"team": "Paraguay", "pts": 4, "gd": -2, "gf": 2, "ga": 4},
+      {"team": "Turkey", "pts": 3, "gd": -2, "gf": 3, "ga": 5}
+    ]},
+    {"name": "E", "standings": [
+      {"team": "Germany", "pts": 6, "gd": 7, "gf": null, "ga": null},
+      {"team": "Ivory Coast", "pts": 6, "gd": null, "gf": null, "ga": null},
+      {"team": "Ecuador", "pts": 4, "gd": 0, "gf": 2, "ga": 2},
+      {"team": "Curacao", "pts": null, "gd": null, "gf": null, "ga": null}
+    ]},
+    {"name": "F", "standings": [
+      {"team": "Netherlands", "pts": 7, "gd": 6, "gf": 10, "ga": 4},
+      {"team": "Japan", "pts": 5, "gd": 4, "gf": 7, "ga": 3},
+      {"team": "Sweden", "pts": 4, "gd": 0, "gf": 7, "ga": 7},
+      {"team": "Tunisia", "pts": 0, "gd": -10, "gf": 2, "ga": 12}
+    ]},
+    {"name": "G", "standings": [
+      {"team": "Belgium", "pts": 5, "gd": 3, "gf": null, "ga": null},
+      {"team": "Egypt", "pts": 5, "gd": 2, "gf": null, "ga": null},
+      {"team": "Iran", "pts": 3, "gd": 0, "gf": 3, "ga": 3},
+      {"team": "New Zealand", "pts": 1, "gd": -5, "gf": null, "ga": null}
+    ]},
+    {"name": "H", "standings": [
+      {"team": "Spain", "pts": 7, "gd": 5, "gf": null, "ga": null},
+      {"team": "Cape Verde", "pts": 3, "gd": 0, "gf": null, "ga": null},
+      {"team": "Uruguay", "pts": 2, "gd": -1, "gf": 3, "ga": 4},
+      {"team": "Saudi Arabia", "pts": 1, "gd": -4, "gf": null, "ga": null}
+    ]},
+    {"name": "I", "standings": [
+      {"team": "France", "pts": 9, "gd": 8, "gf": null, "ga": null},
+      {"team": "Norway", "pts": null, "gd": null, "gf": null, "ga": null},
+      {"team": "Senegal", "pts": 3, "gd": 2, "gf": 8, "ga": 6},
+      {"team": "Iraq", "pts": null, "gd": null, "gf": null, "ga": null}
+    ]},
+    {"name": "J", "teams": ["Argentina", "Austria", "Algeria", "Jordan"], "matches": [
+      ["Argentina", "Algeria", 3, 0],
+      ["Austria", "Jordan", 3, 1],
+      ["Argentina", "Austria", 2, 0],
+      ["Algeria", "Jordan", 2, 1],
+      ["Algeria", "Austria", 1, 1],
+      ["Jordan", "Argentina", 0, 2]
+    ]},
+    {"name": "K", "teams": ["Colombia", "Portugal", "DR Congo", "Uzbekistan"], "matches": [
+      ["Colombia", "Uzbekistan", 3, 1],
+      ["Portugal", "DR Congo", 1, 1],
+      ["Colombia", "DR Congo", 1, 0],
+      ["Portugal", "Uzbekistan", 5, 0],
+      ["Colombia", "Portugal", 1, 1],
+      ["DR Congo", "Uzbekistan", 2, 0]
+    ]},
+    {"name": "L", "teams": ["England", "Ghana", "Croatia", "Panama"], "matches": [
+      ["England", "Croatia", 4, 2],
+      ["Ghana", "Panama", 1, 0],
+      ["England", "Ghana", 0, 0],
+      ["Croatia", "Panama", 1, 0],
+      ["Panama", "England", 0, 2],
+      ["Croatia", "Ghana", 1, 1]
+    ]}
+  ],
+  "knockout": null
+}

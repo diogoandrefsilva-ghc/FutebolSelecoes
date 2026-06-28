@@ -1,0 +1,781 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#0A0E1A">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icon.svg">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Mundiais">
+<title>Mundiais das Seleções</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#0A0E1A; --panel:#131A2C; --panel2:#0E1422; --raise:#1A2238;
+    --line:#26304a; --line2:#323e5e;
+    --txt:#EAEEF7; --mut:#8a93ab; --dim:#5f6884;
+    --lime:#C6FF3D; --lime-d:#9bd400; --cyan:#36E0C8; --gold:#FFC83D; --red:#FF566A;
+    --rgrad:linear-gradient(90deg,#C6FF3D,#36E0C8);
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  html{-webkit-text-size-adjust:100%;text-size-adjust:100%;touch-action:pan-x pan-y}
+  body{touch-action:pan-x pan-y;
+    background:
+      radial-gradient(1200px 600px at 80% -10%, rgba(54,224,200,.08), transparent 60%),
+      radial-gradient(900px 500px at -10% 10%, rgba(198,255,61,.06), transparent 55%),
+      var(--ink);
+    color:var(--txt);
+    font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
+    -webkit-font-smoothing:antialiased; line-height:1.45;
+    padding-bottom:64px;
+    padding-left:env(safe-area-inset-left); padding-right:env(safe-area-inset-right);
+  }
+  .wrap{max-width:680px;margin:0 auto;padding:0 14px}
+
+  header{position:relative;padding:calc(20px + env(safe-area-inset-top)) 0 8px}
+  .topbar{height:6px;border-radius:6px;background:var(--rgrad);margin-bottom:18px;box-shadow:0 0 24px rgba(198,255,61,.25)}
+  h1{font-family:Anton,Impact,sans-serif;font-weight:400;letter-spacing:.5px;line-height:.92;
+     font-size:clamp(38px,11vw,62px);margin:0;text-transform:uppercase}
+  h1 .y{color:var(--lime);display:block}
+  .sub{color:var(--mut);font-size:13.5px;margin-top:9px;max-width:46ch}
+  .sub b{color:var(--txt);font-weight:600}
+
+  /* ---- TABS ---- */
+  .tabs{position:sticky;top:env(safe-area-inset-top);z-index:30;display:flex;gap:5px;
+        background:rgba(10,14,26,.93);backdrop-filter:blur(10px);
+        margin:14px -14px 4px;padding:9px 14px;border-bottom:1px solid var(--line)}
+  .tab{flex:1;appearance:none;border:1px solid var(--line);background:var(--panel2);color:var(--mut);
+       font-family:Inter,sans-serif;font-weight:700;font-size:12px;line-height:1.08;padding:8px 4px;border-radius:11px;
+       cursor:pointer;min-height:44px;display:flex;align-items:center;justify-content:center;text-align:center}
+  .tab.active{background:var(--lime);color:var(--ink);border-color:var(--lime)}
+  .tab:focus-visible{outline:3px solid var(--cyan);outline-offset:2px}
+
+  .panel{display:none;animation:fade .18s ease}
+  .panel.active{display:block}
+  @keyframes fade{from{opacity:.4}to{opacity:1}}
+  .panel-h{margin:20px 0 3px;font-family:Anton,sans-serif;font-weight:400;text-transform:uppercase;letter-spacing:.5px;
+           font-size:clamp(21px,5.6vw,27px)}
+  .panel-d{color:var(--mut);font-size:13px;margin:0 0 16px}
+  .panel-d b{color:var(--txt)}
+
+  .card{background:linear-gradient(180deg,var(--panel),var(--panel2));border:1px solid var(--line);
+        border-radius:14px;padding:14px;margin-bottom:12px}
+  .grp-h{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+  .grp-badge{font-family:Anton,sans-serif;font-size:22px;width:38px;height:38px;display:grid;place-items:center;
+             background:var(--raise);border:1px solid var(--line2);border-radius:10px;color:var(--cyan)}
+  .grp-h .nm{font-weight:700;font-size:15px}
+  .grp-h .sm{color:var(--mut);font-size:12px}
+
+  /* ---- INPUTS: compactos, bandeira antes do nome ---- */
+  .match2{display:grid;grid-template-columns:1fr auto 1fr;column-gap:8px;row-gap:6px;padding:9px 0;border-top:1px dashed var(--line)}
+  .match2:first-of-type{border-top:0;padding-top:2px}
+  .tcol{grid-row:1;min-width:0;display:flex;flex-direction:column;align-items:center;gap:6px}
+  .tcol.h{grid-column:1}
+  .tcol.a{grid-column:3}
+  .tlabel{display:flex;align-items:center;gap:6px;min-width:0;max-width:100%}
+  .tlabel .flag2{font-size:18px;line-height:1;flex:none}
+  .tlabel .tn2{font-weight:600;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .oddscell{grid-row:2;min-width:0}
+  .oddscell.h{grid-column:1}
+  .oddscell.a{grid-column:3}
+  .mmid{grid-row:1;grid-column:2;align-self:start;display:flex;flex-direction:column;align-items:center;gap:7px}
+  .mmid .mx{color:var(--dim);font-family:"IBM Plex Mono",monospace;font-size:12px;font-weight:700}
+  .livetog{display:inline-block;border:1px solid var(--line2);background:var(--panel2);color:var(--mut);
+           font-family:"IBM Plex Mono",monospace;font-size:9px;font-weight:700;letter-spacing:.5px;
+           padding:3px 8px;border-radius:20px;white-space:nowrap}
+  .livetog.on{background:var(--cyan);color:var(--ink);border-color:var(--cyan)}
+  .livetog.done{background:var(--lime);color:var(--ink);border-color:var(--lime)}
+  .livebtn{cursor:pointer;-webkit-appearance:none;appearance:none}
+  .livebtn:focus-visible{outline:2px solid var(--cyan);outline-offset:2px}
+  .stepper{display:flex;align-items:center;background:var(--ink);border:1px solid var(--line2);border-radius:10px;overflow:hidden}
+  .stepper button{appearance:none;border:0;background:transparent;color:var(--txt);font-size:17px;font-weight:700;
+                  width:32px;height:32px;cursor:pointer;line-height:1;display:grid;place-items:center}
+  .stepper button:active{background:var(--raise)}
+  .stepper button:disabled{cursor:default;color:var(--dim)}
+  .stepper.dis{opacity:.5}
+  .stepper .val{min-width:24px;text-align:center;font-family:"IBM Plex Mono",monospace;font-weight:700;font-size:16px}
+  .qopp{font-family:"IBM Plex Mono",monospace;font-size:10px;line-height:1.3;margin-top:6px;width:100%;max-width:100%;text-align:center}
+  .qopp .oddline{display:flex;align-items:center;justify-content:center;gap:5px;padding:1px 0;color:var(--txt)}
+  .qopp .oddline .f{flex:none}
+  .qopp .oddline .nm{color:var(--mut);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:92px}
+  .qopp .oddline .pct{color:var(--cyan);font-weight:700;flex:none}
+  .qopp .oddline.out .nm{color:var(--dim)}
+  .qopp .oddline.out .pct{color:var(--red)}
+  .qopp .badge{display:inline-flex;align-items:center;gap:5px;justify-content:center;font-weight:700;
+               border:1px solid var(--lime);border-radius:20px;padding:3px 9px;color:var(--lime);background:rgba(198,255,61,.10);max-width:100%}
+  .qopp .badge.outb{border-color:var(--red);color:var(--red);background:rgba(255,86,106,.10)}
+  .qopp .badge .nm{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .grp-time{margin-left:auto;font-family:"IBM Plex Mono",monospace;font-size:12px;font-weight:700;color:var(--cyan);
+            border:1px solid var(--line2);border-radius:8px;padding:2px 8px;flex:none}
+  .oddsmode{display:flex;gap:6px;margin:0 0 14px}
+  .omode{flex:1;appearance:none;border:1px solid var(--line2);background:var(--panel2);color:var(--mut);
+         font-family:Inter,sans-serif;font-weight:600;font-size:12px;padding:8px 6px;border-radius:10px;cursor:pointer;min-height:38px}
+  .omode.active{background:var(--lime);color:var(--ink);border-color:var(--lime)}
+  .omode:focus-visible{outline:3px solid var(--cyan);outline-offset:2px}
+  .liverow{display:flex;align-items:center;gap:10px;margin-top:10px;flex-wrap:wrap}
+  .livestatus{font-family:"IBM Plex Mono",monospace;font-size:11px;color:var(--mut);padding:3px 9px;border-radius:20px;border:1px solid var(--line2);background:var(--panel2)}
+  .livestatus.ok{color:var(--ink);background:var(--lime);border-color:var(--lime)}
+  .livestatus.warn{color:var(--gold);border-color:rgba(255,200,61,.4)}
+  .livestatus.load{color:var(--cyan);border-color:rgba(54,224,200,.4)}
+
+  .btnrow{display:flex;gap:8px;margin-top:6px;flex-wrap:wrap}
+  .btn{appearance:none;border:1px solid var(--line2);background:var(--raise);color:var(--txt);
+       font-family:Inter,sans-serif;font-weight:600;font-size:13px;padding:9px 14px;border-radius:10px;cursor:pointer}
+  .btn:active{transform:translateY(1px)}
+  .btn.lime{background:var(--lime);color:var(--ink);border-color:var(--lime)}
+  .btn.ghost{background:transparent}
+  .btn:focus-visible{outline:3px solid var(--cyan);outline-offset:2px}
+
+  /* ---- TABELAS ---- */
+  table.tbl{width:100%;border-collapse:collapse;font-size:13px}
+  table.tbl th{font-family:"IBM Plex Mono",monospace;font-weight:600;color:var(--mut);font-size:10px;
+               letter-spacing:.5px;text-align:right;padding:4px 4px;border-bottom:1px solid var(--line)}
+  table.tbl th.l{text-align:left}
+  table.tbl td{padding:7px 4px;text-align:right;border-bottom:1px solid var(--line);font-family:"IBM Plex Mono",monospace}
+  table.tbl td.l{text-align:left;font-family:Inter,sans-serif}
+  table.tbl tr:last-child td{border-bottom:0}
+  .pos{display:inline-grid;place-items:center;width:18px;height:18px;border-radius:5px;font-size:11px;font-weight:700;
+       background:var(--raise);color:var(--mut);margin-right:7px}
+  .pos.q1,.pos.q2{background:var(--cyan);color:var(--ink)}
+  .pos.q3{background:var(--lime);color:var(--ink)}
+  .tname{font-weight:600}.tflag{margin-right:7px}
+  .pts{color:var(--lime);font-weight:700}
+  .row-por{background:rgba(255,200,61,.07)}
+  .row-por .tname{color:var(--gold)}
+
+  .aigrid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+  .aibox{background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:9px 10px}
+  .aibox .gl{font-family:Anton,sans-serif;color:var(--cyan);font-size:15px;margin-bottom:4px}
+  .aibox .ln{display:flex;gap:6px;align-items:center;font-size:12.5px;padding:1px 0}
+  .aibox .ln .p{font-family:"IBM Plex Mono",monospace;color:var(--dim);width:16px}
+  .aibox .ln.t3 .p{color:var(--lime)}
+
+  /* ---- TERCEIROS ---- */
+  .third{display:flex;align-items:center;gap:10px;padding:9px 11px;border:1px solid var(--line);border-radius:11px;margin-bottom:7px;background:var(--panel2)}
+  .third.in{background:linear-gradient(90deg,rgba(198,255,61,.10),rgba(54,224,200,.04));border-color:rgba(198,255,61,.35)}
+  .third.out{opacity:.62}
+  .third .rk{font-family:"IBM Plex Mono",monospace;font-weight:700;width:22px;text-align:center;color:var(--mut)}
+  .third.in .rk{color:var(--lime)}
+  .third .fl{font-size:20px;width:24px;text-align:center}
+  .third .info{flex:1;min-width:0}
+  .third .info .n{font-weight:600;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .third .info .n .gl{color:var(--dim);font-family:"IBM Plex Mono",monospace;font-size:11px;margin-left:5px}
+  .third .info .opp{color:var(--cyan);font-size:11px;font-family:"IBM Plex Mono",monospace;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .third.out .info .opp{color:var(--dim)}
+  .third .st{font-family:"IBM Plex Mono",monospace;font-size:11px;color:var(--mut);text-align:right;white-space:nowrap}
+  .third.por{border-color:var(--gold)!important}.third.por .info .n{color:var(--gold)}
+  .cutline{display:flex;align-items:center;gap:10px;margin:12px 2px 14px;color:var(--lime);
+           font-family:"IBM Plex Mono",monospace;font-size:11px;letter-spacing:1px;font-weight:700}
+  .cutline::before,.cutline::after{content:"";flex:1;height:0;border-top:2px dashed var(--lime-d);opacity:.7}
+
+  .subh{font-family:Anton,sans-serif;text-transform:uppercase;letter-spacing:.5px;font-size:17px;margin:24px 0 4px}
+  .dist{display:grid;grid-template-columns:1fr;gap:7px}
+  .dpair{display:flex;align-items:center;gap:8px;background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:8px 10px;font-size:13px}
+  .dpair .mj{font-family:"IBM Plex Mono",monospace;color:var(--dim);font-size:10px;width:38px;flex:none}
+  .dpair .w{display:flex;align-items:center;gap:7px;flex:1;min-width:0;font-weight:600}
+  .dpair .arrow{color:var(--dim);font-family:"IBM Plex Mono",monospace;flex:none}
+  .dpair .t3{display:flex;align-items:center;gap:7px;flex:1;min-width:0;justify-content:flex-end;text-align:right;font-weight:600}
+  .dpair .lab{font-family:"IBM Plex Mono",monospace;font-size:11px;flex:none;color:var(--lime)}
+  .dpair .ef{font-size:17px;flex:none}
+
+  /* ---- PLAYOFFS / BRACKET ---- */
+  .bracket-hint{color:var(--dim);font-size:11.5px;margin:2px 0 10px;display:flex;align-items:center;gap:6px}
+  .bracket-hint .k{color:var(--cyan)}
+  .bracket-scroll{overflow-x:auto;overflow-y:hidden;-webkit-overflow-scrolling:touch;padding:2px 2px 14px;
+                  scrollbar-width:thin}
+  .bracket{display:flex;gap:34px;min-width:976px}
+  .col{display:flex;flex-direction:column;flex:0 0 168px}
+  .chead{height:30px;flex:0 0 30px;display:flex;align-items:center;justify-content:center;margin-bottom:8px;
+         font-family:"IBM Plex Mono",monospace;font-size:11px;letter-spacing:1px;color:var(--cyan);
+         text-transform:uppercase;border-bottom:1px solid var(--line)}
+  /* a coluna cresce com o nº de jogos (16 nos 16-avos): cada jogo nunca encolhe abaixo de 90px,
+     evitando que os últimos 16-avos transbordem e fiquem escondidos sob o banner do campeão.
+     Todas as colunas ficam com a mesma altura (stretch) -> conectores continuam alinhados. */
+  .games{flex:1 1 auto;display:flex;flex-direction:column}
+  .gw{flex:1 0 90px;display:flex;align-items:center;position:relative}
+  .gw .ko{width:100%}
+  /* conectores: cada par liga-se ao jogo seguinte */
+  .col:not(:last-child) .gw:nth-child(odd)::after{
+    content:"";position:absolute;right:-17px;top:50%;width:17px;height:100%;
+    border-top:2px solid var(--line2);border-right:2px solid var(--line2)}
+  .col:not(:last-child) .gw:nth-child(even)::after{
+    content:"";position:absolute;right:-17px;top:50%;width:17px;height:2px;background:var(--line2)}
+  .col:not(:first-child) .gw::before{
+    content:"";position:absolute;left:-17px;top:50%;width:17px;height:2px;background:var(--line2)}
+
+  .ko{background:var(--panel2);border:1px solid var(--line);border-radius:9px;overflow:hidden}
+  .ko .jno{font-family:"IBM Plex Mono",monospace;font-size:9px;letter-spacing:.5px;color:var(--dim);
+           padding:4px 8px 1px;display:flex;justify-content:space-between}
+  .koteam{display:flex;align-items:center;gap:6px;padding:7px 7px;border:0;background:transparent;color:var(--txt);
+          font-family:Inter,sans-serif;font-size:12px;text-align:left;width:100%;cursor:pointer;border-top:1px solid var(--line)}
+  .koteam:first-child{border-top:0}
+  .koteam .fl{font-size:14px;width:16px;text-align:center;flex:none}
+  .koteam .nm{flex:1;font-weight:600;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .koteam .src{color:var(--dim);font-family:"IBM Plex Mono",monospace;font-size:9px;flex:none}
+  .koteam.pick{background:linear-gradient(90deg,rgba(198,255,61,.18),transparent)}
+  .koteam.pick .nm{color:var(--lime)}
+  .koteam.dim{opacity:.4}
+  .koteam.tbd{cursor:default;color:var(--dim)}
+  .koteam:disabled{cursor:default}
+  .koteam:focus-visible{outline:2px solid var(--cyan);outline-offset:-2px}
+  .ko.haspor{border-color:var(--gold)}
+  .koteam.por .nm{color:var(--gold)}
+  .ko.champ{background:linear-gradient(180deg,rgba(255,200,61,.14),var(--panel2));border-color:var(--gold)}
+
+  .champ-banner{display:flex;align-items:center;gap:11px;justify-content:center;margin:18px 0 6px;padding:14px;
+    border:1px solid var(--gold);border-radius:14px;background:linear-gradient(180deg,rgba(255,200,61,.14),var(--panel2))}
+  .champ-banner.empty{color:var(--mut);border-style:dashed;border-color:var(--line2);background:var(--panel2);font-size:13px;font-weight:500}
+  .champ-banner .cup,.champ-banner .fl{font-size:26px;flex:none}
+  .cwrap{display:flex;flex-direction:column;line-height:1.05}
+  .champ-banner .cn{font-family:Anton,sans-serif;font-size:22px;text-transform:uppercase;letter-spacing:.5px}
+  .champ-banner .cn.por{color:var(--gold)}
+  .champ-banner .ct{font-family:"IBM Plex Mono",monospace;font-size:10px;color:var(--mut);letter-spacing:1.5px}
+
+  .thirdplace{margin-top:16px;max-width:320px}
+  .tp-h{font-family:"IBM Plex Mono",monospace;font-size:11px;color:var(--mut);letter-spacing:1px;margin:0 0 8px;text-transform:uppercase}
+
+  .hint{color:var(--mut);font-size:12px;margin:8px 2px 0;display:flex;align-items:center;gap:6px}
+  .hint .k{color:var(--lime);font-weight:700}
+  footer{margin:40px 0 0;color:var(--dim);font-size:11.5px;text-align:center;line-height:1.7}
+  details summary::-webkit-details-marker{display:none}
+  /* ---- PULL-TO-REFRESH (pílula flutuante com anel de progresso) ---- */
+  .ptr{position:fixed;top:0;left:0;right:0;display:flex;justify-content:center;
+       z-index:50;pointer-events:none;transform:translateY(-72px);will-change:transform}
+  .ptr-pill{margin-top:calc(12px + env(safe-area-inset-top));display:flex;align-items:center;gap:10px;
+            background:rgba(14,20,34,.94);border:1px solid var(--line2);border-radius:30px;
+            padding:9px 16px 9px 11px;box-shadow:0 10px 30px rgba(0,0,0,.42);
+            -webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);
+            transform:scale(.84);opacity:.55;transition:transform .16s ease,opacity .16s ease}
+  .ptr.armed .ptr-pill,.ptr.spin .ptr-pill{transform:scale(1);opacity:1}
+  .ptr-ring{--p:0;width:22px;height:22px;border-radius:50%;flex:none;
+            background:conic-gradient(var(--cyan) calc(var(--p)*3.6deg),rgba(255,255,255,.12) 0);
+            -webkit-mask:radial-gradient(circle 6.5px at 50% 50%,transparent 98%,#000 100%);
+                    mask:radial-gradient(circle 6.5px at 50% 50%,transparent 98%,#000 100%)}
+  .ptr.armed .ptr-ring{background:conic-gradient(var(--lime) calc(var(--p)*3.6deg),rgba(255,255,255,.12) 0)}
+  .ptr.spin .ptr-ring{background:conic-gradient(from 0deg,transparent,var(--cyan));animation:spin .7s linear infinite}
+  .ptr-txt{font-family:"IBM Plex Mono",monospace;font-size:12px;font-weight:600;color:var(--mut);white-space:nowrap}
+  .ptr.armed .ptr-txt{color:var(--lime)}
+  .ptr.spin .ptr-txt{color:var(--cyan)}
+  @keyframes spin{to{transform:rotate(360deg)}}
+
+  /* ---- ECRÃ DE ARRANQUE (splash / loading) ---- */
+  #splash{position:fixed;inset:0;z-index:100;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;
+    background:
+      radial-gradient(1200px 600px at 80% -10%, rgba(54,224,200,.10), transparent 60%),
+      radial-gradient(900px 500px at -10% 10%, rgba(198,255,61,.07), transparent 55%),
+      var(--ink);
+    transition:opacity .42s ease;padding:24px}
+  #splash.hide{opacity:0;pointer-events:none}
+  .splash-bar{width:118px;height:6px;border-radius:6px;background:var(--rgrad);box-shadow:0 0 24px rgba(198,255,61,.3)}
+  .splash-logo{font-family:Anton,Impact,sans-serif;font-weight:400;text-transform:uppercase;letter-spacing:1px;
+    line-height:.9;text-align:center;font-size:clamp(34px,12vw,56px)}
+  .splash-logo span{display:block;color:var(--lime)}
+  .splash-spin{width:30px;height:30px;border:3px solid var(--line2);border-top-color:var(--cyan);border-radius:50%;animation:spin .7s linear infinite}
+  .splash-sub{font-family:"IBM Plex Mono",monospace;font-size:12px;letter-spacing:.5px;color:var(--mut)}
+  /* ---- SELEÇÃO / PERCURSO ---- */
+  .teampick{display:flex;align-items:center;gap:10px;margin:0 0 16px}
+  .teampick label{font-family:"IBM Plex Mono",monospace;font-size:11px;letter-spacing:1px;color:var(--mut);text-transform:uppercase;flex:none}
+  .teampick select{flex:1;min-width:0;appearance:none;-webkit-appearance:none;background:var(--raise);color:var(--txt);
+    border:1px solid var(--line2);border-radius:11px;padding:11px 38px 11px 13px;font-family:Inter,sans-serif;font-weight:700;font-size:15px;
+    min-height:46px;cursor:pointer;
+    background-image:linear-gradient(45deg,transparent 50%,var(--mut) 50%),linear-gradient(135deg,var(--mut) 50%,transparent 50%);
+    background-position:calc(100% - 18px) 50%,calc(100% - 13px) 50%;background-size:5px 5px,5px 5px;background-repeat:no-repeat}
+  .teampick select:focus-visible{outline:3px solid var(--cyan);outline-offset:2px}
+
+  .teamhero{display:flex;align-items:center;gap:13px;padding:14px;border:1px solid var(--line);border-radius:14px;
+    background:linear-gradient(180deg,var(--panel),var(--panel2));margin-bottom:14px}
+  .teamhero .bigfl{font-size:38px;line-height:1;flex:none}
+  .teamhero .meta{flex:1;min-width:0}
+  .teamhero .nm{font-family:Anton,sans-serif;font-size:24px;text-transform:uppercase;letter-spacing:.5px;line-height:1}
+  .teamhero .nm.por{color:var(--gold)}
+  .teamhero .gl{font-family:"IBM Plex Mono",monospace;font-size:11.5px;color:var(--mut);margin-top:3px}
+  .teamhero .gl b{color:var(--txt)}
+  .teamhero.out .nm{color:var(--mut)}
+  .teamhero .seedtag{font-family:"IBM Plex Mono",monospace;font-size:10px;font-weight:700;letter-spacing:.5px;
+    border:1px solid var(--cyan);color:var(--cyan);border-radius:20px;padding:3px 9px;flex:none}
+  .teamhero.out .seedtag{border-color:var(--red);color:var(--red)}
+  /* banner = seletor de seleção (combo nativa por cima, invisível) */
+  .teamhero{position:relative;cursor:pointer}
+  .teamhero .heroChev{position:absolute;right:13px;bottom:11px;color:var(--mut);font-size:13px;line-height:1;flex:none}
+  .teamhero .heroSel{position:absolute;inset:0;width:100%;height:100%;opacity:0;border:0;margin:0;padding:0;
+    font-size:16px;cursor:pointer;-webkit-appearance:none;appearance:none;background:transparent}
+  .teamhero .heroSel:focus-visible + .heroChev{color:var(--cyan)}
+  .teamhero:focus-within{outline:3px solid var(--cyan);outline-offset:2px;border-radius:14px}
+
+  /* jogos / classificação da fase de grupos no Percurso */
+  .gp-h{font-family:"IBM Plex Mono",monospace;font-size:11px;color:var(--mut);letter-spacing:1px;
+    text-transform:uppercase;margin:2px 2px 8px}
+  .gpmatches{display:flex;flex-direction:column;gap:6px;margin:0 0 16px}
+  .gpm{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:8px;
+    background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:8px 10px}
+  .gpm.tm{border-color:rgba(198,255,61,.32);background:linear-gradient(90deg,rgba(198,255,61,.07),transparent)}
+  .gpm .s{display:flex;align-items:center;gap:7px;min-width:0}
+  .gpm .s.h{justify-content:flex-end;text-align:right}
+  .gpm .s .fl{flex:none;font-size:16px}
+  .gpm .s .nm{font-weight:600;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .gpm .s.win .nm{color:var(--lime)}
+  .gpm .sc{font-family:"IBM Plex Mono",monospace;font-weight:700;font-size:14px;color:var(--txt);
+    background:var(--ink);border:1px solid var(--line2);border-radius:7px;padding:3px 9px;white-space:nowrap;flex:none}
+  .gpm .sc.up{font-size:10px;font-weight:600;color:var(--mut);letter-spacing:.5px}
+
+  .stagewrap{position:relative;margin-left:6px}
+  .stage{position:relative;border-left:2px solid var(--line2);padding:0 0 16px 18px;margin-left:6px}
+  .stage:last-child{border-left-color:transparent}
+  .stage::before{content:"";position:absolute;left:-7px;top:3px;width:12px;height:12px;border-radius:50%;
+    background:var(--panel2);border:2px solid var(--line2)}
+  .stage.done::before{background:var(--lime);border-color:var(--lime)}
+  .stage.reachable::before{background:var(--cyan);border-color:var(--cyan)}
+  .stage.gone::before{background:var(--panel2);border-color:var(--red)}
+  .stage .sh{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;margin-bottom:2px}
+  .stage .sr{font-family:Anton,sans-serif;font-size:16px;text-transform:uppercase;letter-spacing:.4px}
+  .stage .reach{font-family:"IBM Plex Mono",monospace;font-size:11px;font-weight:700;color:var(--cyan);
+    border:1px solid var(--line2);border-radius:20px;padding:1px 8px}
+  .stage .reach.hi{color:var(--ink);background:var(--lime);border-color:var(--lime)}
+  .stage .reach.done{color:var(--ink);background:var(--lime);border-color:var(--lime)}
+  .stage .reach.gone{color:var(--red);border-color:rgba(255,86,106,.4)}
+  .stage .when{font-family:"IBM Plex Mono",monospace;font-size:11px;color:var(--mut);margin:1px 0 8px}
+  .stage .when .v{color:var(--txt)}
+
+  .oppwrap{display:flex;flex-direction:column;gap:5px}
+  .oppline{display:flex;align-items:center;gap:9px;background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:7px 11px}
+  .oppline.cert{border-color:rgba(198,255,61,.35);background:linear-gradient(90deg,rgba(198,255,61,.08),transparent)}
+  .oppline.por{border-color:var(--gold)}
+  .oppline .of{font-size:18px;flex:none}
+  .oppline .on{flex:1;min-width:0;font-weight:600;font-size:13.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .oppline.por .on{color:var(--gold)}
+  .oppline .obar{position:relative;flex:1;max-width:120px;height:7px;border-radius:5px;background:var(--ink);overflow:hidden;flex:none}
+  .oppline .obar > i{position:absolute;left:0;top:0;bottom:0;background:var(--rgrad);border-radius:5px}
+  .oppline .op{font-family:"IBM Plex Mono",monospace;font-weight:700;font-size:12.5px;color:var(--cyan);width:42px;text-align:right;flex:none}
+  .oppline.cert .op{color:var(--lime)}
+  .oppmore{font-family:"IBM Plex Mono",monospace;font-size:10.5px;color:var(--dim);padding:2px 2px 0}
+  .stage.gone .oppwrap{opacity:.5}
+  .resultline{display:inline-flex;align-items:center;gap:8px;font-family:"IBM Plex Mono",monospace;font-size:12px;
+    color:var(--mut);background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:7px 11px}
+  .resultline .wl{font-weight:700}
+  .resultline .wl.adv{color:var(--lime)} .resultline .wl.out{color:var(--red)}
+  .champline{display:flex;align-items:center;gap:11px;justify-content:center;margin-top:4px;padding:13px;
+    border:1px solid var(--gold);border-radius:14px;background:linear-gradient(180deg,rgba(255,200,61,.14),var(--panel2))}
+  .champline .cup{font-size:24px}
+  .champline .ct{font-family:Anton,sans-serif;font-size:18px;text-transform:uppercase;letter-spacing:.5px}
+  .champline .cp{font-family:"IBM Plex Mono",monospace;font-size:12px;color:var(--gold);font-weight:700}
+  .pickhint{color:var(--mut);font-size:13px;text-align:center;padding:26px 10px}
+
+  @media (prefers-reduced-motion: reduce){*{transition:none!important;animation:none!important}}
+
+  /* ===== ADIÇÕES DO HUB MULTI-MUNDIAL ===== */
+  .edpick{position:relative;margin:14px 0 2px}
+  .edpick label{font-family:"IBM Plex Mono",monospace;font-size:10px;letter-spacing:1px;color:var(--mut);text-transform:uppercase;display:block;margin:0 0 5px}
+  .edpick select{width:100%;appearance:none;-webkit-appearance:none;background:var(--raise);color:var(--txt);
+    border:1px solid var(--line2);border-radius:11px;padding:11px 38px 11px 13px;font-family:Inter,sans-serif;font-weight:700;font-size:14px;
+    min-height:46px;cursor:pointer;
+    background-image:linear-gradient(45deg,transparent 50%,var(--mut) 50%),linear-gradient(135deg,var(--mut) 50%,transparent 50%);
+    background-position:calc(100% - 18px) 50%,calc(100% - 13px) 50%;background-size:5px 5px,5px 5px;background-repeat:no-repeat}
+  .edpick select:focus-visible{outline:3px solid var(--cyan);outline-offset:2px}
+  .deferred{border:1px dashed var(--line2);border-radius:14px;padding:26px 18px;text-align:center;color:var(--mut);background:var(--panel2);line-height:1.6}
+  .deferred .ic{font-size:30px;display:block;margin-bottom:10px}
+  .deferred b{color:var(--txt)}
+  .bracket{min-width:760px}
+  .koteam .kosc{margin-left:auto;font-family:"IBM Plex Mono",monospace;font-weight:700;font-size:12px;color:var(--mut);flex:none}
+  .koteam.pick .kosc{color:var(--lime)}
+  .koteam .pen{color:var(--dim);font-size:9px;font-weight:600}
+</style>
+</head>
+<body>
+<div id="splash">
+  <div class="splash-bar"></div>
+  <div class="splash-logo">Mundiais<span>das Seleções</span></div>
+  <div class="splash-spin"></div>
+  <div class="splash-sub">a preparar o quadro…</div>
+</div>
+<div class="wrap">
+  <header>
+    <div class="topbar"></div>
+    <h1 id="h1">Mundiais<span class="y">das Seleções</span></h1>
+    <div class="edpick">
+      <label>Edição</label>
+      <select id="editionSel" aria-label="Escolher Mundial" onchange="loadEdition(this.value)"></select>
+    </div>
+    <p class="sub" id="sub"></p>
+  </header>
+
+  <nav class="tabs">
+    <button class="tab active" data-tab="percurso">Percurso</button>
+    <button class="tab" data-tab="grupos">Grupos</button>
+    <button class="tab" data-tab="quadro">Quadro</button>
+  </nav>
+
+  <main>
+    <section class="panel active" id="p-percurso">
+      <h2 class="panel-h">O percurso da seleção</h2>
+      <p class="panel-d">Toca no <b>banner</b> para trocar de seleção. Vês os jogos da fase de grupos <b>dessa</b> seleção e o caminho no mata-eliminatórias.</p>
+      <div id="teamPath"></div>
+    </section>
+
+    <section class="panel" id="p-grupos">
+      <h2 class="panel-h">Os grupos</h2>
+      <p class="panel-d" id="gruposDesc"></p>
+      <div id="tablesAll"></div>
+    </section>
+
+    <section class="panel" id="p-quadro">
+      <h2 class="panel-h">Quadro a eliminar</h2>
+      <p class="panel-d" id="quadroDesc"></p>
+      <div id="knockout"></div>
+    </section>
+  </main>
+
+  <footer id="footer"></footer>
+</div>
+<script>
+"use strict";
+/* =====================================================================
+   HUB MULTI-MUNDIAL — base do simulador Mundial 2026 (spin-off)
+   · Edições FECHADAS (status:"closed"): dados reais, só leitura.
+   · Edições EM CURSO (status:"live"): grupos disponíveis; o quadro
+     interativo + simulação ficam no MÓDULO LIVE comentado no fim.
+   Modelo de dados uniforme em data/<id>.json (grupos com jogos OU com
+   classificação; quadro a eliminar com confrontos e resultados).
+   ===================================================================== */
+
+/* ===================== REGISTO DE EDIÇÕES ===================== */
+const EDITIONS = [
+  { id:"2026", year:2026, label:"Mundial 2026 — EUA · Canadá · México", status:"live" },
+  { id:"2022", year:2022, label:"Mundial 2022 — Catar",                  status:"closed" }
+];
+const DEFAULT_EDITION = "2026";
+const FAV = "Portugal";          // seleção destacada (a da casa do utilizador)
+
+/* ===================== ESTADO ===================== */
+let ED = null;        // edição atual (JSON carregado)
+let SEL_TEAM = null;  // seleção escolhida no Percurso
+let PICKS = {};       // escolhas no quadro interativo (edições live) — reservado p/ módulo live
+
+/* ===================== HELPERS DE EQUIPA ===================== */
+const team = n => (ED && ED.teams && ED.teams[n]) || null;
+const pt   = n => { const t=team(n); return t? t.pt   : (n||"—"); };
+const fl   = n => { const t=team(n); return t? t.flag : "🏳️"; };
+const rank = n => { const t=team(n); return t&&Number.isFinite(t.rank)? t.rank : 999; };
+const _n   = v => (v==null ? "·" : v);
+
+/* ===================== MOTOR: classificação a partir dos jogos ===================== */
+function statsOf(names, matches){
+  const s={}; names.forEach(n=>s[n]={pts:0,w:0,d:0,l:0,gf:0,ga:0,gd:0});
+  for(const m of matches){ const h=m[0],a=m[1],hg=m[2],ag=m[3];
+    if(hg==null||ag==null||!s[h]||!s[a]) continue;
+    s[h].gf+=hg; s[h].ga+=ag; s[a].gf+=ag; s[a].ga+=hg;
+    if(hg>ag){s[h].pts+=3;s[h].w++;s[a].l++;}
+    else if(hg<ag){s[a].pts+=3;s[a].w++;s[h].l++;}
+    else {s[h].pts++;s[a].pts++;s[h].d++;s[a].d++;} }
+  names.forEach(n=>s[n].gd=s[n].gf-s[n].ga);
+  return s;
+}
+// desempate dos apuramentos conhecidos: pontos · DG · GM · ranking (suficiente p/ dados fechados)
+const cmpStd = (a,b)=> b.pts-a.pts || b.gd-a.gd || b.gf-a.gf || rank(a.team)-rank(b.team);
+
+function groupNames(g){ return g.matches ? g.teams : g.standings.map(r=>r.team); }
+function groupStandings(g){
+  if(g.matches){
+    const s=statsOf(g.teams, g.matches);
+    return g.teams.map(t=>Object.assign({team:t}, s[t])).sort(cmpStd);
+  }
+  // classificação já ordenada (grupo encerrado sem jogo-a-jogo)
+  return g.standings.map(r=>({team:r.team,pts:r.pts,gd:r.gd,gf:r.gf,ga:r.ga,w:null,d:null,l:null}));
+}
+function groupOf(t){ for(const g of ED.groups){ if(groupNames(g).includes(t)) return g; } return null; }
+function teamStanding(t){
+  const g=groupOf(t); if(!g) return null;
+  const tbl=groupStandings(g), pos=tbl.findIndex(r=>r.team===t);
+  return {group:g, name:g.name, pos:pos+1, row:tbl[pos], table:tbl};
+}
+// >>> FIX DO PERCURSO: só os jogos da seleção escolhida <<<
+function teamGroupMatches(t){
+  const g=groupOf(t); if(!g||!g.matches) return null;
+  return g.matches.filter(m=>m[0]===t||m[1]===t).map(m=>({h:m[0],a:m[1],hg:m[2],ag:m[3]}));
+}
+
+/* ===================== QUADRO A ELIMINAR (edições fechadas) ===================== */
+function tieWinner(t){
+  if(t.hg>t.ag) return t.home; if(t.ag>t.hg) return t.away;
+  if(t.pens)    return t.pens[0]>=t.pens[1] ? t.home : t.away;
+  return null;
+}
+function allTies(){
+  if(!ED.knockout) return [];
+  const ko=ED.knockout, out=[];
+  for(const r of ko.rounds) for(const id of r.ties){ const t=ko.ties[id]; if(t) out.push(Object.assign({id,round:r.short,roundFull:r.name}, t)); }
+  if(ko.third) out.push(Object.assign({id:"TP",round:"3.º/4.º",roundFull:"Disputa do 3.º/4.º lugar"}, ko.third));
+  return out;
+}
+
+/* ===================== RENDER: GRUPOS ===================== */
+function renderGroups(){
+  let h="";
+  for(const g of ED.groups){
+    const tbl=groupStandings(g);
+    h+=`<div class="card"><div class="grp-h"><div class="grp-badge">${g.name}</div><div class="nm">Grupo ${g.name}</div></div>
+    <table class="tbl"><thead><tr>
+      <th class="l">#</th><th class="l">Equipa</th><th>J</th><th>V</th><th>E</th><th>D</th><th>GM</th><th>GS</th><th>DG</th><th>P</th>
+    </tr></thead><tbody>`;
+    tbl.forEach((s,i)=>{
+      const pc=i===0?"q1":i===1?"q2":"";
+      const favc=s.team===FAV?" row-por":"";
+      const J=(s.w!=null)?(s.w+s.d+s.l):3;
+      const dg=s.gd!=null?((s.gd>=0?'+':'')+s.gd):"·";
+      h+=`<tr class="${favc.trim()}">
+        <td class="l"><span class="pos ${pc}">${i+1}</span></td>
+        <td class="l"><span class="tflag">${fl(s.team)}</span><span class="tname">${pt(s.team)}</span></td>
+        <td>${J}</td><td>${_n(s.w)}</td><td>${_n(s.d)}</td><td>${_n(s.l)}</td>
+        <td>${_n(s.gf)}</td><td>${_n(s.ga)}</td><td>${dg}</td><td class="pts">${_n(s.pts)}</td>
+      </tr>`;
+    });
+    h+=`</tbody></table></div>`;
+  }
+  document.getElementById("tablesAll").innerHTML=h;
+}
+
+/* ===================== RENDER: PERCURSO ===================== */
+function teamOptions(sel){
+  let h="";
+  for(const g of ED.groups){
+    h+=`<optgroup label="Grupo ${g.name}">`;
+    for(const r of groupStandings(g)) h+=`<option value="${r.team}" ${r.team===sel?"selected":""}>${pt(r.team)}</option>`;
+    h+=`</optgroup>`;
+  }
+  return h;
+}
+function selectTeam(v){ SEL_TEAM=v; renderPercurso(); }
+
+function groupPhaseHTML(t, ts){
+  if(!ts) return "";
+  const G=ts.name, gm=teamGroupMatches(t);
+  if(gm){   // só os jogos desta seleção
+    let r=`<div class="gp-h">Fase de grupos · Grupo ${G} · jogos de ${pt(t)}</div><div class="gpmatches">`;
+    for(const m of gm){
+      const hw=m.hg>m.ag, aw=m.ag>m.hg;
+      r+=`<div class="gpm tm">
+        <div class="s h${hw?' win':''}"><span class="nm">${pt(m.h)}</span><span class="fl">${fl(m.h)}</span></div>
+        <span class="sc">${m.hg}–${m.ag}</span>
+        <div class="s a${aw?' win':''}"><span class="fl">${fl(m.a)}</span><span class="nm">${pt(m.a)}</span></div>
+      </div>`;
+    }
+    return r+`</div>`;
+  }
+  // sem jogo-a-jogo nesta edição -> classificação do grupo com a seleção destacada
+  let r=`<div class="gp-h">Fase de grupos · Grupo ${G}</div>
+    <table class="tbl" style="margin:0 0 6px"><thead><tr>
+      <th class="l">Equipa</th><th>J</th><th>DG</th><th>Pts</th></tr></thead><tbody>`;
+  ts.table.forEach((row,i)=>{
+    const me=row.team===t;
+    const j=(row.w!=null)?row.w+row.d+row.l:3;
+    const dg=row.gd!=null?`${row.gd>0?'+':''}${row.gd}`:"·";
+    r+=`<tr ${me?'class="row-por"':''}>
+      <td class="l"><span class="pos ${i<2?'q1':''}">${i+1}</span><span class="tflag">${fl(row.team)}</span><span class="tname">${pt(row.team)}</span></td>
+      <td>${j}</td><td>${dg}</td><td class="pts">${_n(row.pts)}</td></tr>`;
+  });
+  return r+`</tbody></table><div class="oppmore">Resultados jogo-a-jogo indisponíveis nesta edição (grupo encerrado por classificação).</div>`;
+}
+
+function knockoutPathHTML(t){
+  const path=allTies().filter(x=>x.home===t||x.away===t);
+  if(!path.length){
+    const ts=teamStanding(t);
+    return `<div class="resultline">Terminou no <span class="wl out">${ts?ts.pos+'.º lugar':'fundo'}</span> do grupo e não se apurou para o mata-eliminatórias.</div>`;
+  }
+  let h=`<div class="stagewrap">`;
+  for(const tie of path){
+    const opp=tie.home===t?tie.away:tie.home;
+    const won=tieWinner(tie)===t;
+    const myg=tie.home===t?tie.hg:tie.ag, og=tie.home===t?tie.ag:tie.hg;
+    const pens=tie.pens?` · gp ${tie.home===t?tie.pens[0]:tie.pens[1]}–${tie.home===t?tie.pens[1]:tie.pens[0]}`:"";
+    h+=`<div class="stage ${won?'done':'gone'}">
+      <div class="sh"><span class="sr">${tie.roundFull}</span>
+        <span class="reach ${won?'done':'gone'}">${won?'venceu':'eliminada'}</span></div>
+      <div class="oppwrap"><div class="oppline ${won?'cert':''} ${opp===FAV?'por':''}">
+        <span class="of">${fl(opp)}</span><span class="on">${pt(opp)}</span>
+        <span class="op">${myg}–${og}${pens}</span></div></div></div>`;
+  }
+  h+=`</div>`;
+  if(ED.champion===t){
+    h+=`<div class="champline"><span class="cup">🏆</span><span class="ct ${t===FAV?'por':''}">${pt(t)} campeão do mundo</span><span class="cp">${ED.year}</span></div>`;
+  }
+  return h;
+}
+
+function renderPercurso(){
+  const t=SEL_TEAM, box=document.getElementById("teamPath");
+  if(!t||!ED){ box.innerHTML=`<div class="pickhint">Escolhe uma seleção para veres o percurso.</div>`; return; }
+  const ts=teamStanding(t), favc=t===FAV, r=ts?ts.row:null;
+  let recordTxt="";
+  if(r){ const rec=(r.w!=null)?`${r.w}V ${r.d}E ${r.l}D`:"";
+    const goals=(r.gf!=null&&r.ga!=null)?` · ${r.gf} GM-${r.ga} GS`:"";
+    const dg=r.gd!=null?` (${r.gd>0?'+':''}${r.gd})`:"";
+    recordTxt=`${rec}${goals}${dg}`.trim(); }
+  const seed=ts?`${ts.pos}.º do Grupo ${ts.name}`:"";
+  let tag;
+  if(ED.status==="live") tag="EM CURSO";
+  else if(ED.champion===t) tag="CAMPEÃO";
+  else { const path=allTies().filter(x=>x.home===t||x.away===t);
+    tag=path.length?path[path.length-1].round.toUpperCase():"FASE DE GRUPOS"; }
+  let h=`<div class="teamhero"><span class="bigfl">${fl(t)}</span>
+    <div class="meta"><div class="nm ${favc?'por':''}">${pt(t)}</div>
+      <div class="gl"><b>${seed}</b>${recordTxt?` · ${recordTxt}`:""}</div></div>
+    <span class="seedtag">${tag}</span>
+    <select class="heroSel" aria-label="Trocar de seleção" onchange="selectTeam(this.value)">${teamOptions(t)}</select>
+    <span class="heroChev" aria-hidden="true">▾ trocar</span></div>`;
+  h+=groupPhaseHTML(t, ts);
+  if(ED.status==="live"){
+    h+=`<div class="resultline">Mata-eliminatórias e simulação desta edição <b style="color:var(--cyan)">em preparação</b> — vê o separador <b>Quadro</b>.</div>`;
+  }else{
+    h+=knockoutPathHTML(t);
+  }
+  box.innerHTML=h;
+}
+
+/* ===================== RENDER: QUADRO ===================== */
+function koCardClosed(tie, label){
+  const w=tieWinner(tie);
+  const haspor=tie.home===FAV||tie.away===FAV;
+  const p=tie.pens;
+  const row=(name,g,pen)=>{
+    const cls=["koteam"]; if(name===w) cls.push("pick"); if(name===FAV) cls.push("por");
+    return `<div class="${cls.join(' ')}"><span class="fl">${fl(name)}</span><span class="nm">${pt(name)}</span>
+      <span class="kosc">${g}${pen!=null?`<span class="pen"> (${pen})</span>`:""}</span></div>`;
+  };
+  return `<div class="ko ${haspor?'haspor':''}">
+    <div class="jno"><span>${label||tie.round}</span></div>
+    <div class="teams">${row(tie.home,tie.hg,p?p[0]:null)}${row(tie.away,tie.ag,p?p[1]:null)}</div></div>`;
+}
+function renderBracket(){
+  const box=document.getElementById("knockout");
+  if(ED.status!=="closed" || !ED.knockout){
+    box.innerHTML=`<div class="deferred"><span class="ic">🧮</span>
+      <b>Simulação do quadro em preparação.</b><br>
+      Esta edição está <b>em curso</b>. O quadro interativo, o emparelhamento dos melhores
+      terceiros (Anexo C) e a simulação de adversários ficam no <b>módulo live</b> — <i>a reativar a seguir</i>.</div>`;
+    return;
+  }
+  const ko=ED.knockout;
+  let cols="", gameNo=0;
+  for(const r of ko.rounds){
+    let games="";
+    for(const id of r.ties){ const t=ko.ties[id]; if(t){ gameNo++;
+      games+=`<div class="gw">${koCardClosed(Object.assign({id,round:r.short}, t), "Jogo "+gameNo)}</div>`; } }
+    cols+=`<div class="col"><div class="chead">${r.short}</div><div class="games">${games}</div></div>`;
+  }
+  const champ=ED.champion
+    ? `<div class="champ-banner"><span class="cup">🏆</span><span class="fl">${fl(ED.champion)}</span>
+         <span class="cwrap"><span class="cn ${ED.champion===FAV?'por':''}">${pt(ED.champion)}</span><span class="ct">CAMPEÃO DO MUNDO ${ED.year}</span></span></div>`
+    : "";
+  const tp=ko.third
+    ? `<div class="thirdplace"><div class="tp-h">Disputa do 3.º / 4.º lugar</div>${koCardClosed(Object.assign({id:"TP",round:"3.º/4.º"}, ko.third), "3.º/4.º lugar")}</div>`
+    : "";
+  box.innerHTML=`<div class="bracket-hint"><span class="k">↔</span> Arrasta para o lado para veres o quadro todo</div>
+    <div class="bracket-scroll"><div class="bracket">${cols}</div></div>${champ}${tp}`;
+}
+
+/* ===================== CHROME DA EDIÇÃO ===================== */
+function defaultTeamFor(){
+  if(ED.teams && ED.teams[FAV]) return FAV;
+  return groupStandings(ED.groups[0])[0].team;
+}
+function applyEditionChrome(){
+  document.getElementById("h1").innerHTML=`Mundial<span class="y">${ED.year}</span>`;
+  document.title=`${ED.title} — Seleções`;
+  const sub=document.getElementById("sub");
+  sub.innerHTML = ED.status==="closed"
+    ? `<b>${ED.host} · ${ED.year}</b> — edição encerrada. Escolhe uma seleção e percorre os seus jogos, do grupo à final.`
+    : `<b>${ED.host} · ${ED.year}</b> — edição <b style="color:var(--cyan)">em curso</b>. Fase de grupos disponível; quadro e simulação em preparação.`;
+  document.getElementById("gruposDesc").innerHTML = ED.status==="closed"
+    ? `Classificações finais. Passam os <b>2 primeiros</b> de cada grupo.`
+    : `Classificações da fase de grupos.`;
+  document.getElementById("quadroDesc").innerHTML = ED.status==="closed"
+    ? `Resultados reais do mata-eliminatórias.${ED.champion?` <b>${pt(ED.champion)}</b> sagrou-se campeã.`:""}`
+    : `Em preparação para esta edição em curso.`;
+  document.getElementById("footer").innerHTML =
+    `${ED.title} · ${ED.host}<br><span style="color:var(--dim)">${ED.source||""}</span>`;
+  document.getElementById("editionSel").innerHTML =
+    EDITIONS.map(e=>`<option value="${e.id}" ${e.id===ED.id?"selected":""}>${e.label}${e.status==="live"?" · em curso":""}</option>`).join("");
+}
+
+/* ===================== ARRANQUE / TROCA DE EDIÇÃO ===================== */
+function showSplash(){ const s=document.getElementById("splash"); if(s){ s.style.display="flex"; s.classList.remove("hide"); } }
+function hideSplash(){ const s=document.getElementById("splash"); if(!s) return; s.classList.add("hide"); setTimeout(()=>{ s.style.display="none"; }, 480); }
+
+async function loadEdition(id){
+  showSplash();
+  try{
+    const r=await fetch(`data/${id}.json`,{cache:"no-store"});
+    if(!r.ok) throw new Error("HTTP "+r.status);
+    ED=await r.json();
+  }catch(e){
+    document.getElementById("teamPath").innerHTML=`<div class="pickhint">Não foi possível carregar a edição (${id}).</div>`;
+    hideSplash(); return;
+  }
+  SEL_TEAM=defaultTeamFor(); PICKS={};
+  applyEditionChrome();
+  renderGroups(); renderPercurso(); renderBracket();
+  requestAnimationFrame(()=>setTimeout(hideSplash,150));
+}
+
+/* tabs */
+document.querySelectorAll(".tab").forEach(tb=>tb.addEventListener("click",()=>{
+  const id=tb.dataset.tab;
+  document.querySelectorAll(".tab").forEach(x=>x.classList.toggle("active",x===tb));
+  document.querySelectorAll(".panel").forEach(p=>p.classList.toggle("active",p.id==="p-"+id));
+  const top=document.querySelector(".tabs").getBoundingClientRect().top+window.scrollY-2;
+  if(window.scrollY>top) window.scrollTo({top});
+}));
+
+/* bloquear gestos de zoom (pinça) no iOS */
+["gesturestart","gesturechange","gestureend"].forEach(ev=>document.addEventListener(ev,e=>e.preventDefault(),{passive:false}));
+document.addEventListener("touchmove",e=>{ if(e.touches.length>1) e.preventDefault(); },{passive:false});
+
+/* PWA */
+if("serviceWorker" in navigator){
+  window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}));
+}
+
+/* arranque */
+loadEdition(DEFAULT_EDITION);
+
+/* =====================================================================
+   MÓDULO LIVE / SIMULAÇÃO (edições "em curso") — EM PREPARAÇÃO
+   ---------------------------------------------------------------------
+   Aqui entra a engenharia que fizemos no Mundial 2026 e que, por agora,
+   fica COMENTADA (como combinado). Quando reativarmos, isto liga-se ao
+   separador "Quadro" das edições com status:"live":
+
+     1) APURAMENTO + ANEXO C
+        · ranking dos melhores terceiros e mapeamento determinístico
+          (ANNEXE) que decide qual 3.º vai a que slot dos 16-avos;
+        · construção dos confrontos R32 a partir de 1.º/2.º/3.º de grupo.
+
+     2) QUADRO INTERATIVO
+        · tocar na equipa que avança (PICKS) e propagar pelo bracket
+          até coroar o campeão (reaproveita .koteam.pick / clearDescendants).
+
+     3) SIMULAÇÃO DE PERCURSO (Monte Carlo)
+        · simulateTeam(team, N): probabilidade de chegar a cada fase e
+          distribuição de adversários possíveis (ponderada por Elo/FIFA);
+        · alimenta as "possibilidades de emparelhamento nos playoffs".
+
+     4) RESULTADOS AO VIVO (ESPN)
+        · scoreboard:  https://site.api.espn.com/apis/site/v2/sports/soccer/fifa.world/scoreboard
+        · standings:   https://site.api.espn.com/apis/v2/sports/soccer/fifa.world/standings
+        · tranca o resultado final quando o jogo termina (state "post").
+
+   >>> Implementação completa preservada em Mundial2026/index.html;
+       portar para este modelo uniforme no próximo passo. <<<
+
+   // (código a colar/adaptar aqui, comentado, no próximo commit)
+   ===================================================================== */
+</script>
+</body>
+</html>

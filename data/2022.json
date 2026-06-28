@@ -1,0 +1,135 @@
+{
+  "id": "2022",
+  "year": 2022,
+  "host": "Catar",
+  "title": "Mundial 2022",
+  "status": "closed",
+  "champion": "Argentina",
+  "source": "Resultados oficiais FIFA World Cup Qatar 2022.",
+  "teams": {
+    "Netherlands": {"pt": "Países Baixos", "flag": "🇳🇱", "rank": 8},
+    "Senegal": {"pt": "Senegal", "flag": "🇸🇳", "rank": 18},
+    "Ecuador": {"pt": "Equador", "flag": "🇪🇨", "rank": 44},
+    "Qatar": {"pt": "Catar", "flag": "🇶🇦", "rank": 50},
+    "England": {"pt": "Inglaterra", "flag": "🏴󠁧󠁢󠁥󠁮󠁧󠁿", "rank": 5},
+    "USA": {"pt": "Estados Unidos", "flag": "🇺🇸", "rank": 16},
+    "Iran": {"pt": "Irão", "flag": "🇮🇷", "rank": 20},
+    "Wales": {"pt": "País de Gales", "flag": "🏴󠁧󠁢󠁷󠁬󠁳󠁿", "rank": 19},
+    "Argentina": {"pt": "Argentina", "flag": "🇦🇷", "rank": 3},
+    "Poland": {"pt": "Polónia", "flag": "🇵🇱", "rank": 26},
+    "Mexico": {"pt": "México", "flag": "🇲🇽", "rank": 13},
+    "Saudi Arabia": {"pt": "Arábia Saudita", "flag": "🇸🇦", "rank": 51},
+    "France": {"pt": "França", "flag": "🇫🇷", "rank": 4},
+    "Australia": {"pt": "Austrália", "flag": "🇦🇺", "rank": 38},
+    "Tunisia": {"pt": "Tunísia", "flag": "🇹🇳", "rank": 30},
+    "Denmark": {"pt": "Dinamarca", "flag": "🇩🇰", "rank": 10},
+    "Japan": {"pt": "Japão", "flag": "🇯🇵", "rank": 24},
+    "Spain": {"pt": "Espanha", "flag": "🇪🇸", "rank": 7},
+    "Germany": {"pt": "Alemanha", "flag": "🇩🇪", "rank": 11},
+    "Costa Rica": {"pt": "Costa Rica", "flag": "🇨🇷", "rank": 31},
+    "Morocco": {"pt": "Marrocos", "flag": "🇲🇦", "rank": 22},
+    "Croatia": {"pt": "Croácia", "flag": "🇭🇷", "rank": 12},
+    "Belgium": {"pt": "Bélgica", "flag": "🇧🇪", "rank": 2},
+    "Canada": {"pt": "Canadá", "flag": "🇨🇦", "rank": 41},
+    "Brazil": {"pt": "Brasil", "flag": "🇧🇷", "rank": 1},
+    "Switzerland": {"pt": "Suíça", "flag": "🇨🇭", "rank": 15},
+    "Cameroon": {"pt": "Camarões", "flag": "🇨🇲", "rank": 43},
+    "Serbia": {"pt": "Sérvia", "flag": "🇷🇸", "rank": 21},
+    "Portugal": {"pt": "Portugal", "flag": "🇵🇹", "rank": 9},
+    "South Korea": {"pt": "Coreia do Sul", "flag": "🇰🇷", "rank": 28},
+    "Uruguay": {"pt": "Uruguai", "flag": "🇺🇾", "rank": 14},
+    "Ghana": {"pt": "Gana", "flag": "🇬🇭", "rank": 61}
+  },
+  "groups": [
+    {"name": "A", "teams": ["Netherlands", "Senegal", "Ecuador", "Qatar"], "matches": [
+      ["Qatar", "Ecuador", 0, 2],
+      ["Senegal", "Netherlands", 0, 2],
+      ["Qatar", "Senegal", 1, 3],
+      ["Netherlands", "Ecuador", 1, 1],
+      ["Ecuador", "Senegal", 1, 2],
+      ["Netherlands", "Qatar", 2, 0]
+    ]},
+    {"name": "B", "teams": ["England", "USA", "Iran", "Wales"], "matches": [
+      ["England", "Iran", 6, 2],
+      ["USA", "Wales", 1, 1],
+      ["Wales", "Iran", 0, 2],
+      ["England", "USA", 0, 0],
+      ["Wales", "England", 0, 3],
+      ["Iran", "USA", 0, 1]
+    ]},
+    {"name": "C", "teams": ["Argentina", "Poland", "Mexico", "Saudi Arabia"], "matches": [
+      ["Argentina", "Saudi Arabia", 1, 2],
+      ["Mexico", "Poland", 0, 0],
+      ["Poland", "Saudi Arabia", 2, 0],
+      ["Argentina", "Mexico", 2, 0],
+      ["Poland", "Argentina", 0, 2],
+      ["Saudi Arabia", "Mexico", 1, 2]
+    ]},
+    {"name": "D", "teams": ["France", "Australia", "Tunisia", "Denmark"], "matches": [
+      ["Denmark", "Tunisia", 0, 0],
+      ["France", "Australia", 4, 1],
+      ["Tunisia", "Australia", 0, 1],
+      ["France", "Denmark", 2, 1],
+      ["Australia", "Denmark", 1, 0],
+      ["Tunisia", "France", 1, 0]
+    ]},
+    {"name": "E", "teams": ["Japan", "Spain", "Germany", "Costa Rica"], "matches": [
+      ["Germany", "Japan", 1, 2],
+      ["Spain", "Costa Rica", 7, 0],
+      ["Japan", "Costa Rica", 0, 1],
+      ["Spain", "Germany", 1, 1],
+      ["Japan", "Spain", 2, 1],
+      ["Costa Rica", "Germany", 2, 4]
+    ]},
+    {"name": "F", "teams": ["Morocco", "Croatia", "Belgium", "Canada"], "matches": [
+      ["Morocco", "Croatia", 0, 0],
+      ["Belgium", "Canada", 1, 0],
+      ["Belgium", "Morocco", 0, 2],
+      ["Croatia", "Canada", 4, 1],
+      ["Croatia", "Belgium", 0, 0],
+      ["Canada", "Morocco", 1, 2]
+    ]},
+    {"name": "G", "teams": ["Brazil", "Switzerland", "Cameroon", "Serbia"], "matches": [
+      ["Switzerland", "Cameroon", 1, 0],
+      ["Brazil", "Serbia", 2, 0],
+      ["Cameroon", "Serbia", 3, 3],
+      ["Brazil", "Switzerland", 1, 0],
+      ["Serbia", "Switzerland", 2, 3],
+      ["Cameroon", "Brazil", 1, 0]
+    ]},
+    {"name": "H", "teams": ["Portugal", "South Korea", "Uruguay", "Ghana"], "matches": [
+      ["Uruguay", "South Korea", 0, 0],
+      ["Portugal", "Ghana", 3, 2],
+      ["South Korea", "Ghana", 2, 3],
+      ["Portugal", "Uruguay", 2, 0],
+      ["Ghana", "Uruguay", 0, 2],
+      ["South Korea", "Portugal", 2, 1]
+    ]}
+  ],
+  "knockout": {
+    "rounds": [
+      {"name": "Oitavos de final", "short": "Oitavos", "ties": ["R16-1", "R16-2", "R16-3", "R16-4", "R16-5", "R16-6", "R16-7", "R16-8"]},
+      {"name": "Quartos de final", "short": "Quartos", "ties": ["QF-1", "QF-2", "QF-3", "QF-4"]},
+      {"name": "Meias-finais", "short": "Meias", "ties": ["SF-1", "SF-2"]},
+      {"name": "Final", "short": "Final", "ties": ["FIN"]}
+    ],
+    "third": {"id": "TP", "round": "3.º/4.º lugar", "home": "Croatia", "away": "Morocco", "hg": 2, "ag": 1},
+    "ties": {
+      "R16-1": {"round": "Oitavos", "home": "Netherlands", "away": "USA", "hg": 3, "ag": 1},
+      "R16-2": {"round": "Oitavos", "home": "Argentina", "away": "Australia", "hg": 2, "ag": 1},
+      "R16-3": {"round": "Oitavos", "home": "Japan", "away": "Croatia", "hg": 1, "ag": 1, "pens": [1, 3]},
+      "R16-4": {"round": "Oitavos", "home": "Brazil", "away": "South Korea", "hg": 4, "ag": 1},
+      "R16-5": {"round": "Oitavos", "home": "Morocco", "away": "Spain", "hg": 0, "ag": 0, "pens": [3, 0]},
+      "R16-6": {"round": "Oitavos", "home": "Portugal", "away": "Switzerland", "hg": 6, "ag": 1},
+      "R16-7": {"round": "Oitavos", "home": "England", "away": "Senegal", "hg": 3, "ag": 0},
+      "R16-8": {"round": "Oitavos", "home": "France", "away": "Poland", "hg": 3, "ag": 1},
+      "QF-1": {"round": "Quartos", "home": "Netherlands", "away": "Argentina", "hg": 2, "ag": 2, "pens": [3, 4]},
+      "QF-2": {"round": "Quartos", "home": "Croatia", "away": "Brazil", "hg": 1, "ag": 1, "pens": [4, 2]},
+      "QF-3": {"round": "Quartos", "home": "Morocco", "away": "Portugal", "hg": 1, "ag": 0},
+      "QF-4": {"round": "Quartos", "home": "England", "away": "France", "hg": 1, "ag": 2},
+      "SF-1": {"round": "Meias", "home": "Argentina", "away": "Croatia", "hg": 3, "ag": 0},
+      "SF-2": {"round": "Meias", "home": "France", "away": "Morocco", "hg": 2, "ag": 0},
+      "FIN": {"round": "Final", "home": "Argentina", "away": "France", "hg": 3, "ag": 3, "pens": [4, 2]}
+    }
+  }
+}
