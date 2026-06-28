@@ -1083,9 +1083,16 @@ function matchListHTML(selTeam){
     const concreteMe=A.name===ME||B.name===ME, onPath=PATH.has(id);
     const tm = concreteMe ? " tm" : (onPath ? " tm poss" : "");   // jogo possível da seleção destacada
     const predrow = (oA||oB) ? " predrow" : "";   // jogo por definir -> lados alinhados ao topo
-    h+=`<div class="gpm${tm}${predrow}">
+    // placar/estado ao vivo: resultado trancado tem prioridade; senão o snapshot do fetch atual (lados na ordem A=h, B=a)
+    const fin=KO_FINAL[id], lv=KO_LIVE[id];
+    const sc = fin ? {hg:fin.hg, ag:fin.ag} : (lv ? {hg:lv.hg, ag:lv.ag} : null);
+    const state = fin ? "post" : (lv ? lv.state : null);
+    const chip = state==="in" ? `<span class="mlstate live">${lv&&lv.minute?lv.minute+"'":"a jogar"}</span>`
+               : state==="post" ? `<span class="mlstate done">Fim</span>` : "";
+    const mid = sc ? `<span class="sc">${sc.hg}–${sc.ag}</span>${chip}` : `<span class="sc up">vs</span>`;
+    h+=`<div class="gpm${tm}${predrow}${state==="in"?" inplay":""}">
       ${side(A.name, A.tag||A.ph||"A definir", oA, 'h', winner&&winner===A.name)}
-      <div class="mlmid"><span class="sc up">vs</span></div>
+      <div class="mlmid">${mid}</div>
       ${side(B.name, B.tag||B.ph||"A definir", oB, 'a', winner&&winner===B.name)}
       <div class="mlin"><span class="v">${schedLabel(id)}</span></div>
     </div>`;

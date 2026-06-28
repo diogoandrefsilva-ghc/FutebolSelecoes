@@ -468,6 +468,13 @@
   .mllist .gpm{margin-bottom:8px;border-width:2px;border-color:var(--line2)}
   .mlmid{display:flex;flex-direction:column;align-items:center;gap:3px;min-width:0}
   .gpm .sc .pk{display:block;font-family:Inter,sans-serif;font-size:8.5px;font-weight:600;color:var(--mut);letter-spacing:.2px;margin-top:1px}
+  /* estado ao vivo do mata-eliminatórias na lista de jogos */
+  .mlmid .mlstate{font-family:Inter,sans-serif;font-size:8.5px;font-weight:800;letter-spacing:.4px}
+  .mlmid .mlstate.live{color:var(--cyan);display:inline-flex;align-items:center;gap:4px}
+  .mlmid .mlstate.live::before{content:"";width:5px;height:5px;border-radius:50%;background:var(--cyan);
+    box-shadow:0 0 7px var(--cyan);animation:pulse 1.6s ease-in-out infinite}
+  .mlmid .mlstate.done{color:var(--lime)}
+  .mllist .gpm.inplay{border-color:var(--cyan)}
   /* data/hora/local dentro da própria caixa do jogo (linha a toda a largura, por baixo do placar) */
   .gpm .mlin{grid-column:1/-1;font-family:Inter,sans-serif;font-size:10px;color:var(--dim);text-align:center;
     margin-top:3px;padding-top:6px;border-top:1px dashed var(--line)}
