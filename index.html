@@ -419,6 +419,16 @@
   .koteam .kosc{margin-left:auto;font-weight:700;font-size:12px;color:var(--mut);flex:none;white-space:nowrap}
   .koteam.pick .kosc{color:var(--lime)}
   .koteam .pen{color:var(--dim);font-size:9px;font-weight:600}
+  /* placar/estado ao vivo do mata-eliminatórias */
+  .ko .jno .kostate{font-weight:800;letter-spacing:.4px}
+  .ko .jno .kostate.live{color:var(--cyan);display:inline-flex;align-items:center;gap:4px}
+  .ko .jno .kostate.live::before{content:"";width:5px;height:5px;border-radius:50%;background:var(--cyan);
+    box-shadow:0 0 7px var(--cyan);animation:pulse 1.6s ease-in-out infinite}
+  .ko .jno .kostate.done{color:var(--lime)}
+  .ko.inplay{border-color:var(--cyan)}
+  .ko.locked{border-color:rgba(198,255,61,.45)}
+  .koteam.kowin .kosc{color:var(--lime)}
+  .koteam.kowin:not(.pick) .nm{color:var(--lime)}
 
   /* --- banner: mais baixo; estado no canto sup. direito, pílula trocar no inf. direito --- */
   .teamhero{padding:11px 128px 11px 12px;align-items:center;min-height:74px;gap:11px}
