@@ -279,6 +279,13 @@
   .splash-logo span{display:block;color:var(--lime)}
   .splash-spin{width:30px;height:30px;border:3px solid var(--line2);border-top-color:var(--cyan);border-radius:50%;animation:spin .7s linear infinite}
   .splash-sub{font-family:Inter,sans-serif;font-size:12px;letter-spacing:.5px;color:var(--mut)}
+
+  /* ---- ESCURECER AO TROCAR DE EDIÇÃO (sem logo, só dim + spinner) ---- */
+  #switchDim{position:fixed;inset:0;z-index:99;display:flex;align-items:center;justify-content:center;
+    background:rgba(4,7,14,.55);-webkit-backdrop-filter:blur(2px);backdrop-filter:blur(2px);
+    opacity:0;pointer-events:none;transition:opacity .18s ease}
+  #switchDim.show{opacity:1;pointer-events:auto}
+  #switchDim .splash-spin{width:28px;height:28px}
   /* ---- SELEÇÃO / PERCURSO ---- */
   .teampick{display:flex;align-items:center;gap:10px;margin:0 0 16px}
   .teampick label{font-family:Inter,sans-serif;font-size:11px;letter-spacing:1px;color:var(--mut);text-transform:uppercase;flex:none}
@@ -517,6 +524,7 @@
   <div class="splash-spin"></div>
   <div class="splash-sub">a preparar o quadro…</div>
 </div>
+<div id="switchDim"><div class="splash-spin"></div></div>
 <div class="wrap">
   <header>
     <div class="topbar"></div>
@@ -948,16 +956,19 @@ function renderEditionRow(){
 /* ===================== ARRANQUE / TROCA DE EDIÇÃO ===================== */
 function showSplash(){ const s=document.getElementById("splash"); if(s){ s.style.display="flex"; s.classList.remove("hide"); } }
 function hideSplash(){ const s=document.getElementById("splash"); if(!s) return; s.classList.add("hide"); setTimeout(()=>{ s.style.display="none"; }, 480); }
+function showSwitchDim(){ document.getElementById("switchDim").classList.add("show"); }
+function hideSwitchDim(){ document.getElementById("switchDim").classList.remove("show"); }
 
-async function loadEdition(id){
-  showSplash();
+async function loadEdition(id, isInitial){
+  if(isInitial) showSplash(); else showSwitchDim();
   try{
     const r=await fetch(`data/${id}.json`,{cache:"no-store"});
     if(!r.ok) throw new Error("HTTP "+r.status);
     ED=await r.json();
   }catch(e){
     document.getElementById("teamPath").innerHTML=`<div class="pickhint">Não foi possível carregar a edição (${id}).</div>`;
-    hideSplash(); return;
+    if(isInitial) hideSplash(); else hideSwitchDim();
+    return;
   }
   await buildRegistry();   // garante a lista global de seleções para o seletor
   // mantém a seleção escolhida ao trocar de edição; só usa o default no 1.º arranque
@@ -965,7 +976,8 @@ async function loadEdition(id){
   PICKS={};
   applyEditionChrome();
   renderGroups(); renderPercurso(); renderBracket(); renderMatchList();
-  requestAnimationFrame(()=>setTimeout(hideSplash,150));
+  if(isInitial) requestAnimationFrame(()=>setTimeout(hideSplash,150));
+  else hideSwitchDim();
 }
 
 /* tabs */
@@ -1002,7 +1014,7 @@ if("serviceWorker" in navigator){
 }
 
 /* arranque */
-loadEdition(DEFAULT_EDITION);
+loadEdition(DEFAULT_EDITION, true);
 
 /* =====================================================================
    MÓDULO LIVE / SIMULAÇÃO (edições "em curso") — EM PREPARAÇÃO
