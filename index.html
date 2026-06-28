@@ -461,12 +461,16 @@
     <section class="panel" id="p-quadro">
       <h2 class="panel-h">Quadro a eliminar</h2>
       <p class="panel-d" id="quadroDesc"></p>
+      <div class="btnrow" id="koReset" style="display:none;margin:0 0 10px">
+        <button class="btn ghost" onclick="window.LIVE2026&&window.LIVE2026.reset()">↺ Limpar escolhas do quadro</button>
+      </div>
       <div id="knockout"></div>
     </section>
   </main>
 
   <footer id="footer"></footer>
 </div>
+<script src="live2026.js"></script>
 <script>
 "use strict";
 /* =====================================================================
@@ -481,7 +485,12 @@
 /* ===================== REGISTO DE EDIÇÕES ===================== */
 const EDITIONS = [
   { id:"2026", year:2026, host:"EUA · Canadá · México", status:"live" },
-  { id:"2022", year:2022, host:"Catar",                 status:"closed" }
+  { id:"2022", year:2022, host:"Catar",                 status:"closed" },
+  { id:"2018", year:2018, host:"Rússia",                status:"closed" },
+  { id:"2014", year:2014, host:"Brasil",                status:"closed" },
+  { id:"2010", year:2010, host:"África do Sul",         status:"closed" },
+  { id:"2006", year:2006, host:"Alemanha",              status:"closed" },
+  { id:"2002", year:2002, host:"Coreia/Japão",          status:"closed" }
 ];
 const DEFAULT_EDITION = "2026";
 const FAV = "Portugal";          // seleção destacada (a da casa do utilizador)
@@ -665,7 +674,8 @@ function renderPercurso(){
     <span class="heroChev" aria-hidden="true">⇄ Trocar</span></div>`;
   h+=groupPhaseHTML(t, ts);
   if(ED.status==="live"){
-    h+=`<div class="livenote"><span class="ic">🧭</span><div class="tx">O <b>mata-eliminatórias</b> e a <span class="hl">simulação</span> desta edição em curso estão em preparação. Vê o separador <b>Quadro</b>.</div></div>`;
+    if(ED.id==="2026" && window.LIVE2026){ h+=window.LIVE2026.percursoStagesHTML(t); }
+    else h+=`<div class="livenote"><span class="ic">🧭</span><div class="tx">O <b>mata-eliminatórias</b> e a <span class="hl">simulação</span> desta edição em curso estão em preparação. Vê o separador <b>Quadro</b>.</div></div>`;
   }else{
     h+=knockoutPathHTML(t);
   }
@@ -688,13 +698,22 @@ function koCardClosed(tie, label){
 }
 function renderBracket(){
   const box=document.getElementById("knockout");
-  if(ED.status!=="closed" || !ED.knockout){
-    box.innerHTML=`<div class="deferred"><span class="ic">🧮</span>
-      <b>Simulação do quadro em preparação.</b><br>
-      Esta edição está <b>em curso</b>. O quadro interativo, o emparelhamento dos melhores
-      terceiros (Anexo C) e a simulação de adversários ficam no <b>módulo live</b> — <i>a reativar a seguir</i>.</div>`;
+  const reset=document.getElementById("koReset");
+  // edição em curso: delega no módulo live (quadro interativo + Anexo C + simulação)
+  if(ED.status==="live"){
+    if(ED.id==="2026" && window.LIVE2026){
+      reset.style.display="flex";
+      document.getElementById("quadroDesc").innerHTML="Os cruzamentos dos 16-avos saem das contas (Anexo C). Daí para a frente, <b>tocas na equipa que avança</b>.";
+      window.LIVE2026.mount({onChange:()=>renderPercurso()});
+    }else{
+      reset.style.display="none";
+      box.innerHTML=`<div class="deferred"><span class="ic">🧮</span>
+        <b>Simulação do quadro em preparação.</b><br>Esta edição em curso ainda não tem módulo live.</div>`;
+    }
     return;
   }
+  reset.style.display="none";
+  if(!ED.knockout){ box.innerHTML=`<div class="deferred">Sem dados do quadro para esta edição.</div>`; return; }
   const ko=ED.knockout;
   let cols="", gameNo=0;
   for(const r of ko.rounds){
@@ -720,12 +739,11 @@ function defaultTeamFor(){
   return groupStandings(ED.groups[0])[0].team;
 }
 function applyEditionChrome(){
-  document.getElementById("h1").innerHTML=`Mundial<span class="y">${ED.year}</span>`;
   document.title=`${ED.title} — Seleções`;
   const sub=document.getElementById("sub");
   sub.innerHTML = ED.status==="closed"
     ? `<b>${ED.host} · ${ED.year}</b> — edição encerrada. Escolhe uma seleção e percorre os seus jogos, do grupo à final.`
-    : `<b>${ED.host} · ${ED.year}</b> — edição <b style="color:var(--cyan)">em curso</b>. Fase de grupos disponível; quadro e simulação em preparação.`;
+    : `<b>${ED.host} · ${ED.year}</b> — edição <b style="color:var(--cyan)">em curso</b>. Simula o quadro a eliminar e vê o percurso provável de cada seleção.`;
   document.getElementById("gruposDesc").innerHTML = ED.status==="closed"
     ? `Classificações finais. Passam os <b>2 primeiros</b> de cada grupo.`
     : `Classificações da fase de grupos.`;

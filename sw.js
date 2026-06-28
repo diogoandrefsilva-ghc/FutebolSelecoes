@@ -1,12 +1,18 @@
 /* Service worker — Mundiais das Seleções (cache-first com atualização em rede) */
-const CACHE = "mundiais-v1";
+const CACHE = "mundiais-v2";
 const ASSETS = [
   "./",
   "./index.html",
+  "./live2026.js",
   "./manifest.webmanifest",
   "./icon.svg",
   "./data/2026.json",
-  "./data/2022.json"
+  "./data/2022.json",
+  "./data/2018.json",
+  "./data/2014.json",
+  "./data/2010.json",
+  "./data/2006.json",
+  "./data/2002.json"
 ];
 
 self.addEventListener("install", e => {

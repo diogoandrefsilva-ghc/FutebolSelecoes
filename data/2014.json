@@ -1,0 +1,723 @@
+{
+  "id": "2014",
+  "year": 2014,
+  "host": "Brasil",
+  "title": "Mundial 2014",
+  "status": "closed",
+  "champion": "Germany",
+  "source": "Resultados oficiais FIFA World Cup 2014.",
+  "teams": {
+    "Algeria": {
+      "pt": "Argélia",
+      "flag": "🇩🇿",
+      "rank": 32
+    },
+    "Argentina": {
+      "pt": "Argentina",
+      "flag": "🇦🇷",
+      "rank": 3
+    },
+    "Australia": {
+      "pt": "Austrália",
+      "flag": "🇦🇺",
+      "rank": 36
+    },
+    "Belgium": {
+      "pt": "Bélgica",
+      "flag": "🇧🇪",
+      "rank": 5
+    },
+    "Bosnia & Herzegovina": {
+      "pt": "Bósnia e Herz.",
+      "flag": "🇧🇦",
+      "rank": 25
+    },
+    "Brazil": {
+      "pt": "Brasil",
+      "flag": "🇧🇷",
+      "rank": 2
+    },
+    "Cameroon": {
+      "pt": "Camarões",
+      "flag": "🇨🇲",
+      "rank": 43
+    },
+    "Chile": {
+      "pt": "Chile",
+      "flag": "🇨🇱",
+      "rank": 9
+    },
+    "Colombia": {
+      "pt": "Colômbia",
+      "flag": "🇨🇴",
+      "rank": 16
+    },
+    "Costa Rica": {
+      "pt": "Costa Rica",
+      "flag": "🇨🇷",
+      "rank": 23
+    },
+    "Croatia": {
+      "pt": "Croácia",
+      "flag": "🇭🇷",
+      "rank": 13
+    },
+    "Ecuador": {
+      "pt": "Equador",
+      "flag": "🇪🇨",
+      "rank": 26
+    },
+    "England": {
+      "pt": "Inglaterra",
+      "flag": "🏴󠁧󠁢󠁥󠁮󠁧󠁿",
+      "rank": 10
+    },
+    "France": {
+      "pt": "França",
+      "flag": "🇫🇷",
+      "rank": 4
+    },
+    "Germany": {
+      "pt": "Alemanha",
+      "flag": "🇩🇪",
+      "rank": 1
+    },
+    "Ghana": {
+      "pt": "Gana",
+      "flag": "🇬🇭",
+      "rank": 38
+    },
+    "Greece": {
+      "pt": "Grécia",
+      "flag": "🇬🇷",
+      "rank": 12
+    },
+    "Honduras": {
+      "pt": "Honduras",
+      "flag": "🇭🇳",
+      "rank": 40
+    },
+    "Iran": {
+      "pt": "Irão",
+      "flag": "🇮🇷",
+      "rank": 37
+    },
+    "Italy": {
+      "pt": "Itália",
+      "flag": "🇮🇹",
+      "rank": 9
+    },
+    "Ivory Coast": {
+      "pt": "Costa do Marfim",
+      "flag": "🇨🇮",
+      "rank": 28
+    },
+    "Japan": {
+      "pt": "Japão",
+      "flag": "🇯🇵",
+      "rank": 20
+    },
+    "Mexico": {
+      "pt": "México",
+      "flag": "🇲🇽",
+      "rank": 15
+    },
+    "Netherlands": {
+      "pt": "Países Baixos",
+      "flag": "🇳🇱",
+      "rank": 6
+    },
+    "Nigeria": {
+      "pt": "Nigéria",
+      "flag": "🇳🇬",
+      "rank": 48
+    },
+    "Portugal": {
+      "pt": "Portugal",
+      "flag": "🇵🇹",
+      "rank": 7
+    },
+    "Russia": {
+      "pt": "Rússia",
+      "flag": "🇷🇺",
+      "rank": 30
+    },
+    "South Korea": {
+      "pt": "Coreia do Sul",
+      "flag": "🇰🇷",
+      "rank": 19
+    },
+    "Spain": {
+      "pt": "Espanha",
+      "flag": "🇪🇸",
+      "rank": 8
+    },
+    "Switzerland": {
+      "pt": "Suíça",
+      "flag": "🇨🇭",
+      "rank": 6
+    },
+    "USA": {
+      "pt": "Estados Unidos",
+      "flag": "🇺🇸",
+      "rank": 17
+    },
+    "Uruguay": {
+      "pt": "Uruguai",
+      "flag": "🇺🇾",
+      "rank": 14
+    }
+  },
+  "groups": [
+    {
+      "name": "A",
+      "teams": [
+        "Brazil",
+        "Mexico",
+        "Croatia",
+        "Cameroon"
+      ],
+      "matches": [
+        [
+          "Brazil",
+          "Croatia",
+          3,
+          1
+        ],
+        [
+          "Mexico",
+          "Cameroon",
+          1,
+          0
+        ],
+        [
+          "Brazil",
+          "Mexico",
+          0,
+          0
+        ],
+        [
+          "Cameroon",
+          "Croatia",
+          0,
+          4
+        ],
+        [
+          "Cameroon",
+          "Brazil",
+          1,
+          4
+        ],
+        [
+          "Croatia",
+          "Mexico",
+          1,
+          3
+        ]
+      ]
+    },
+    {
+      "name": "B",
+      "teams": [
+        "Netherlands",
+        "Chile",
+        "Spain",
+        "Australia"
+      ],
+      "matches": [
+        [
+          "Spain",
+          "Netherlands",
+          1,
+          5
+        ],
+        [
+          "Chile",
+          "Australia",
+          3,
+          1
+        ],
+        [
+          "Australia",
+          "Netherlands",
+          2,
+          3
+        ],
+        [
+          "Spain",
+          "Chile",
+          0,
+          2
+        ],
+        [
+          "Netherlands",
+          "Chile",
+          2,
+          0
+        ],
+        [
+          "Australia",
+          "Spain",
+          0,
+          3
+        ]
+      ]
+    },
+    {
+      "name": "C",
+      "teams": [
+        "Colombia",
+        "Greece",
+        "Ivory Coast",
+        "Japan"
+      ],
+      "matches": [
+        [
+          "Colombia",
+          "Greece",
+          3,
+          0
+        ],
+        [
+          "Ivory Coast",
+          "Japan",
+          2,
+          1
+        ],
+        [
+          "Colombia",
+          "Ivory Coast",
+          2,
+          1
+        ],
+        [
+          "Japan",
+          "Greece",
+          0,
+          0
+        ],
+        [
+          "Japan",
+          "Colombia",
+          1,
+          4
+        ],
+        [
+          "Greece",
+          "Ivory Coast",
+          2,
+          1
+        ]
+      ]
+    },
+    {
+      "name": "D",
+      "teams": [
+        "Costa Rica",
+        "Uruguay",
+        "Italy",
+        "England"
+      ],
+      "matches": [
+        [
+          "Uruguay",
+          "Costa Rica",
+          1,
+          3
+        ],
+        [
+          "England",
+          "Italy",
+          1,
+          2
+        ],
+        [
+          "Uruguay",
+          "England",
+          2,
+          1
+        ],
+        [
+          "Italy",
+          "Costa Rica",
+          0,
+          1
+        ],
+        [
+          "Costa Rica",
+          "England",
+          0,
+          0
+        ],
+        [
+          "Italy",
+          "Uruguay",
+          0,
+          1
+        ]
+      ]
+    },
+    {
+      "name": "E",
+      "teams": [
+        "France",
+        "Switzerland",
+        "Ecuador",
+        "Honduras"
+      ],
+      "matches": [
+        [
+          "Switzerland",
+          "Ecuador",
+          2,
+          1
+        ],
+        [
+          "France",
+          "Honduras",
+          3,
+          0
+        ],
+        [
+          "Switzerland",
+          "France",
+          2,
+          5
+        ],
+        [
+          "Honduras",
+          "Ecuador",
+          1,
+          2
+        ],
+        [
+          "Honduras",
+          "Switzerland",
+          0,
+          3
+        ],
+        [
+          "Ecuador",
+          "France",
+          0,
+          0
+        ]
+      ]
+    },
+    {
+      "name": "F",
+      "teams": [
+        "Argentina",
+        "Nigeria",
+        "Bosnia & Herzegovina",
+        "Iran"
+      ],
+      "matches": [
+        [
+          "Argentina",
+          "Bosnia & Herzegovina",
+          2,
+          1
+        ],
+        [
+          "Iran",
+          "Nigeria",
+          0,
+          0
+        ],
+        [
+          "Argentina",
+          "Iran",
+          1,
+          0
+        ],
+        [
+          "Nigeria",
+          "Bosnia & Herzegovina",
+          1,
+          0
+        ],
+        [
+          "Nigeria",
+          "Argentina",
+          2,
+          3
+        ],
+        [
+          "Bosnia & Herzegovina",
+          "Iran",
+          3,
+          1
+        ]
+      ]
+    },
+    {
+      "name": "G",
+      "teams": [
+        "Germany",
+        "USA",
+        "Portugal",
+        "Ghana"
+      ],
+      "matches": [
+        [
+          "Germany",
+          "Portugal",
+          4,
+          0
+        ],
+        [
+          "Ghana",
+          "USA",
+          1,
+          2
+        ],
+        [
+          "Germany",
+          "Ghana",
+          2,
+          2
+        ],
+        [
+          "USA",
+          "Portugal",
+          2,
+          2
+        ],
+        [
+          "USA",
+          "Germany",
+          0,
+          1
+        ],
+        [
+          "Portugal",
+          "Ghana",
+          2,
+          1
+        ]
+      ]
+    },
+    {
+      "name": "H",
+      "teams": [
+        "Belgium",
+        "Algeria",
+        "Russia",
+        "South Korea"
+      ],
+      "matches": [
+        [
+          "Belgium",
+          "Algeria",
+          2,
+          1
+        ],
+        [
+          "Russia",
+          "South Korea",
+          1,
+          1
+        ],
+        [
+          "Belgium",
+          "Russia",
+          1,
+          0
+        ],
+        [
+          "South Korea",
+          "Algeria",
+          2,
+          4
+        ],
+        [
+          "South Korea",
+          "Belgium",
+          0,
+          1
+        ],
+        [
+          "Algeria",
+          "Russia",
+          1,
+          1
+        ]
+      ]
+    }
+  ],
+  "knockout": {
+    "rounds": [
+      {
+        "name": "Oitavos de final",
+        "short": "Oitavos",
+        "ties": [
+          "R16-1",
+          "R16-2",
+          "R16-3",
+          "R16-4",
+          "R16-5",
+          "R16-6",
+          "R16-7",
+          "R16-8"
+        ]
+      },
+      {
+        "name": "Quartos de final",
+        "short": "Quartos",
+        "ties": [
+          "QF-1",
+          "QF-2",
+          "QF-3",
+          "QF-4"
+        ]
+      },
+      {
+        "name": "Meias-finais",
+        "short": "Meias",
+        "ties": [
+          "SF-1",
+          "SF-2"
+        ]
+      },
+      {
+        "name": "Final",
+        "short": "Final",
+        "ties": [
+          "FIN"
+        ]
+      }
+    ],
+    "third": {
+      "id": "TP",
+      "round": "3.º/4.º lugar",
+      "home": "Brazil",
+      "away": "Netherlands",
+      "hg": 0,
+      "ag": 3
+    },
+    "ties": {
+      "R16-1": {
+        "round": "Oitavos",
+        "home": "Brazil",
+        "away": "Chile",
+        "hg": 1,
+        "ag": 1,
+        "pens": [
+          3,
+          2
+        ]
+      },
+      "R16-2": {
+        "round": "Oitavos",
+        "home": "Colombia",
+        "away": "Uruguay",
+        "hg": 2,
+        "ag": 0
+      },
+      "R16-3": {
+        "round": "Oitavos",
+        "home": "France",
+        "away": "Nigeria",
+        "hg": 2,
+        "ag": 0
+      },
+      "R16-4": {
+        "round": "Oitavos",
+        "home": "Germany",
+        "away": "Algeria",
+        "hg": 2,
+        "ag": 1
+      },
+      "R16-5": {
+        "round": "Oitavos",
+        "home": "Netherlands",
+        "away": "Mexico",
+        "hg": 2,
+        "ag": 1
+      },
+      "R16-6": {
+        "round": "Oitavos",
+        "home": "Costa Rica",
+        "away": "Greece",
+        "hg": 1,
+        "ag": 1,
+        "pens": [
+          5,
+          3
+        ]
+      },
+      "R16-7": {
+        "round": "Oitavos",
+        "home": "Argentina",
+        "away": "Switzerland",
+        "hg": 1,
+        "ag": 0
+      },
+      "R16-8": {
+        "round": "Oitavos",
+        "home": "Belgium",
+        "away": "USA",
+        "hg": 2,
+        "ag": 1
+      },
+      "QF-1": {
+        "round": "Quartos",
+        "home": "Brazil",
+        "away": "Colombia",
+        "hg": 2,
+        "ag": 1
+      },
+      "QF-2": {
+        "round": "Quartos",
+        "home": "France",
+        "away": "Germany",
+        "hg": 0,
+        "ag": 1
+      },
+      "QF-3": {
+        "round": "Quartos",
+        "home": "Netherlands",
+        "away": "Costa Rica",
+        "hg": 0,
+        "ag": 0,
+        "pens": [
+          4,
+          3
+        ]
+      },
+      "QF-4": {
+        "round": "Quartos",
+        "home": "Argentina",
+        "away": "Belgium",
+        "hg": 1,
+        "ag": 0
+      },
+      "SF-1": {
+        "round": "Meias",
+        "home": "Brazil",
+        "away": "Germany",
+        "hg": 1,
+        "ag": 7
+      },
+      "SF-2": {
+        "round": "Meias",
+        "home": "Netherlands",
+        "away": "Argentina",
+        "hg": 0,
+        "ag": 0,
+        "pens": [
+          2,
+          4
+        ]
+      },
+      "FIN": {
+        "round": "Final",
+        "home": "Germany",
+        "away": "Argentina",
+        "hg": 1,
+        "ag": 0
+      }
+    }
+  }
+}

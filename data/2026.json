@@ -5,8 +5,8 @@
   "title": "Mundial 2026",
   "status": "live",
   "champion": null,
-  "source": "Fase de grupos: A–I encerrados (Anexo C FIFA); J/K/L com cenário base. Live via ESPN no módulo de simulação (em preparação).",
-  "note": "Edição em curso. Grupos A–I em classificação; J/K/L jogo-a-jogo. O quadro a eliminar e a simulação ficam no módulo live (a reativar).",
+  "source": "Fase de grupos: A–I encerrados (Anexo C FIFA); J/K/L com cenário base. Quadro interativo e simulação no módulo live; resultados ao vivo via ESPN quando disponível.",
+  "note": "Edição em curso. Grupos A–I em classificação; J/K/L jogo-a-jogo. Quadro a eliminar e simulação do percurso no módulo live.",
   "teams": {
     "Mexico": {"pt": "México", "flag": "🇲🇽", "rank": 15},
     "South Africa": {"pt": "África do Sul", "flag": "🇿🇦", "rank": 33},
