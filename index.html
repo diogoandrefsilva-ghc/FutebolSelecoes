@@ -14,7 +14,7 @@
 <title>Mundiais das Seleções</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
   :root{
     --ink:#0A0E1A; --panel:#131A2C; --panel2:#0E1422; --raise:#1A2238;
@@ -86,9 +86,9 @@
   .oddscell.h{grid-column:1}
   .oddscell.a{grid-column:3}
   .mmid{grid-row:1;grid-column:2;align-self:start;display:flex;flex-direction:column;align-items:center;gap:7px}
-  .mmid .mx{color:var(--dim);font-family:"IBM Plex Mono",monospace;font-size:12px;font-weight:700}
+  .mmid .mx{color:var(--dim);font-family:Inter,sans-serif;font-size:12px;font-weight:700}
   .livetog{display:inline-block;border:1px solid var(--line2);background:var(--panel2);color:var(--mut);
-           font-family:"IBM Plex Mono",monospace;font-size:9px;font-weight:700;letter-spacing:.5px;
+           font-family:Inter,sans-serif;font-size:9px;font-weight:700;letter-spacing:.5px;
            padding:3px 8px;border-radius:20px;white-space:nowrap}
   .livetog.on{background:var(--cyan);color:var(--ink);border-color:var(--cyan)}
   .livetog.done{background:var(--lime);color:var(--ink);border-color:var(--lime)}
@@ -100,8 +100,8 @@
   .stepper button:active{background:var(--raise)}
   .stepper button:disabled{cursor:default;color:var(--dim)}
   .stepper.dis{opacity:.5}
-  .stepper .val{min-width:24px;text-align:center;font-family:"IBM Plex Mono",monospace;font-weight:700;font-size:16px}
-  .qopp{font-family:"IBM Plex Mono",monospace;font-size:10px;line-height:1.3;margin-top:6px;width:100%;max-width:100%;text-align:center}
+  .stepper .val{min-width:24px;text-align:center;font-family:Inter,sans-serif;font-weight:700;font-size:16px}
+  .qopp{font-family:Inter,sans-serif;font-size:10px;line-height:1.3;margin-top:6px;width:100%;max-width:100%;text-align:center}
   .qopp .oddline{display:flex;align-items:center;justify-content:center;gap:5px;padding:1px 0;color:var(--txt)}
   .qopp .oddline .f{flex:none}
   .qopp .oddline .nm{color:var(--mut);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:92px}
@@ -112,7 +112,7 @@
                border:1px solid var(--lime);border-radius:20px;padding:3px 9px;color:var(--lime);background:rgba(198,255,61,.10);max-width:100%}
   .qopp .badge.outb{border-color:var(--red);color:var(--red);background:rgba(255,86,106,.10)}
   .qopp .badge .nm{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-  .grp-time{margin-left:auto;font-family:"IBM Plex Mono",monospace;font-size:12px;font-weight:700;color:var(--cyan);
+  .grp-time{margin-left:auto;font-family:Inter,sans-serif;font-size:12px;font-weight:700;color:var(--cyan);
             border:1px solid var(--line2);border-radius:8px;padding:2px 8px;flex:none}
   .oddsmode{display:flex;gap:6px;margin:0 0 14px}
   .omode{flex:1;appearance:none;border:1px solid var(--line2);background:var(--panel2);color:var(--mut);
@@ -120,7 +120,7 @@
   .omode.active{background:var(--lime);color:var(--ink);border-color:var(--lime)}
   .omode:focus-visible{outline:3px solid var(--cyan);outline-offset:2px}
   .liverow{display:flex;align-items:center;gap:10px;margin-top:10px;flex-wrap:wrap}
-  .livestatus{font-family:"IBM Plex Mono",monospace;font-size:11px;color:var(--mut);padding:3px 9px;border-radius:20px;border:1px solid var(--line2);background:var(--panel2)}
+  .livestatus{font-family:Inter,sans-serif;font-size:11px;color:var(--mut);padding:3px 9px;border-radius:20px;border:1px solid var(--line2);background:var(--panel2)}
   .livestatus.ok{color:var(--ink);background:var(--lime);border-color:var(--lime)}
   .livestatus.warn{color:var(--gold);border-color:rgba(255,200,61,.4)}
   .livestatus.load{color:var(--cyan);border-color:rgba(54,224,200,.4)}
@@ -135,10 +135,10 @@
 
   /* ---- TABELAS ---- */
   table.tbl{width:100%;border-collapse:collapse;font-size:13px}
-  table.tbl th{font-family:"IBM Plex Mono",monospace;font-weight:600;color:var(--mut);font-size:10px;
+  table.tbl th{font-family:Inter,sans-serif;font-weight:600;color:var(--mut);font-size:10px;
                letter-spacing:.5px;text-align:right;padding:4px 4px;border-bottom:1px solid var(--line)}
   table.tbl th.l{text-align:left}
-  table.tbl td{padding:7px 4px;text-align:right;border-bottom:1px solid var(--line);font-family:"IBM Plex Mono",monospace}
+  table.tbl td{padding:7px 4px;text-align:right;border-bottom:1px solid var(--line);font-family:Inter,sans-serif}
   table.tbl td.l{text-align:left;font-family:Inter,sans-serif}
   table.tbl tr:last-child td{border-bottom:0}
   .pos{display:inline-grid;place-items:center;width:18px;height:18px;border-radius:5px;font-size:11px;font-weight:700;
@@ -154,35 +154,35 @@
   .aibox{background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:9px 10px}
   .aibox .gl{font-family:Anton,sans-serif;color:var(--cyan);font-size:15px;margin-bottom:4px}
   .aibox .ln{display:flex;gap:6px;align-items:center;font-size:12.5px;padding:1px 0}
-  .aibox .ln .p{font-family:"IBM Plex Mono",monospace;color:var(--dim);width:16px}
+  .aibox .ln .p{font-family:Inter,sans-serif;color:var(--dim);width:16px}
   .aibox .ln.t3 .p{color:var(--lime)}
 
   /* ---- TERCEIROS ---- */
   .third{display:flex;align-items:center;gap:10px;padding:9px 11px;border:1px solid var(--line);border-radius:11px;margin-bottom:7px;background:var(--panel2)}
   .third.in{background:linear-gradient(90deg,rgba(198,255,61,.10),rgba(54,224,200,.04));border-color:rgba(198,255,61,.35)}
   .third.out{opacity:.62}
-  .third .rk{font-family:"IBM Plex Mono",monospace;font-weight:700;width:22px;text-align:center;color:var(--mut)}
+  .third .rk{font-family:Inter,sans-serif;font-weight:700;width:22px;text-align:center;color:var(--mut)}
   .third.in .rk{color:var(--lime)}
   .third .fl{font-size:20px;width:24px;text-align:center}
   .third .info{flex:1;min-width:0}
   .third .info .n{font-weight:600;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  .third .info .n .gl{color:var(--dim);font-family:"IBM Plex Mono",monospace;font-size:11px;margin-left:5px}
-  .third .info .opp{color:var(--cyan);font-size:11px;font-family:"IBM Plex Mono",monospace;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .third .info .n .gl{color:var(--dim);font-family:Inter,sans-serif;font-size:11px;margin-left:5px}
+  .third .info .opp{color:var(--cyan);font-size:11px;font-family:Inter,sans-serif;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .third.out .info .opp{color:var(--dim)}
-  .third .st{font-family:"IBM Plex Mono",monospace;font-size:11px;color:var(--mut);text-align:right;white-space:nowrap}
+  .third .st{font-family:Inter,sans-serif;font-size:11px;color:var(--mut);text-align:right;white-space:nowrap}
   .third.por{border-color:var(--gold)!important}.third.por .info .n{color:var(--gold)}
   .cutline{display:flex;align-items:center;gap:10px;margin:12px 2px 14px;color:var(--lime);
-           font-family:"IBM Plex Mono",monospace;font-size:11px;letter-spacing:1px;font-weight:700}
+           font-family:Inter,sans-serif;font-size:11px;letter-spacing:1px;font-weight:700}
   .cutline::before,.cutline::after{content:"";flex:1;height:0;border-top:2px dashed var(--lime-d);opacity:.7}
 
   .subh{font-family:Anton,sans-serif;text-transform:uppercase;letter-spacing:.5px;font-size:17px;margin:24px 0 4px}
   .dist{display:grid;grid-template-columns:1fr;gap:7px}
   .dpair{display:flex;align-items:center;gap:8px;background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:8px 10px;font-size:13px}
-  .dpair .mj{font-family:"IBM Plex Mono",monospace;color:var(--dim);font-size:10px;width:38px;flex:none}
+  .dpair .mj{font-family:Inter,sans-serif;color:var(--dim);font-size:10px;width:38px;flex:none}
   .dpair .w{display:flex;align-items:center;gap:7px;flex:1;min-width:0;font-weight:600}
-  .dpair .arrow{color:var(--dim);font-family:"IBM Plex Mono",monospace;flex:none}
+  .dpair .arrow{color:var(--dim);font-family:Inter,sans-serif;flex:none}
   .dpair .t3{display:flex;align-items:center;gap:7px;flex:1;min-width:0;justify-content:flex-end;text-align:right;font-weight:600}
-  .dpair .lab{font-family:"IBM Plex Mono",monospace;font-size:11px;flex:none;color:var(--lime)}
+  .dpair .lab{font-family:Inter,sans-serif;font-size:11px;flex:none;color:var(--lime)}
   .dpair .ef{font-size:17px;flex:none}
 
   /* ---- PLAYOFFS / BRACKET ---- */
@@ -193,7 +193,7 @@
   .bracket{display:flex;gap:34px;min-width:976px}
   .col{display:flex;flex-direction:column;flex:0 0 168px}
   .chead{height:30px;flex:0 0 30px;display:flex;align-items:center;justify-content:center;margin-bottom:8px;
-         font-family:"IBM Plex Mono",monospace;font-size:11px;letter-spacing:1px;color:var(--cyan);
+         font-family:Inter,sans-serif;font-size:11px;letter-spacing:1px;color:var(--cyan);
          text-transform:uppercase;border-bottom:1px solid var(--line)}
   /* a coluna cresce com o nº de jogos (16 nos 16-avos): cada jogo nunca encolhe abaixo de 90px,
      evitando que os últimos 16-avos transbordem e fiquem escondidos sob o banner do campeão.
@@ -211,14 +211,14 @@
     content:"";position:absolute;left:-17px;top:50%;width:17px;height:2px;background:var(--line2)}
 
   .ko{background:var(--panel2);border:1px solid var(--line);border-radius:9px;overflow:hidden}
-  .ko .jno{font-family:"IBM Plex Mono",monospace;font-size:9px;letter-spacing:.5px;color:var(--dim);
+  .ko .jno{font-family:Inter,sans-serif;font-size:9px;letter-spacing:.5px;color:var(--dim);
            padding:4px 8px 1px;display:flex;justify-content:space-between}
   .koteam{display:flex;align-items:center;gap:6px;padding:7px 7px;border:0;background:transparent;color:var(--txt);
           font-family:Inter,sans-serif;font-size:12px;text-align:left;width:100%;cursor:pointer;border-top:1px solid var(--line)}
   .koteam:first-child{border-top:0}
   .koteam .fl{font-size:14px;width:16px;text-align:center;flex:none}
   .koteam .nm{flex:1;font-weight:600;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-  .koteam .src{color:var(--dim);font-family:"IBM Plex Mono",monospace;font-size:9px;flex:none}
+  .koteam .src{color:var(--dim);font-family:Inter,sans-serif;font-size:9px;flex:none}
   .koteam.pick{background:linear-gradient(90deg,rgba(198,255,61,.18),transparent)}
   .koteam.pick .nm{color:var(--lime)}
   .koteam.dim{opacity:.4}
@@ -236,10 +236,10 @@
   .cwrap{display:flex;flex-direction:column;line-height:1.05}
   .champ-banner .cn{font-family:Anton,sans-serif;font-size:22px;text-transform:uppercase;letter-spacing:.5px}
   .champ-banner .cn.por{color:var(--gold)}
-  .champ-banner .ct{font-family:"IBM Plex Mono",monospace;font-size:10px;color:var(--mut);letter-spacing:1.5px}
+  .champ-banner .ct{font-family:Inter,sans-serif;font-size:10px;color:var(--mut);letter-spacing:1.5px}
 
   .thirdplace{margin-top:16px;max-width:320px}
-  .tp-h{font-family:"IBM Plex Mono",monospace;font-size:11px;color:var(--mut);letter-spacing:1px;margin:0 0 8px;text-transform:uppercase}
+  .tp-h{font-family:Inter,sans-serif;font-size:11px;color:var(--mut);letter-spacing:1px;margin:0 0 8px;text-transform:uppercase}
 
   .hint{color:var(--mut);font-size:12px;margin:8px 2px 0;display:flex;align-items:center;gap:6px}
   .hint .k{color:var(--lime);font-weight:700}
@@ -260,7 +260,7 @@
                     mask:radial-gradient(circle 6.5px at 50% 50%,transparent 98%,#000 100%)}
   .ptr.armed .ptr-ring{background:conic-gradient(var(--lime) calc(var(--p)*3.6deg),rgba(255,255,255,.12) 0)}
   .ptr.spin .ptr-ring{background:conic-gradient(from 0deg,transparent,var(--cyan));animation:spin .7s linear infinite}
-  .ptr-txt{font-family:"IBM Plex Mono",monospace;font-size:12px;font-weight:600;color:var(--mut);white-space:nowrap}
+  .ptr-txt{font-family:Inter,sans-serif;font-size:12px;font-weight:600;color:var(--mut);white-space:nowrap}
   .ptr.armed .ptr-txt{color:var(--lime)}
   .ptr.spin .ptr-txt{color:var(--cyan)}
   @keyframes spin{to{transform:rotate(360deg)}}
@@ -278,10 +278,10 @@
     line-height:.9;text-align:center;font-size:clamp(34px,12vw,56px)}
   .splash-logo span{display:block;color:var(--lime)}
   .splash-spin{width:30px;height:30px;border:3px solid var(--line2);border-top-color:var(--cyan);border-radius:50%;animation:spin .7s linear infinite}
-  .splash-sub{font-family:"IBM Plex Mono",monospace;font-size:12px;letter-spacing:.5px;color:var(--mut)}
+  .splash-sub{font-family:Inter,sans-serif;font-size:12px;letter-spacing:.5px;color:var(--mut)}
   /* ---- SELEÇÃO / PERCURSO ---- */
   .teampick{display:flex;align-items:center;gap:10px;margin:0 0 16px}
-  .teampick label{font-family:"IBM Plex Mono",monospace;font-size:11px;letter-spacing:1px;color:var(--mut);text-transform:uppercase;flex:none}
+  .teampick label{font-family:Inter,sans-serif;font-size:11px;letter-spacing:1px;color:var(--mut);text-transform:uppercase;flex:none}
   .teampick select{flex:1;min-width:0;appearance:none;-webkit-appearance:none;background:var(--raise);color:var(--txt);
     border:1px solid var(--line2);border-radius:11px;padding:11px 38px 11px 13px;font-family:Inter,sans-serif;font-weight:700;font-size:15px;
     min-height:46px;cursor:pointer;
@@ -295,10 +295,10 @@
   .teamhero .meta{flex:1;min-width:0}
   .teamhero .nm{font-family:Anton,sans-serif;font-size:24px;text-transform:uppercase;letter-spacing:.5px;line-height:1}
   .teamhero .nm.por{color:var(--gold)}
-  .teamhero .gl{font-family:"IBM Plex Mono",monospace;font-size:11.5px;color:var(--mut);margin-top:3px}
+  .teamhero .gl{font-family:Inter,sans-serif;font-size:11.5px;color:var(--mut);margin-top:3px}
   .teamhero .gl b{color:var(--txt)}
   .teamhero.out .nm{color:var(--mut)}
-  .teamhero .seedtag{font-family:"IBM Plex Mono",monospace;font-size:10px;font-weight:700;letter-spacing:.5px;
+  .teamhero .seedtag{font-family:Inter,sans-serif;font-size:10px;font-weight:700;letter-spacing:.5px;
     border:1px solid var(--cyan);color:var(--cyan);border-radius:20px;padding:3px 9px;flex:none}
   .teamhero.out .seedtag{border-color:var(--red);color:var(--red)}
   /* banner = seletor de seleção (combo nativa por cima, invisível) */
@@ -310,7 +310,7 @@
   .teamhero:focus-within{outline:3px solid var(--cyan);outline-offset:2px;border-radius:14px}
 
   /* jogos / classificação da fase de grupos no Percurso */
-  .gp-h{font-family:"IBM Plex Mono",monospace;font-size:11px;color:var(--mut);letter-spacing:1px;
+  .gp-h{font-family:Inter,sans-serif;font-size:11px;color:var(--mut);letter-spacing:1px;
     text-transform:uppercase;margin:2px 2px 8px}
   .gpmatches{display:flex;flex-direction:column;gap:6px;margin:0 0 16px}
   .gpm{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:8px;
@@ -321,7 +321,7 @@
   .gpm .s .fl{flex:none;font-size:16px}
   .gpm .s .nm{font-weight:600;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .gpm .s.win .nm{color:var(--lime)}
-  .gpm .sc{font-family:"IBM Plex Mono",monospace;font-weight:700;font-size:14px;color:var(--txt);
+  .gpm .sc{font-family:Inter,sans-serif;font-weight:700;font-size:14px;color:var(--txt);
     background:var(--ink);border:1px solid var(--line2);border-radius:7px;padding:3px 9px;white-space:nowrap;flex:none}
   .gpm .sc.up{font-size:10px;font-weight:600;color:var(--mut);letter-spacing:.5px}
 
@@ -335,12 +335,12 @@
   .stage.gone::before{background:var(--panel2);border-color:var(--red)}
   .stage .sh{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;margin-bottom:2px}
   .stage .sr{font-family:Anton,sans-serif;font-size:16px;text-transform:uppercase;letter-spacing:.4px}
-  .stage .reach{font-family:"IBM Plex Mono",monospace;font-size:11px;font-weight:700;color:var(--cyan);
+  .stage .reach{font-family:Inter,sans-serif;font-size:11px;font-weight:700;color:var(--cyan);
     border:1px solid var(--line2);border-radius:20px;padding:1px 8px}
   .stage .reach.hi{color:var(--ink);background:var(--lime);border-color:var(--lime)}
   .stage .reach.done{color:var(--ink);background:var(--lime);border-color:var(--lime)}
   .stage .reach.gone{color:var(--red);border-color:rgba(255,86,106,.4)}
-  .stage .when{font-family:"IBM Plex Mono",monospace;font-size:11px;color:var(--mut);margin:1px 0 8px}
+  .stage .when{font-family:Inter,sans-serif;font-size:11px;color:var(--mut);margin:1px 0 8px}
   .stage .when .v{color:var(--txt)}
 
   .oppwrap{display:flex;flex-direction:column;gap:5px}
@@ -352,11 +352,11 @@
   .oppline.por .on{color:var(--gold)}
   .oppline .obar{position:relative;flex:1;max-width:120px;height:7px;border-radius:5px;background:var(--ink);overflow:hidden;flex:none}
   .oppline .obar > i{position:absolute;left:0;top:0;bottom:0;background:var(--rgrad);border-radius:5px}
-  .oppline .op{font-family:"IBM Plex Mono",monospace;font-weight:700;font-size:12.5px;color:var(--cyan);width:42px;text-align:right;flex:none}
+  .oppline .op{font-family:Inter,sans-serif;font-weight:700;font-size:12.5px;color:var(--cyan);width:42px;text-align:right;flex:none}
   .oppline.cert .op{color:var(--lime)}
-  .oppmore{font-family:"IBM Plex Mono",monospace;font-size:10.5px;color:var(--dim);padding:2px 2px 0}
+  .oppmore{font-family:Inter,sans-serif;font-size:10.5px;color:var(--dim);padding:2px 2px 0}
   .stage.gone .oppwrap{opacity:.5}
-  .resultline{display:inline-flex;align-items:center;gap:8px;font-family:"IBM Plex Mono",monospace;font-size:12px;
+  .resultline{display:inline-flex;align-items:center;gap:8px;font-family:Inter,sans-serif;font-size:12px;
     color:var(--mut);background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:7px 11px}
   .resultline .wl{font-weight:700}
   .resultline .wl.adv{color:var(--lime)} .resultline .wl.out{color:var(--red)}
@@ -364,25 +364,59 @@
     border:1px solid var(--gold);border-radius:14px;background:linear-gradient(180deg,rgba(255,200,61,.14),var(--panel2))}
   .champline .cup{font-size:24px}
   .champline .ct{font-family:Anton,sans-serif;font-size:18px;text-transform:uppercase;letter-spacing:.5px}
-  .champline .cp{font-family:"IBM Plex Mono",monospace;font-size:12px;color:var(--gold);font-weight:700}
+  .champline .cp{font-family:Inter,sans-serif;font-size:12px;color:var(--gold);font-weight:700}
   .pickhint{color:var(--mut);font-size:13px;text-align:center;padding:26px 10px}
 
   @media (prefers-reduced-motion: reduce){*{transition:none!important;animation:none!important}}
 
   /* ===== ADIÇÕES DO HUB MULTI-MUNDIAL ===== */
-  .edpick{position:relative;margin:14px 0 2px}
-  .edpick label{font-family:"IBM Plex Mono",monospace;font-size:10px;letter-spacing:1px;color:var(--mut);text-transform:uppercase;display:block;margin:0 0 5px}
-  .edpick select{width:100%;appearance:none;-webkit-appearance:none;background:var(--raise);color:var(--txt);
-    border:1px solid var(--line2);border-radius:11px;padding:11px 38px 11px 13px;font-family:Inter,sans-serif;font-weight:700;font-size:14px;
-    min-height:46px;cursor:pointer;
-    background-image:linear-gradient(45deg,transparent 50%,var(--mut) 50%),linear-gradient(135deg,var(--mut) 50%,transparent 50%);
-    background-position:calc(100% - 18px) 50%,calc(100% - 13px) 50%;background-size:5px 5px,5px 5px;background-repeat:no-repeat}
-  .edpick select:focus-visible{outline:3px solid var(--cyan);outline-offset:2px}
+  /* algarismos tabulares em todo o lado (alinham nas tabelas/placar), texto corrido fica proporcional */
+  .wrap{font-variant-numeric:tabular-nums;font-feature-settings:"tnum" 1}
+  .sub,.panel-d,.livenote .tx,.deferred,.oppmore{font-variant-numeric:normal;font-feature-settings:normal}
+
+  /* --- seletor de edição: régua de chips --- */
+  .edwrap{margin:16px 0 2px}
+  .edlabel{font-size:10px;font-weight:700;letter-spacing:1.5px;color:var(--mut);text-transform:uppercase;display:block;margin:0 2px 8px}
+  .edrow{display:flex;gap:9px;overflow-x:auto;-webkit-overflow-scrolling:touch;margin:0 -14px;padding:2px 14px 6px;scrollbar-width:none}
+  .edrow::-webkit-scrollbar{display:none}
+  .edchip{flex:0 0 auto;display:flex;align-items:center;gap:11px;border:1px solid var(--line2);
+    background:linear-gradient(180deg,var(--panel),var(--panel2));color:var(--txt);border-radius:15px;
+    padding:9px 15px 9px 13px;cursor:pointer;min-height:54px;text-align:left;
+    transition:transform .12s ease,border-color .12s ease,background .12s ease}
+  .edchip:active{transform:translateY(1px)}
+  .edchip .edyear{font-family:Anton,sans-serif;font-size:23px;line-height:1;letter-spacing:.5px;color:var(--txt)}
+  .edchip .edmeta{display:flex;flex-direction:column;gap:4px;line-height:1}
+  .edchip .edhost{font-size:12px;font-weight:600;color:var(--mut);white-space:nowrap}
+  .edchip .edstatus{font-size:9px;font-weight:800;letter-spacing:.6px;text-transform:uppercase;color:var(--dim);
+    display:inline-flex;align-items:center;gap:5px}
+  .edchip .edstatus::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--dim)}
+  .edchip .edstatus.live{color:var(--cyan)}
+  .edchip .edstatus.live::before{background:var(--cyan);box-shadow:0 0 8px var(--cyan);animation:pulse 1.6s ease-in-out infinite}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
+  .edchip.active{border-color:var(--lime);background:linear-gradient(180deg,rgba(198,255,61,.13),var(--panel2));box-shadow:0 0 0 1px rgba(198,255,61,.25)}
+  .edchip.active .edyear{color:var(--lime)}
+  .edchip:focus-visible{outline:3px solid var(--cyan);outline-offset:2px}
+
+  /* --- pílula "trocar seleção" no banner --- */
+  .teamhero{transition:border-color .14s ease}
+  .teamhero:focus-within{border-color:var(--cyan)}
+  .teamhero .heroChev{position:absolute;right:12px;bottom:11px;display:inline-flex;align-items:center;gap:5px;
+    background:var(--lime);color:var(--ink);font-size:11px;font-weight:800;letter-spacing:.2px;line-height:1;
+    padding:6px 11px;border-radius:20px;flex:none;box-shadow:0 4px 14px rgba(198,255,61,.22)}
+
+  /* --- callout "em curso" (substitui o texto em mono do print) --- */
+  .livenote{display:flex;gap:12px;align-items:flex-start;border:1px solid rgba(54,224,200,.32);border-radius:14px;
+    background:linear-gradient(180deg,rgba(54,224,200,.08),var(--panel2));padding:14px;margin-top:6px}
+  .livenote .ic{font-size:20px;flex:none;line-height:1.3}
+  .livenote .tx{font-size:13.5px;color:var(--mut);line-height:1.55}
+  .livenote .tx b{color:var(--txt);font-weight:600}
+  .livenote .tx .hl{color:var(--cyan);font-weight:600}
+
   .deferred{border:1px dashed var(--line2);border-radius:14px;padding:26px 18px;text-align:center;color:var(--mut);background:var(--panel2);line-height:1.6}
   .deferred .ic{font-size:30px;display:block;margin-bottom:10px}
   .deferred b{color:var(--txt)}
   .bracket{min-width:760px}
-  .koteam .kosc{margin-left:auto;font-family:"IBM Plex Mono",monospace;font-weight:700;font-size:12px;color:var(--mut);flex:none}
+  .koteam .kosc{margin-left:auto;font-weight:700;font-size:12px;color:var(--mut);flex:none}
   .koteam.pick .kosc{color:var(--lime)}
   .koteam .pen{color:var(--dim);font-size:9px;font-weight:600}
 </style>
@@ -398,9 +432,9 @@
   <header>
     <div class="topbar"></div>
     <h1 id="h1">Mundiais<span class="y">das Seleções</span></h1>
-    <div class="edpick">
-      <label>Edição</label>
-      <select id="editionSel" aria-label="Escolher Mundial" onchange="loadEdition(this.value)"></select>
+    <div class="edwrap">
+      <span class="edlabel">Edição</span>
+      <div class="edrow" id="editionRow" role="tablist" aria-label="Escolher Mundial"></div>
     </div>
     <p class="sub" id="sub"></p>
   </header>
@@ -446,8 +480,8 @@
 
 /* ===================== REGISTO DE EDIÇÕES ===================== */
 const EDITIONS = [
-  { id:"2026", year:2026, label:"Mundial 2026 — EUA · Canadá · México", status:"live" },
-  { id:"2022", year:2022, label:"Mundial 2022 — Catar",                  status:"closed" }
+  { id:"2026", year:2026, host:"EUA · Canadá · México", status:"live" },
+  { id:"2022", year:2022, host:"Catar",                 status:"closed" }
 ];
 const DEFAULT_EDITION = "2026";
 const FAV = "Portugal";          // seleção destacada (a da casa do utilizador)
@@ -628,10 +662,10 @@ function renderPercurso(){
       <div class="gl"><b>${seed}</b>${recordTxt?` · ${recordTxt}`:""}</div></div>
     <span class="seedtag">${tag}</span>
     <select class="heroSel" aria-label="Trocar de seleção" onchange="selectTeam(this.value)">${teamOptions(t)}</select>
-    <span class="heroChev" aria-hidden="true">▾ trocar</span></div>`;
+    <span class="heroChev" aria-hidden="true">⇄ Trocar</span></div>`;
   h+=groupPhaseHTML(t, ts);
   if(ED.status==="live"){
-    h+=`<div class="resultline">Mata-eliminatórias e simulação desta edição <b style="color:var(--cyan)">em preparação</b> — vê o separador <b>Quadro</b>.</div>`;
+    h+=`<div class="livenote"><span class="ic">🧭</span><div class="tx">O <b>mata-eliminatórias</b> e a <span class="hl">simulação</span> desta edição em curso estão em preparação. Vê o separador <b>Quadro</b>.</div></div>`;
   }else{
     h+=knockoutPathHTML(t);
   }
@@ -700,8 +734,16 @@ function applyEditionChrome(){
     : `Em preparação para esta edição em curso.`;
   document.getElementById("footer").innerHTML =
     `${ED.title} · ${ED.host}<br><span style="color:var(--dim)">${ED.source||""}</span>`;
-  document.getElementById("editionSel").innerHTML =
-    EDITIONS.map(e=>`<option value="${e.id}" ${e.id===ED.id?"selected":""}>${e.label}${e.status==="live"?" · em curso":""}</option>`).join("");
+  renderEditionRow();
+}
+function renderEditionRow(){
+  const row=document.getElementById("editionRow");
+  row.innerHTML=EDITIONS.map(e=>`<button class="edchip ${ED&&e.id===ED.id?'active':''}" data-ed="${e.id}" role="tab" aria-selected="${ED&&e.id===ED.id}">
+    <span class="edyear">${e.year}</span>
+    <span class="edmeta"><span class="edhost">${e.host}</span>
+      <span class="edstatus ${e.status}">${e.status==="live"?"em curso":"concluído"}</span></span>
+  </button>`).join("");
+  const act=row.querySelector(".edchip.active"); if(act) act.scrollIntoView({inline:"center",block:"nearest"});
 }
 
 /* ===================== ARRANQUE / TROCA DE EDIÇÃO ===================== */
@@ -732,6 +774,12 @@ document.querySelectorAll(".tab").forEach(tb=>tb.addEventListener("click",()=>{
   const top=document.querySelector(".tabs").getBoundingClientRect().top+window.scrollY-2;
   if(window.scrollY>top) window.scrollTo({top});
 }));
+
+/* seletor de edição (régua de chips) */
+document.getElementById("editionRow").addEventListener("click",e=>{
+  const b=e.target.closest(".edchip"); if(!b) return;
+  if(b.dataset.ed!==(ED&&ED.id)) loadEdition(b.dataset.ed);
+});
 
 /* bloquear gestos de zoom (pinça) no iOS */
 ["gesturestart","gesturechange","gestureend"].forEach(ev=>document.addEventListener(ev,e=>e.preventDefault(),{passive:false}));
