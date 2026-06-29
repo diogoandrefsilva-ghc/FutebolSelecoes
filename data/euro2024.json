@@ -1,0 +1,111 @@
+{
+  "id": "euro2024",
+  "year": 2024,
+  "competition": "euro",
+  "host": "Alemanha",
+  "title": "Euro 2024",
+  "status": "closed",
+  "champion": "Spain",
+  "source": "Resultados oficiais UEFA Euro 2024 (24 equipas, 6 grupos: passam 2 primeiros + 4 melhores terceiros).",
+  "teams": {
+    "Albania": {"pt": "Albânia", "flag": "🇦🇱", "rank": 66},
+    "Austria": {"pt": "Áustria", "flag": "🇦🇹", "rank": 25},
+    "Belgium": {"pt": "Bélgica", "flag": "🇧🇪", "rank": 3},
+    "Croatia": {"pt": "Croácia", "flag": "🇭🇷", "rank": 10},
+    "Czech Republic": {"pt": "Chéquia", "flag": "🇨🇿", "rank": 36},
+    "Denmark": {"pt": "Dinamarca", "flag": "🇩🇰", "rank": 21},
+    "England": {"pt": "Inglaterra", "flag": "🏴󠁧󠁢󠁥󠁮󠁧󠁿", "rank": 4},
+    "France": {"pt": "França", "flag": "🇫🇷", "rank": 2},
+    "Georgia": {"pt": "Geórgia", "flag": "🇬🇪", "rank": 75},
+    "Germany": {"pt": "Alemanha", "flag": "🇩🇪", "rank": 16},
+    "Hungary": {"pt": "Hungria", "flag": "🇭🇺", "rank": 26},
+    "Italy": {"pt": "Itália", "flag": "🇮🇹", "rank": 9},
+    "Netherlands": {"pt": "Países Baixos", "flag": "🇳🇱", "rank": 7},
+    "Poland": {"pt": "Polónia", "flag": "🇵🇱", "rank": 28},
+    "Portugal": {"pt": "Portugal", "flag": "🇵🇹", "rank": 6},
+    "Romania": {"pt": "Roménia", "flag": "🇷🇴", "rank": 46},
+    "Scotland": {"pt": "Escócia", "flag": "🏴󠁧󠁢󠁳󠁣󠁴󠁿", "rank": 39},
+    "Serbia": {"pt": "Sérvia", "flag": "🇷🇸", "rank": 33},
+    "Slovakia": {"pt": "Eslováquia", "flag": "🇸🇰", "rank": 48},
+    "Slovenia": {"pt": "Eslovénia", "flag": "🇸🇮", "rank": 57},
+    "Spain": {"pt": "Espanha", "flag": "🇪🇸", "rank": 8},
+    "Switzerland": {"pt": "Suíça", "flag": "🇨🇭", "rank": 19},
+    "Turkey": {"pt": "Turquia", "flag": "🇹🇷", "rank": 40},
+    "Ukraine": {"pt": "Ucrânia", "flag": "🇺🇦", "rank": 22}
+  },
+  "groups": [
+    {"name": "A", "teams": ["Germany", "Switzerland", "Hungary", "Scotland"], "matches": [
+      ["Germany", "Scotland", 5, 1],
+      ["Hungary", "Switzerland", 1, 3],
+      ["Germany", "Hungary", 2, 0],
+      ["Scotland", "Switzerland", 1, 1],
+      ["Switzerland", "Germany", 1, 1],
+      ["Scotland", "Hungary", 0, 1]
+    ]},
+    {"name": "B", "teams": ["Spain", "Italy", "Croatia", "Albania"], "matches": [
+      ["Spain", "Croatia", 3, 0],
+      ["Italy", "Albania", 2, 1],
+      ["Croatia", "Albania", 2, 2],
+      ["Spain", "Italy", 1, 0],
+      ["Albania", "Spain", 0, 1],
+      ["Croatia", "Italy", 1, 1]
+    ]},
+    {"name": "C", "teams": ["England", "Denmark", "Slovenia", "Serbia"], "matches": [
+      ["Serbia", "England", 0, 1],
+      ["Slovenia", "Denmark", 1, 1],
+      ["Slovenia", "Serbia", 1, 1],
+      ["Denmark", "England", 1, 1],
+      ["England", "Slovenia", 0, 0],
+      ["Denmark", "Serbia", 0, 0]
+    ]},
+    {"name": "D", "teams": ["Austria", "France", "Netherlands", "Poland"], "matches": [
+      ["Poland", "Netherlands", 1, 2],
+      ["Austria", "France", 0, 1],
+      ["Poland", "Austria", 1, 3],
+      ["Netherlands", "France", 0, 0],
+      ["Netherlands", "Austria", 2, 3],
+      ["France", "Poland", 1, 1]
+    ]},
+    {"name": "E", "teams": ["Romania", "Belgium", "Slovakia", "Ukraine"], "matches": [
+      ["Romania", "Ukraine", 3, 0],
+      ["Belgium", "Slovakia", 0, 1],
+      ["Slovakia", "Ukraine", 1, 2],
+      ["Belgium", "Romania", 2, 0],
+      ["Slovakia", "Romania", 1, 1],
+      ["Ukraine", "Belgium", 0, 0]
+    ]},
+    {"name": "F", "teams": ["Portugal", "Turkey", "Georgia", "Czech Republic"], "matches": [
+      ["Turkey", "Georgia", 3, 1],
+      ["Portugal", "Czech Republic", 2, 1],
+      ["Georgia", "Czech Republic", 1, 1],
+      ["Turkey", "Portugal", 0, 3],
+      ["Czech Republic", "Turkey", 1, 2],
+      ["Georgia", "Portugal", 2, 0]
+    ]}
+  ],
+  "knockout": {
+    "rounds": [
+      {"name": "Oitavos de final", "short": "Oitavos", "ties": ["R16-1", "R16-2", "R16-3", "R16-4", "R16-5", "R16-6", "R16-7", "R16-8"]},
+      {"name": "Quartos de final", "short": "Quartos", "ties": ["QF-1", "QF-2", "QF-3", "QF-4"]},
+      {"name": "Meias-finais", "short": "Meias", "ties": ["SF-1", "SF-2"]},
+      {"name": "Final", "short": "Final", "ties": ["FIN"]}
+    ],
+    "ties": {
+      "R16-1": {"round": "Oitavos", "home": "Switzerland", "away": "Italy", "hg": 2, "ag": 0},
+      "R16-2": {"round": "Oitavos", "home": "Germany", "away": "Denmark", "hg": 2, "ag": 0},
+      "R16-3": {"round": "Oitavos", "home": "England", "away": "Slovakia", "hg": 2, "ag": 1},
+      "R16-4": {"round": "Oitavos", "home": "Spain", "away": "Georgia", "hg": 4, "ag": 1},
+      "R16-5": {"round": "Oitavos", "home": "France", "away": "Belgium", "hg": 1, "ag": 0},
+      "R16-6": {"round": "Oitavos", "home": "Portugal", "away": "Slovenia", "hg": 0, "ag": 0, "pens": [3, 0]},
+      "R16-7": {"round": "Oitavos", "home": "Romania", "away": "Netherlands", "hg": 0, "ag": 3},
+      "R16-8": {"round": "Oitavos", "home": "Austria", "away": "Turkey", "hg": 1, "ag": 2},
+      "QF-1": {"round": "Quartos", "home": "Spain", "away": "Germany", "hg": 2, "ag": 1},
+      "QF-2": {"round": "Quartos", "home": "Portugal", "away": "France", "hg": 0, "ag": 0, "pens": [3, 5]},
+      "QF-3": {"round": "Quartos", "home": "England", "away": "Switzerland", "hg": 1, "ag": 1, "pens": [5, 3]},
+      "QF-4": {"round": "Quartos", "home": "Netherlands", "away": "Turkey", "hg": 2, "ag": 1},
+      "SF-1": {"round": "Meias", "home": "Spain", "away": "France", "hg": 2, "ag": 1},
+      "SF-2": {"round": "Meias", "home": "Netherlands", "away": "England", "hg": 1, "ag": 2},
+      "FIN": {"round": "Final", "home": "Spain", "away": "England", "hg": 2, "ag": 1}
+    }
+  }
+}

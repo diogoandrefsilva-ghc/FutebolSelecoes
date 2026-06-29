@@ -1,5 +1,5 @@
-/* Service worker — Mundiais das Seleções (cache-first com atualização em rede) */
-const CACHE = "mundiais-v3";
+/* Service worker — Seleções: Mundiais & Euros (cache-first com atualização em rede) */
+const CACHE = "selecoes-v5";
 const ASSETS = [
   "./",
   "./index.html",
@@ -12,7 +12,14 @@ const ASSETS = [
   "./data/2014.json",
   "./data/2010.json",
   "./data/2006.json",
-  "./data/2002.json"
+  "./data/2002.json",
+  "./data/euro2024.json",
+  "./data/euro2020.json",
+  "./data/euro2016.json",
+  "./data/euro2012.json",
+  "./data/euro2008.json",
+  "./data/euro2004.json",
+  "./data/euro2000.json"
 ];
 
 self.addEventListener("install", e => {
