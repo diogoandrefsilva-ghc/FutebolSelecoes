@@ -5,8 +5,8 @@
   "title": "Mundial 2026",
   "status": "live",
   "champion": null,
-  "source": "Fase de grupos: A–I encerrados (Anexo C FIFA); J/K/L com cenário base. Quadro interativo e simulação no módulo live; resultados ao vivo via ESPN quando disponível.",
-  "note": "Edição em curso. Grupos A–I em classificação; J/K/L jogo-a-jogo. Quadro a eliminar e simulação do percurso no módulo live.",
+  "source": "Resultados oficiais da fase de grupos do Mundial 2026 (todos os grupos, jogo-a-jogo). Quadro interativo e simulação do percurso no módulo live; resultados ao vivo via ESPN quando disponível.",
+  "note": "Fase de grupos concluída — resultados reais de todos os grupos (A–L). Quadro a eliminar e simulação do percurso no módulo live.",
   "teams": {
     "Mexico": {"pt": "México", "flag": "🇲🇽", "rank": 15},
     "South Africa": {"pt": "África do Sul", "flag": "🇿🇦", "rank": 33},
@@ -58,83 +58,101 @@
     "Iraq": {"pt": "Iraque", "flag": "🇮🇶", "rank": 58}
   },
   "groups": [
-    {"name": "A", "standings": [
-      {"team": "Mexico", "pts": 9, "gd": 6, "gf": null, "ga": null},
-      {"team": "South Africa", "pts": 4, "gd": -1, "gf": null, "ga": null},
-      {"team": "South Korea", "pts": 3, "gd": -1, "gf": 2, "ga": 3},
-      {"team": "Czechia", "pts": 1, "gd": -4, "gf": null, "ga": null}
+    {"name": "A", "teams": ["Mexico", "South Africa", "South Korea", "Czechia"], "matches": [
+      ["Mexico", "South Africa", 2, 0],
+      ["South Korea", "Czechia", 2, 1],
+      ["Czechia", "South Africa", 1, 1],
+      ["Mexico", "South Korea", 1, 0],
+      ["Czechia", "Mexico", 0, 3],
+      ["South Africa", "South Korea", 1, 0]
     ]},
-    {"name": "B", "standings": [
-      {"team": "Switzerland", "pts": 7, "gd": 4, "gf": null, "ga": null},
-      {"team": "Canada", "pts": 4, "gd": 5, "gf": null, "ga": null},
-      {"team": "Bosnia & Herzegovina", "pts": 4, "gd": -1, "gf": 5, "ga": 6},
-      {"team": "Qatar", "pts": 1, "gd": -8, "gf": null, "ga": null}
+    {"name": "B", "teams": ["Switzerland", "Canada", "Bosnia & Herzegovina", "Qatar"], "matches": [
+      ["Canada", "Bosnia & Herzegovina", 1, 1],
+      ["Qatar", "Switzerland", 1, 1],
+      ["Switzerland", "Bosnia & Herzegovina", 4, 1],
+      ["Canada", "Qatar", 6, 0],
+      ["Switzerland", "Canada", 2, 1],
+      ["Bosnia & Herzegovina", "Qatar", 3, 1]
     ]},
-    {"name": "C", "standings": [
-      {"team": "Brazil", "pts": 7, "gd": 6, "gf": null, "ga": null},
-      {"team": "Morocco", "pts": 7, "gd": 3, "gf": null, "ga": null},
-      {"team": "Scotland", "pts": 3, "gd": -3, "gf": 1, "ga": 4},
-      {"team": "Haiti", "pts": 0, "gd": -6, "gf": null, "ga": null}
+    {"name": "C", "teams": ["Brazil", "Morocco", "Scotland", "Haiti"], "matches": [
+      ["Brazil", "Morocco", 1, 1],
+      ["Haiti", "Scotland", 0, 1],
+      ["Scotland", "Morocco", 0, 1],
+      ["Brazil", "Haiti", 3, 0],
+      ["Scotland", "Brazil", 0, 3],
+      ["Morocco", "Haiti", 4, 2]
     ]},
-    {"name": "D", "standings": [
-      {"team": "USA", "pts": 6, "gd": 4, "gf": 8, "ga": 4},
-      {"team": "Australia", "pts": 4, "gd": 0, "gf": 2, "ga": 2},
-      {"team": "Paraguay", "pts": 4, "gd": -2, "gf": 2, "ga": 4},
-      {"team": "Turkey", "pts": 3, "gd": -2, "gf": 3, "ga": 5}
+    {"name": "D", "teams": ["USA", "Australia", "Paraguay", "Turkey"], "matches": [
+      ["USA", "Paraguay", 4, 1],
+      ["Australia", "Turkey", 2, 0],
+      ["USA", "Australia", 2, 0],
+      ["Turkey", "Paraguay", 0, 1],
+      ["Turkey", "USA", 3, 2],
+      ["Paraguay", "Australia", 0, 0]
     ]},
-    {"name": "E", "standings": [
-      {"team": "Germany", "pts": 6, "gd": 7, "gf": null, "ga": null},
-      {"team": "Ivory Coast", "pts": 6, "gd": null, "gf": null, "ga": null},
-      {"team": "Ecuador", "pts": 4, "gd": 0, "gf": 2, "ga": 2},
-      {"team": "Curacao", "pts": null, "gd": null, "gf": null, "ga": null}
+    {"name": "E", "teams": ["Germany", "Ivory Coast", "Ecuador", "Curacao"], "matches": [
+      ["Germany", "Curacao", 7, 1],
+      ["Ivory Coast", "Ecuador", 1, 0],
+      ["Germany", "Ivory Coast", 2, 1],
+      ["Ecuador", "Curacao", 0, 0],
+      ["Curacao", "Ivory Coast", 0, 2],
+      ["Ecuador", "Germany", 2, 1]
     ]},
-    {"name": "F", "standings": [
-      {"team": "Netherlands", "pts": 7, "gd": 6, "gf": 10, "ga": 4},
-      {"team": "Japan", "pts": 5, "gd": 4, "gf": 7, "ga": 3},
-      {"team": "Sweden", "pts": 4, "gd": 0, "gf": 7, "ga": 7},
-      {"team": "Tunisia", "pts": 0, "gd": -10, "gf": 2, "ga": 12}
+    {"name": "F", "teams": ["Netherlands", "Japan", "Sweden", "Tunisia"], "matches": [
+      ["Netherlands", "Japan", 2, 2],
+      ["Sweden", "Tunisia", 5, 1],
+      ["Netherlands", "Sweden", 5, 1],
+      ["Tunisia", "Japan", 0, 4],
+      ["Japan", "Sweden", 1, 1],
+      ["Tunisia", "Netherlands", 1, 3]
     ]},
-    {"name": "G", "standings": [
-      {"team": "Belgium", "pts": 5, "gd": 3, "gf": null, "ga": null},
-      {"team": "Egypt", "pts": 5, "gd": 2, "gf": null, "ga": null},
-      {"team": "Iran", "pts": 3, "gd": 0, "gf": 3, "ga": 3},
-      {"team": "New Zealand", "pts": 1, "gd": -5, "gf": null, "ga": null}
+    {"name": "G", "teams": ["Belgium", "Egypt", "Iran", "New Zealand"], "matches": [
+      ["Belgium", "Egypt", 1, 1],
+      ["Iran", "New Zealand", 2, 2],
+      ["Belgium", "Iran", 0, 0],
+      ["New Zealand", "Egypt", 1, 3],
+      ["Egypt", "Iran", 1, 1],
+      ["New Zealand", "Belgium", 1, 5]
     ]},
-    {"name": "H", "standings": [
-      {"team": "Spain", "pts": 7, "gd": 5, "gf": null, "ga": null},
-      {"team": "Cape Verde", "pts": 3, "gd": 0, "gf": null, "ga": null},
-      {"team": "Uruguay", "pts": 2, "gd": -1, "gf": 3, "ga": 4},
-      {"team": "Saudi Arabia", "pts": 1, "gd": -4, "gf": null, "ga": null}
+    {"name": "H", "teams": ["Spain", "Cape Verde", "Uruguay", "Saudi Arabia"], "matches": [
+      ["Spain", "Cape Verde", 0, 0],
+      ["Saudi Arabia", "Uruguay", 1, 1],
+      ["Spain", "Saudi Arabia", 4, 0],
+      ["Uruguay", "Cape Verde", 2, 2],
+      ["Cape Verde", "Saudi Arabia", 0, 0],
+      ["Uruguay", "Spain", 0, 1]
     ]},
-    {"name": "I", "standings": [
-      {"team": "France", "pts": 9, "gd": 8, "gf": null, "ga": null},
-      {"team": "Norway", "pts": null, "gd": null, "gf": null, "ga": null},
-      {"team": "Senegal", "pts": 3, "gd": 2, "gf": 8, "ga": 6},
-      {"team": "Iraq", "pts": null, "gd": null, "gf": null, "ga": null}
+    {"name": "I", "teams": ["France", "Norway", "Senegal", "Iraq"], "matches": [
+      ["France", "Senegal", 3, 1],
+      ["Iraq", "Norway", 1, 4],
+      ["France", "Iraq", 3, 0],
+      ["Norway", "Senegal", 3, 2],
+      ["Norway", "France", 1, 4],
+      ["Senegal", "Iraq", 5, 0]
     ]},
     {"name": "J", "teams": ["Argentina", "Austria", "Algeria", "Jordan"], "matches": [
       ["Argentina", "Algeria", 3, 0],
       ["Austria", "Jordan", 3, 1],
       ["Argentina", "Austria", 2, 0],
-      ["Algeria", "Jordan", 2, 1],
-      ["Algeria", "Austria", 1, 1],
-      ["Jordan", "Argentina", 0, 2]
+      ["Jordan", "Algeria", 1, 2],
+      ["Algeria", "Austria", 3, 3],
+      ["Jordan", "Argentina", 1, 3]
     ]},
     {"name": "K", "teams": ["Colombia", "Portugal", "DR Congo", "Uzbekistan"], "matches": [
-      ["Colombia", "Uzbekistan", 3, 1],
       ["Portugal", "DR Congo", 1, 1],
-      ["Colombia", "DR Congo", 1, 0],
+      ["Uzbekistan", "Colombia", 1, 3],
       ["Portugal", "Uzbekistan", 5, 0],
-      ["Colombia", "Portugal", 1, 1],
-      ["DR Congo", "Uzbekistan", 2, 0]
+      ["Colombia", "DR Congo", 1, 0],
+      ["Colombia", "Portugal", 0, 0],
+      ["DR Congo", "Uzbekistan", 3, 1]
     ]},
     {"name": "L", "teams": ["England", "Ghana", "Croatia", "Panama"], "matches": [
       ["England", "Croatia", 4, 2],
       ["Ghana", "Panama", 1, 0],
       ["England", "Ghana", 0, 0],
-      ["Croatia", "Panama", 1, 0],
+      ["Panama", "Croatia", 0, 1],
       ["Panama", "England", 0, 2],
-      ["Croatia", "Ghana", 1, 1]
+      ["Croatia", "Ghana", 2, 1]
     ]}
   ],
   "knockout": null
