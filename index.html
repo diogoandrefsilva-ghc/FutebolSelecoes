@@ -386,8 +386,8 @@
   /* --- seletor de edição: régua de chips --- */
   .edwrap{position:relative;margin:0 -14px;padding:10px 0 9px;overflow:hidden;background:var(--panel2)}
   .edwrap::before{content:"";position:absolute;inset:-24px;z-index:0;background-image:var(--flagimg,none);
-    background-size:cover;background-position:center;background-repeat:no-repeat;
-    filter:blur(17px) saturate(1.3);opacity:0;transition:opacity .45s ease}
+    background-size:100% 100%;background-position:center;background-repeat:no-repeat;
+    filter:blur(18px) saturate(1.3);opacity:0;transition:opacity .45s ease}
   .edwrap.hasflag::before{opacity:.42}
   .edwrap::after{content:"";position:absolute;inset:0;z-index:0;background:linear-gradient(180deg,rgba(244,246,251,.34),rgba(244,246,251,.20))}
   .edrow{position:relative;z-index:1;display:flex;gap:9px;overflow-x:auto;-webkit-overflow-scrolling:touch;padding:0 14px;scrollbar-width:none;
@@ -619,16 +619,24 @@ function flagImg(key){
   const t=team(key), emoji=t&&t.flag;
   if(emoji){
     try{
-      const w=72, h=46;
+      const w=96, h=72;
       const c=document.createElement("canvas"); c.width=w; c.height=h;
       const x=c.getContext("2d");
-      x.font="52px 'Apple Color Emoji','Segoe UI Emoji','Noto Color Emoji',sans-serif";
+      x.font="64px 'Apple Color Emoji','Segoe UI Emoji','Noto Color Emoji',sans-serif";
       x.textAlign="center"; x.textBaseline="middle";
       x.fillText(emoji, w/2, h/2);
-      // confirma que renderizou uma bandeira a cores (não vazio)
-      const d=x.getImageData(0,0,w,h).data; let n=0;
-      for(let i=3;i<d.length;i+=4){ if(d[i]>24) n++; }
-      if(n>60) url=c.toDataURL("image/png");
+      // recorta aos limites reais da bandeira (tira as margens transparentes)
+      const d=x.getImageData(0,0,w,h).data;
+      let n=0, minX=w, minY=h, maxX=-1, maxY=-1;
+      for(let yy=0;yy<h;yy++) for(let xx=0;xx<w;xx++){
+        if(d[(yy*w+xx)*4+3]>40){ n++; if(xx<minX)minX=xx; if(xx>maxX)maxX=xx; if(yy<minY)minY=yy; if(yy>maxY)maxY=yy; }
+      }
+      if(n>60 && maxX>=minX){
+        const cw=maxX-minX+1, ch=maxY-minY+1;
+        const c2=document.createElement("canvas"); c2.width=cw; c2.height=ch;
+        c2.getContext("2d").drawImage(c, minX,minY,cw,ch, 0,0,cw,ch);
+        url=c2.toDataURL("image/png");
+      }
     }catch(_){}
   }
   _flagImgCache[key]=url;
