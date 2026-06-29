@@ -43,8 +43,8 @@
   header{position:sticky;top:0;z-index:40;margin:0 -14px;
          padding:calc(10px + env(safe-area-inset-top)) 14px 0;
          background:rgba(244,246,251,.92);backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
-  .topbar{height:6px;border-radius:6px;background:var(--rgrad);margin-bottom:14px;box-shadow:0 0 24px rgba(91,140,0,.25)}
-  .midbar{height:4px;border-radius:4px;background:var(--rgrad);margin:8px 0 2px;box-shadow:0 0 18px rgba(91,140,0,.22)}
+  .topbar{height:5px;border-radius:5px;background:var(--rgrad);margin-bottom:10px;box-shadow:0 0 24px rgba(91,140,0,.25)}
+  .midbar{height:5px;border-radius:5px;background:var(--rgrad);margin:0;box-shadow:0 0 18px rgba(91,140,0,.22)}
   h1{font-family:Anton,Impact,sans-serif;font-weight:400;letter-spacing:.5px;line-height:.92;
      font-size:clamp(38px,11vw,62px);margin:0;text-transform:uppercase}
   h1 .y{color:var(--lime);display:block}
@@ -384,23 +384,21 @@
   .sub,.panel-d,.livenote .tx,.deferred,.oppmore{font-variant-numeric:normal;font-feature-settings:normal}
 
   /* --- seletor de edição: régua de chips --- */
-  .edwrap{margin:2px 0 0}
-  .edrow{display:flex;gap:9px;overflow-x:auto;-webkit-overflow-scrolling:touch;margin:0 -14px;padding:2px 14px 6px;scrollbar-width:none}
+  .edwrap{margin:0 -14px;padding:7px 0 6px;background:var(--flagbg,transparent);transition:background .4s ease}
+  .edrow{display:flex;gap:9px;overflow-x:auto;-webkit-overflow-scrolling:touch;padding:0 14px;scrollbar-width:none}
   .edrow::-webkit-scrollbar{display:none}
-  .edchip{flex:0 0 auto;display:flex;align-items:center;gap:11px;border:1px solid var(--line2);
-    background:linear-gradient(180deg,var(--panel),var(--panel2));color:var(--txt);border-radius:15px;
-    padding:9px 15px 9px 13px;cursor:pointer;min-height:54px;text-align:left;
+  .edchip{flex:0 0 auto;display:flex;flex-direction:column;align-items:flex-start;gap:1px;border:1px solid var(--line2);
+    background:linear-gradient(180deg,rgba(255,255,255,.60),rgba(238,241,248,.60));color:var(--txt);border-radius:14px;
+    padding:6px 13px 7px;cursor:pointer;min-height:58px;min-width:92px;max-width:126px;text-align:left;
     transition:transform .12s ease,border-color .12s ease,background .12s ease}
   .edchip:active{transform:translateY(1px)}
-  .edchip .edyear{font-family:Anton,sans-serif;font-size:23px;line-height:1;letter-spacing:.5px;color:var(--txt)}
-  .edchip .edmeta{display:flex;flex-direction:column;gap:4px;line-height:1}
-  .edchip .edhost{font-size:12px;font-weight:600;color:var(--mut);white-space:nowrap}
-  .edchip .edcomp{font-size:8.5px;font-weight:800;letter-spacing:.7px;text-transform:uppercase;
-    align-self:flex-start;padding:1.5px 6px;border-radius:6px;border:1px solid var(--line2);color:var(--dim)}
-  .edchip .edcomp.euro{color:var(--cyan);border-color:rgba(34,211,238,.4)}
-  .edchip .edcomp.wc{color:var(--lime);border-color:rgba(198,255,61,.35)}
+  .edchip .edcomp{font-size:8.5px;font-weight:800;letter-spacing:1.1px;text-transform:uppercase;color:var(--dim);line-height:1.1}
+  .edchip .edcomp.euro{color:var(--cyan)}
+  .edchip .edcomp.wc{color:var(--lime)}
+  .edchip .edyear{font-family:Anton,sans-serif;font-size:20px;line-height:1;letter-spacing:.5px;color:var(--txt)}
+  .edchip .edhost{font-size:10px;font-weight:600;color:var(--mut);line-height:1.2;white-space:normal;margin-top:1px}
   @keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
-  .edchip.active{border-color:var(--lime);background:linear-gradient(180deg,rgba(91,140,0,.13),var(--panel2));box-shadow:0 0 0 1px rgba(91,140,0,.25)}
+  .edchip.active{border-color:var(--lime);background:linear-gradient(180deg,rgba(91,140,0,.16),rgba(255,255,255,.82));box-shadow:0 0 0 1px rgba(91,140,0,.25)}
   .edchip.active .edyear{color:var(--lime)}
   .edchip:focus-visible{outline:3px solid var(--cyan);outline-offset:2px}
 
@@ -604,6 +602,33 @@ const EDITIONS = [
 ];
 const DEFAULT_EDITION = "2026";
 const FAV = "Portugal";          // seleção destacada (a da casa do utilizador)
+
+/* ===================== CORES DE BANDEIRA (fundo do cabeçalho) ===================== */
+// cores dominantes de cada seleção (chave = nome em inglês, igual aos dados)
+const FLAG_HEX = {
+  Portugal:["#1B6E3C","#D52B1E"], Spain:["#AA151B","#F1BF00"], France:["#0055A4","#EF4135"],
+  Germany:["#1A1A1A","#DD0000","#FFCE00"], Italy:["#008C45","#CD212A"], England:["#CF142B","#7A0C19"],
+  Netherlands:["#AE1C28","#21468B"], Belgium:["#1A1A1A","#FAE042","#ED2939"], Croatia:["#FF0000","#171796"],
+  Switzerland:["#D52B1E","#8E1812"], Poland:["#DC143C","#9E0E2B"], Denmark:["#C8102E","#8E0B20"],
+  Sweden:["#006AA7","#FECC00"], Austria:["#ED2939","#B51F2C"], Serbia:["#C6363C","#0C4076"],
+  Brazil:["#009C3B","#FFDF00","#002776"], Argentina:["#74ACDF","#F6B40E"], Uruguay:["#0038A8","#FCD116"],
+  Colombia:["#FCD116","#003893","#CE1126"], Mexico:["#006847","#CE1126"], "United States":["#3C3B6E","#B22234"],
+  USA:["#3C3B6E","#B22234"], Canada:["#FF0000","#A8112B"], Japan:["#BC002D","#7A0020"],
+  "South Korea":["#003478","#C60C30"], Morocco:["#C1272D","#006233"], Senegal:["#00853F","#E31B23"],
+  Ghana:["#006B3F","#FCD116","#CE1126"], Nigeria:["#008751","#0A6B40"], Cameroon:["#007A5E","#FCD116","#CE1126"],
+  Uzbekistan:["#1EB53A","#0099B5"], Australia:["#00843D","#FFCD00"], Ecuador:["#FFDD00","#034EA2","#ED1C24"]
+};
+function flagGradient(key){
+  const cs = FLAG_HEX[key];
+  if(!cs) return "linear-gradient(110deg,rgba(122,179,23,.14),rgba(14,156,138,.14))"; // tom neutro da app
+  const A="55";  // alfa ~0.33 -> tom desvanecido
+  const stops = cs.map((c,i)=>`${c}${A} ${Math.round(i/(cs.length-1)*100)}%`).join(", ");
+  return `linear-gradient(110deg, ${stops})`;
+}
+function setHeaderFlag(key){
+  const ew=document.querySelector(".edwrap");
+  if(ew) ew.style.setProperty("--flagbg", flagGradient(key));
+}
 
 /* ===================== ESTADO ===================== */
 let ED = null;        // edição atual (JSON carregado)
@@ -847,6 +872,7 @@ function knockoutPathHTML(t, prefix){
 
 function renderPercurso(){
   const t=SEL_TEAM, box=document.getElementById("teamPath");
+  setHeaderFlag(t);
   if(!t||!ED){ box.innerHTML=`<div class="pickhint">Escolhe uma seleção para veres o percurso.</div>`; return; }
   const ts=teamStanding(t), favc=t===FAV, plays=!!ts;
   const fc=plays?finalClassification(t,ts):null;
@@ -985,10 +1011,9 @@ function applyEditionChrome(){
 function renderEditionRow(){
   const row=document.getElementById("editionRow");
   row.innerHTML=EDITIONS.map(e=>`<button class="edchip ${ED&&e.id===ED.id?'active':''}" data-ed="${e.id}" role="tab" aria-selected="${ED&&e.id===ED.id}">
+    <span class="edcomp ${e.comp}">${e.comp==="euro"?"Euro":"Mundial"}</span>
     <span class="edyear">${e.year}</span>
-    <span class="edmeta">
-      <span class="edcomp ${e.comp}">${e.comp==="euro"?"Europeu":"Mundial"}</span>
-      <span class="edhost">${e.host}</span></span>
+    <span class="edhost">${e.host}</span>
   </button>`).join("");
   const act=row.querySelector(".edchip.active"); if(act) act.scrollIntoView({inline:"center",block:"nearest"});
 }
