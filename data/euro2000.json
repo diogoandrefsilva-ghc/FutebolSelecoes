@@ -1,0 +1,78 @@
+{
+  "id": "euro2000",
+  "year": 2000,
+  "competition": "euro",
+  "host": "Bélgica · Países Baixos",
+  "title": "Euro 2000",
+  "status": "closed",
+  "champion": "France",
+  "source": "Resultados oficiais UEFA Euro 2000.",
+  "teams": {
+    "Belgium": {"pt": "Bélgica", "flag": "🇧🇪", "rank": 12},
+    "Czech Republic": {"pt": "Chéquia", "flag": "🇨🇿", "rank": 10},
+    "Denmark": {"pt": "Dinamarca", "flag": "🇩🇰", "rank": 20},
+    "England": {"pt": "Inglaterra", "flag": "🏴󠁧󠁢󠁥󠁮󠁧󠁿", "rank": 11},
+    "France": {"pt": "França", "flag": "🇫🇷", "rank": 1},
+    "Germany": {"pt": "Alemanha", "flag": "🇩🇪", "rank": 5},
+    "Italy": {"pt": "Itália", "flag": "🇮🇹", "rank": 3},
+    "Netherlands": {"pt": "Países Baixos", "flag": "🇳🇱", "rank": 4},
+    "Norway": {"pt": "Noruega", "flag": "🇳🇴", "rank": 16},
+    "Portugal": {"pt": "Portugal", "flag": "🇵🇹", "rank": 6},
+    "Romania": {"pt": "Roménia", "flag": "🇷🇴", "rank": 14},
+    "Slovenia": {"pt": "Eslovénia", "flag": "🇸🇮", "rank": 30},
+    "Spain": {"pt": "Espanha", "flag": "🇪🇸", "rank": 2},
+    "Sweden": {"pt": "Suécia", "flag": "🇸🇪", "rank": 18},
+    "Turkey": {"pt": "Turquia", "flag": "🇹🇷", "rank": 22},
+    "Yugoslavia": {"pt": "Jugoslávia", "flag": "🇷🇸", "rank": 26}
+  },
+  "groups": [
+    {"name": "A", "teams": ["Portugal", "Romania", "England", "Germany"], "matches": [
+      ["Germany", "Romania", 1, 1],
+      ["Portugal", "England", 3, 2],
+      ["Romania", "Portugal", 0, 1],
+      ["England", "Germany", 1, 0],
+      ["England", "Romania", 2, 3],
+      ["Portugal", "Germany", 3, 0]
+    ]},
+    {"name": "B", "teams": ["Italy", "Turkey", "Belgium", "Sweden"], "matches": [
+      ["Belgium", "Sweden", 2, 1],
+      ["Turkey", "Italy", 1, 2],
+      ["Italy", "Belgium", 2, 0],
+      ["Sweden", "Turkey", 0, 0],
+      ["Turkey", "Belgium", 2, 0],
+      ["Italy", "Sweden", 2, 1]
+    ]},
+    {"name": "C", "teams": ["Spain", "Yugoslavia", "Norway", "Slovenia"], "matches": [
+      ["Spain", "Norway", 0, 1],
+      ["Yugoslavia", "Slovenia", 3, 3],
+      ["Slovenia", "Spain", 1, 2],
+      ["Norway", "Yugoslavia", 0, 1],
+      ["Yugoslavia", "Spain", 3, 4],
+      ["Slovenia", "Norway", 0, 0]
+    ]},
+    {"name": "D", "teams": ["Netherlands", "Czech Republic", "Denmark", "France"], "matches": [
+      ["France", "Denmark", 3, 0],
+      ["Netherlands", "Czech Republic", 1, 0],
+      ["Czech Republic", "France", 1, 2],
+      ["Denmark", "Netherlands", 0, 3],
+      ["Denmark", "Czech Republic", 0, 2],
+      ["France", "Netherlands", 2, 3]
+    ]}
+  ],
+  "knockout": {
+    "rounds": [
+      {"name": "Quartos de final", "short": "Quartos", "ties": ["QF-1", "QF-2", "QF-3", "QF-4"]},
+      {"name": "Meias-finais", "short": "Meias", "ties": ["SF-1", "SF-2"]},
+      {"name": "Final", "short": "Final", "ties": ["FIN"]}
+    ],
+    "ties": {
+      "QF-1": {"round": "Quartos", "home": "Portugal", "away": "Turkey", "hg": 2, "ag": 0},
+      "QF-2": {"round": "Quartos", "home": "Italy", "away": "Romania", "hg": 2, "ag": 0},
+      "QF-3": {"round": "Quartos", "home": "Netherlands", "away": "Yugoslavia", "hg": 6, "ag": 1},
+      "QF-4": {"round": "Quartos", "home": "Spain", "away": "France", "hg": 1, "ag": 2},
+      "SF-1": {"round": "Meias", "home": "France", "away": "Portugal", "hg": 2, "ag": 1},
+      "SF-2": {"round": "Meias", "home": "Italy", "away": "Netherlands", "hg": 0, "ag": 0, "pens": [3, 1]},
+      "FIN": {"round": "Final", "home": "France", "away": "Italy", "hg": 2, "ag": 1}
+    }
+  }
+}

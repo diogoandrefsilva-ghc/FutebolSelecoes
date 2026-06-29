@@ -1,0 +1,78 @@
+{
+  "id": "euro2012",
+  "year": 2012,
+  "competition": "euro",
+  "host": "Polónia · Ucrânia",
+  "title": "Euro 2012",
+  "status": "closed",
+  "champion": "Spain",
+  "source": "Resultados oficiais UEFA Euro 2012.",
+  "teams": {
+    "Croatia": {"pt": "Croácia", "flag": "🇭🇷", "rank": 8},
+    "Czech Republic": {"pt": "Chéquia", "flag": "🇨🇿", "rank": 26},
+    "Denmark": {"pt": "Dinamarca", "flag": "🇩🇰", "rank": 10},
+    "England": {"pt": "Inglaterra", "flag": "🏴󠁧󠁢󠁥󠁮󠁧󠁿", "rank": 6},
+    "France": {"pt": "França", "flag": "🇫🇷", "rank": 14},
+    "Germany": {"pt": "Alemanha", "flag": "🇩🇪", "rank": 2},
+    "Greece": {"pt": "Grécia", "flag": "🇬🇷", "rank": 12},
+    "Italy": {"pt": "Itália", "flag": "🇮🇹", "rank": 9},
+    "Netherlands": {"pt": "Países Baixos", "flag": "🇳🇱", "rank": 4},
+    "Poland": {"pt": "Polónia", "flag": "🇵🇱", "rank": 28},
+    "Portugal": {"pt": "Portugal", "flag": "🇵🇹", "rank": 5},
+    "Republic of Ireland": {"pt": "Irlanda", "flag": "🇮🇪", "rank": 18},
+    "Russia": {"pt": "Rússia", "flag": "🇷🇺", "rank": 11},
+    "Spain": {"pt": "Espanha", "flag": "🇪🇸", "rank": 1},
+    "Sweden": {"pt": "Suécia", "flag": "🇸🇪", "rank": 20},
+    "Ukraine": {"pt": "Ucrânia", "flag": "🇺🇦", "rank": 22}
+  },
+  "groups": [
+    {"name": "A", "teams": ["Czech Republic", "Greece", "Poland", "Russia"], "matches": [
+      ["Poland", "Greece", 1, 1],
+      ["Russia", "Czech Republic", 4, 1],
+      ["Greece", "Czech Republic", 1, 2],
+      ["Poland", "Russia", 1, 1],
+      ["Czech Republic", "Poland", 1, 0],
+      ["Greece", "Russia", 1, 0]
+    ]},
+    {"name": "B", "teams": ["Germany", "Portugal", "Denmark", "Netherlands"], "matches": [
+      ["Netherlands", "Denmark", 0, 1],
+      ["Germany", "Portugal", 1, 0],
+      ["Denmark", "Portugal", 2, 3],
+      ["Netherlands", "Germany", 1, 2],
+      ["Portugal", "Netherlands", 2, 1],
+      ["Denmark", "Germany", 1, 2]
+    ]},
+    {"name": "C", "teams": ["Spain", "Italy", "Croatia", "Republic of Ireland"], "matches": [
+      ["Spain", "Italy", 1, 1],
+      ["Republic of Ireland", "Croatia", 1, 3],
+      ["Italy", "Croatia", 1, 1],
+      ["Spain", "Republic of Ireland", 4, 0],
+      ["Croatia", "Spain", 0, 1],
+      ["Italy", "Republic of Ireland", 2, 0]
+    ]},
+    {"name": "D", "teams": ["England", "France", "Ukraine", "Sweden"], "matches": [
+      ["France", "England", 1, 1],
+      ["Ukraine", "Sweden", 2, 1],
+      ["Ukraine", "France", 0, 2],
+      ["Sweden", "England", 2, 3],
+      ["England", "Ukraine", 1, 0],
+      ["Sweden", "France", 2, 0]
+    ]}
+  ],
+  "knockout": {
+    "rounds": [
+      {"name": "Quartos de final", "short": "Quartos", "ties": ["QF-1", "QF-2", "QF-3", "QF-4"]},
+      {"name": "Meias-finais", "short": "Meias", "ties": ["SF-1", "SF-2"]},
+      {"name": "Final", "short": "Final", "ties": ["FIN"]}
+    ],
+    "ties": {
+      "QF-1": {"round": "Quartos", "home": "Czech Republic", "away": "Portugal", "hg": 0, "ag": 1},
+      "QF-2": {"round": "Quartos", "home": "Germany", "away": "Greece", "hg": 4, "ag": 2},
+      "QF-3": {"round": "Quartos", "home": "Spain", "away": "France", "hg": 2, "ag": 0},
+      "QF-4": {"round": "Quartos", "home": "England", "away": "Italy", "hg": 0, "ag": 0, "pens": [2, 4]},
+      "SF-1": {"round": "Meias", "home": "Portugal", "away": "Spain", "hg": 0, "ag": 0, "pens": [2, 4]},
+      "SF-2": {"round": "Meias", "home": "Germany", "away": "Italy", "hg": 1, "ag": 2},
+      "FIN": {"round": "Final", "home": "Spain", "away": "Italy", "hg": 4, "ag": 0}
+    }
+  }
+}
