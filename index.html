@@ -494,6 +494,8 @@
   /* lados alinhados ao topo: com 2 prováveis de um lado e 3 do outro, o 3.º fica em baixo (não centrado) */
   .gpm.predrow{align-items:start}
   .gpm.predrow .mlmid{padding-top:13px}   /* "vs" alinhado com a 1.ª linha (compensa o rótulo) */
+  /* lado já definido (1 equipa) frente a uma coluna de previsão: desce para alinhar com a 1.ª equipa prevista */
+  .gpm.predrow .s:not(.pred){padding-top:13px}
   .gpm .s.pred{align-items:stretch}
   .gpm .predcol{display:flex;flex-direction:column;gap:2px;min-width:0;width:100%}
   .gpm .s.h .predcol{align-items:flex-end}
@@ -934,6 +936,24 @@ function koCardClosed(tie, label){
     <div class="jno"><span>${label||tie.round}</span></div>
     <div class="teams">${row(tie.home,tie.hg,p?p[0]:null)}${row(tie.away,tie.ag,p?p[1]:null)}</div></div>`;
 }
+// ordena os confrontos de cada ronda para o bracket "casar": cada jogo fica entre os
+// dois jogos da ronda anterior que o alimentam. Deriva de cima (final) para baixo, pelo
+// vencedor de cada confronto — independente da ordem em que os dados foram introduzidos.
+function bracketOrder(ko){
+  const order=ko.rounds.map(r=>r.ties.slice());
+  for(let i=ko.rounds.length-1;i>0;i--){
+    const pool=order[i-1], used=new Set(), next=[];
+    for(const cid of order[i]){ const ct=ko.ties[cid]; if(!ct) continue;
+      for(const team of [ct.home,ct.away]){
+        const fid=pool.find(pid=>!used.has(pid)&&ko.ties[pid]&&tieWinner(ko.ties[pid])===team);
+        if(fid){ used.add(fid); next.push(fid); }
+      }
+    }
+    for(const pid of pool) if(!used.has(pid)) next.push(pid);   // sobras (dados inesperados) mantêm a ordem
+    order[i-1]=next;
+  }
+  return order;
+}
 function renderBracket(){
   const box=document.getElementById("knockout");
   const reset=document.getElementById("koReset");
@@ -953,14 +973,14 @@ function renderBracket(){
   }
   reset.style.display="none";
   if(!ED.knockout){ box.innerHTML=`<div class="deferred">Sem dados do quadro para esta edição.</div>`; return; }
-  const ko=ED.knockout;
+  const ko=ED.knockout, ord=bracketOrder(ko);
   let cols="", gameNo=0;
-  for(const r of ko.rounds){
+  ko.rounds.forEach((r,ri)=>{
     let games="";
-    for(const id of r.ties){ const t=ko.ties[id]; if(t){ gameNo++;
+    for(const id of ord[ri]){ const t=ko.ties[id]; if(t){ gameNo++;
       games+=`<div class="gw">${koCardClosed(Object.assign({id,round:r.short}, t), "Jogo "+gameNo)}</div>`; } }
     cols+=`<div class="col"><div class="chead">${r.short}</div><div class="games">${games}</div></div>`;
-  }
+  });
   const champ=ED.champion
     ? `<div class="champ-banner"><span class="cup">🏆</span><span class="fl">${fl(ED.champion)}</span>
          <span class="cwrap"><span class="cn ${ED.champion===FAV?'por':''}">${pt(ED.champion)}</span><span class="ct">${champTitleUC()} ${ED.year}</span></span></div>`
