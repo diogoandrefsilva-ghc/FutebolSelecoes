@@ -52,7 +52,8 @@
   .sub b{color:var(--txt);font-weight:600}
 
   /* ---- TABS ---- */
-  .tabs{display:flex;gap:5px;margin:0 -14px;padding:9px 14px 10px}
+  .tabs{display:flex;gap:5px;margin:0 -14px;padding:9px 14px 10px;
+        background:var(--raise);border-top:1px solid var(--line)}
   .tab{flex:1;appearance:none;border:1px solid var(--line);background:var(--panel2);color:var(--mut);
        font-family:Inter,sans-serif;font-weight:700;font-size:12px;line-height:1.08;padding:8px 4px;border-radius:11px;
        cursor:pointer;min-height:44px;display:flex;align-items:center;justify-content:center;text-align:center}
@@ -299,7 +300,7 @@
   .teampick select:focus-visible{outline:3px solid var(--cyan);outline-offset:2px}
 
   .teamhero{display:flex;align-items:center;gap:13px;padding:14px;border:1px solid var(--line);border-radius:14px;
-    background:linear-gradient(180deg,var(--panel),var(--panel2));margin-bottom:14px}
+    background:linear-gradient(180deg,var(--panel),var(--panel2));margin:14px 0}
   .teamhero .bigfl{font-size:38px;line-height:1;flex:none}
   .teamhero .meta{flex:1;min-width:0}
   .teamhero .nm{font-family:Anton,sans-serif;font-size:24px;text-transform:uppercase;letter-spacing:.5px;line-height:1}
@@ -731,7 +732,7 @@ function teamStanding(t){
 // >>> FIX DO PERCURSO: só os jogos da seleção escolhida <<<
 function teamGroupMatches(t){
   const g=groupOf(t); if(!g||!g.matches) return null;
-  return g.matches.filter(m=>m[0]===t||m[1]===t).map(m=>({h:m[0],a:m[1],hg:m[2],ag:m[3]}));
+  return g.matches.map((m,i)=>({h:m[0],a:m[1],hg:m[2],ag:m[3],i})).filter(m=>m.h===t||m.a===t);
 }
 
 /* ===================== QUADRO A ELIMINAR (edições fechadas) ===================== */
@@ -837,13 +838,16 @@ function groupStageHTML(t, ts){
   const badge=`${adv?'apurada':'eliminada'} em ${ts.pos}.º lugar`;
   let body, gm=teamGroupMatches(t);
   if(gm){   // só os jogos desta seleção
+    const sched=(ED.id==="2026" && window.LIVE2026 && window.LIVE2026.groupSchedLabel) ? window.LIVE2026.groupSchedLabel : null;
     body=`<div class="gpmatches">`;
     for(const m of gm){
       const hw=m.hg>m.ag, aw=m.ag>m.hg;
+      const when=sched ? sched(G, m.i) : "";
       body+=`<div class="gpm tm">
         <div class="s h${hw?' win':''}"><span class="nm">${pt(m.h)}</span><span class="fl">${fl(m.h)}</span></div>
         <span class="sc">${m.hg}–${m.ag}</span>
         <div class="s a${aw?' win':''}"><span class="fl">${fl(m.a)}</span><span class="nm">${pt(m.a)}</span></div>
+        ${when?`<div class="mlin"><span class="v">${when}</span></div>`:""}
       </div>`;
     }
     body+=`</div>`;

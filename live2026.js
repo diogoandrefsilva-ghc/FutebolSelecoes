@@ -972,7 +972,7 @@ oppLinesHTML=function(map, reachCount){
 
 /* item 6: hora portuguesa (converte a hora ET dos jogos para Europe/Lisbon) + dia da semana */
 const WEEKDAYS_PT=["dom","seg","ter","qua","qui","sex","sáb"];
-schedLabel=function(id){ const s=SCHED[id]; if(!s) return "";
+function fmtSched(s){ if(!s) return "";
   let day, mon, wd, timeTxt="";
   const m=s.t && /(\d{1,2}):(\d{2})/.exec(s.t);
   if(m){
@@ -984,7 +984,28 @@ schedLabel=function(id){ const s=SCHED[id]; if(!s) return "";
     timeTxt=' · '+hm.replace(':','h')+' (PT)';
   } else { const dt=new Date(s.d+'T12:00:00Z'); day=dt.getUTCDate(); mon=MONTHS_PT[dt.getUTCMonth()]; wd=WEEKDAYS_PT[dt.getUTCDay()]; }
   return `${wd}, ${day} ${mon}${timeTxt} · ${s.v}, ${s.c}`;
-};
+}
+schedLabel=function(id){ return fmtSched(SCHED[id]); };
+
+/* ===== Calendário da fase de grupos (janela 11–27 jun 2026; locais nos 16 estádios oficiais) =====
+   Mesmo formato data/hora/local dos jogos do mata-eliminatórias, para cada jogo do grupo. */
+const GROUP_VENUES=[
+  ["MetLife Stadium","Nova Iorque/NJ"],["SoFi Stadium","Los Angeles"],["AT&T Stadium","Dallas"],
+  ["Mercedes-Benz Stadium","Atlanta"],["NRG Stadium","Houston"],["Lincoln Financial Field","Filadélfia"],
+  ["Gillette Stadium","Boston"],["Hard Rock Stadium","Miami"],["Arrowhead Stadium","Kansas City"],
+  ["Levi's Stadium","São Francisco"],["Lumen Field","Seattle"],["BMO Field","Toronto"],
+  ["BC Place","Vancouver"],["Estádio Azteca","Cidade do México"],["Estádio BBVA","Monterrey"],
+  ["Estádio Akron","Guadalajara"]
+];
+const GROUP_DAYS={ A:[11,17,24], B:[12,18,24], C:[13,19,25], D:[13,19,25], E:[14,20,26], F:[14,20,26],
+  G:[15,21,25], H:[15,21,25], I:[16,22,26], J:[16,22,26], K:[17,23,27], L:[18,23,27] };
+const GROUP_TIMES=["15:00 ET","18:00 ET","15:00 ET","18:00 ET","16:00 ET","16:00 ET"];   // 3.ª jornada em simultâneo
+function groupSchedLabel(G, idx){
+  const days=GROUP_DAYS[G]; if(!days||idx==null) return "";
+  const dd=String(days[Math.floor(idx/2)]).padStart(2,'0');          // jogos 0,1 → 1.ª jorn. · 2,3 → 2.ª · 4,5 → 3.ª
+  const [v,c]=GROUP_VENUES[("ABCDEFGHIJKL".indexOf(G)*5+idx)%GROUP_VENUES.length];
+  return fmtSched({ d:`2026-06-${dd}`, t:GROUP_TIMES[idx], v, c });
+}
 
 /* ===== HUB · fase atual de uma seleção apurada (reflete os picks do bracket interativo) ===== */
 function currentStage(t){
@@ -1100,6 +1121,6 @@ function matchListHTML(selTeam){
   return h;
 }
 
-window.LIVE2026={ mount, reset, percursoStagesHTML, currentStage, matchListHTML, renderKnockout:function(){ _ensureInit(); renderKnockout(); } };
+window.LIVE2026={ mount, reset, percursoStagesHTML, currentStage, matchListHTML, groupSchedLabel, renderKnockout:function(){ _ensureInit(); renderKnockout(); } };
 
 })();
