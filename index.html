@@ -43,7 +43,7 @@
   header{position:sticky;top:0;z-index:40;margin:0 -14px;
          padding:calc(10px + env(safe-area-inset-top)) 14px 0;
          background:rgba(244,246,251,.92);backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
-  .topbar{height:5px;border-radius:5px;background:var(--rgrad);margin-bottom:10px;box-shadow:0 0 24px rgba(91,140,0,.25)}
+  .topbar{height:5px;border-radius:5px;background:var(--rgrad);margin-bottom:0;box-shadow:0 0 24px rgba(91,140,0,.25)}
   .midbar{height:5px;border-radius:5px;background:var(--rgrad);margin:0;box-shadow:0 0 18px rgba(91,140,0,.22)}
   h1{font-family:Anton,Impact,sans-serif;font-weight:400;letter-spacing:.5px;line-height:.92;
      font-size:clamp(38px,11vw,62px);margin:0;text-transform:uppercase}
@@ -384,8 +384,13 @@
   .sub,.panel-d,.livenote .tx,.deferred,.oppmore{font-variant-numeric:normal;font-feature-settings:normal}
 
   /* --- seletor de edição: régua de chips --- */
-  .edwrap{margin:0 -14px;padding:7px 0 6px;background:var(--flagbg,transparent);transition:background .4s ease}
-  .edrow{display:flex;gap:9px;overflow-x:auto;-webkit-overflow-scrolling:touch;padding:0 14px;scrollbar-width:none;
+  .edwrap{position:relative;margin:0 -14px;padding:10px 0 9px;overflow:hidden;background:var(--panel2)}
+  .edwrap::before{content:"";position:absolute;inset:-24px;z-index:0;background-image:var(--flagimg,none);
+    background-size:cover;background-position:center;background-repeat:no-repeat;
+    filter:blur(17px) saturate(1.3);opacity:0;transition:opacity .45s ease}
+  .edwrap.hasflag::before{opacity:.42}
+  .edwrap::after{content:"";position:absolute;inset:0;z-index:0;background:linear-gradient(180deg,rgba(244,246,251,.34),rgba(244,246,251,.20))}
+  .edrow{position:relative;z-index:1;display:flex;gap:9px;overflow-x:auto;-webkit-overflow-scrolling:touch;padding:0 14px;scrollbar-width:none;
     touch-action:pan-x;overscroll-behavior-x:contain}
   .edrow::-webkit-scrollbar{display:none}
   .edchip{flex:0 0 auto;display:flex;flex-direction:column;align-items:flex-start;gap:1px;border:1px solid var(--line2);
@@ -604,31 +609,36 @@ const EDITIONS = [
 const DEFAULT_EDITION = "2026";
 const FAV = "Portugal";          // seleção destacada (a da casa do utilizador)
 
-/* ===================== CORES DE BANDEIRA (fundo do cabeçalho) ===================== */
-// cores dominantes de cada seleção (chave = nome em inglês, igual aos dados)
-const FLAG_HEX = {
-  Portugal:["#1B6E3C","#D52B1E"], Spain:["#AA151B","#F1BF00"], France:["#0055A4","#EF4135"],
-  Germany:["#1A1A1A","#DD0000","#FFCE00"], Italy:["#008C45","#CD212A"], England:["#CF142B","#7A0C19"],
-  Netherlands:["#AE1C28","#21468B"], Belgium:["#1A1A1A","#FAE042","#ED2939"], Croatia:["#FF0000","#171796"],
-  Switzerland:["#D52B1E","#8E1812"], Poland:["#DC143C","#9E0E2B"], Denmark:["#C8102E","#8E0B20"],
-  Sweden:["#006AA7","#FECC00"], Austria:["#ED2939","#B51F2C"], Serbia:["#C6363C","#0C4076"],
-  Brazil:["#009C3B","#FFDF00","#002776"], Argentina:["#74ACDF","#F6B40E"], Uruguay:["#0038A8","#FCD116"],
-  Colombia:["#FCD116","#003893","#CE1126"], Mexico:["#006847","#CE1126"], "United States":["#3C3B6E","#B22234"],
-  USA:["#3C3B6E","#B22234"], Canada:["#FF0000","#A8112B"], Japan:["#BC002D","#7A0020"],
-  "South Korea":["#003478","#C60C30"], Morocco:["#C1272D","#006233"], Senegal:["#00853F","#E31B23"],
-  Ghana:["#006B3F","#FCD116","#CE1126"], Nigeria:["#008751","#0A6B40"], Cameroon:["#007A5E","#FCD116","#CE1126"],
-  Uzbekistan:["#1EB53A","#0099B5"], Australia:["#00843D","#FFCD00"], Ecuador:["#FFDD00","#034EA2","#ED1C24"]
-};
-function flagGradient(key){
-  const cs = FLAG_HEX[key];
-  if(!cs) return "linear-gradient(110deg,rgba(122,179,23,.14),rgba(14,156,138,.14))"; // tom neutro da app
-  const A="48";  // alfa ~0.28 -> tom desvanecido
-  const stops = cs.map((c,i)=>`${c}${A} ${Math.round(i/(cs.length-1)*100)}%`).join(", ");
-  return `linear-gradient(110deg, ${stops})`;
+/* ===================== FUNDO DO CABEÇALHO COM A BANDEIRA ===================== */
+// desenha o emoji da bandeira num canvas e usa-o (desfocado/desvanecido por CSS)
+// como fundo da régua de competições — cobre qualquer seleção, sem mapa de cores.
+const _flagImgCache = {};
+function flagImg(key){
+  if(key in _flagImgCache) return _flagImgCache[key];
+  let url="";
+  const t=team(key), emoji=t&&t.flag;
+  if(emoji){
+    try{
+      const w=72, h=46;
+      const c=document.createElement("canvas"); c.width=w; c.height=h;
+      const x=c.getContext("2d");
+      x.font="52px 'Apple Color Emoji','Segoe UI Emoji','Noto Color Emoji',sans-serif";
+      x.textAlign="center"; x.textBaseline="middle";
+      x.fillText(emoji, w/2, h/2);
+      // confirma que renderizou uma bandeira a cores (não vazio)
+      const d=x.getImageData(0,0,w,h).data; let n=0;
+      for(let i=3;i<d.length;i+=4){ if(d[i]>24) n++; }
+      if(n>60) url=c.toDataURL("image/png");
+    }catch(_){}
+  }
+  _flagImgCache[key]=url;
+  return url;
 }
 function setHeaderFlag(key){
-  const ew=document.querySelector(".edwrap");
-  if(ew) ew.style.setProperty("--flagbg", flagGradient(key));
+  const ew=document.querySelector(".edwrap"); if(!ew) return;
+  const url=flagImg(key);
+  ew.style.setProperty("--flagimg", url?`url("${url}")`:"none");
+  ew.classList.toggle("hasflag", !!url);
 }
 
 /* ===================== ESTADO ===================== */
