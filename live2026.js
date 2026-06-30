@@ -469,14 +469,16 @@ function loadState(){
   }catch(e){}
 }
 
-/* ===== IMPORTAR ODDS (JSON colado pelo utilizador) =====
-   Formato: { updated, fonte, qualificacao:{ "M77":{Equipa:odd,...} }, campeao:{ Equipa:odd,... } }
+/* ===== ODDS =====
+   Formato (mesmo no paste, no data/odds.json e no publish):
+     { updated, fonte, qualificacao:{ "M77":{Equipa:odd,...} }, campeao:{ Equipa:odd,... } }
    - odds decimais (>1); nomes em inglês interno OU em português (resolvidos por _toInternal)
-   - de-vig: qualificação normaliza os 2 lados; campeão normaliza as equipas dadas */
+   - de-vig: qualificação normaliza os 2 lados; campeão normaliza as equipas dadas
+   Fontes: data/odds.json (publicado, todos veem) tem prioridade; senão paste local (localStorage). */
 const _PT_TO_INTERNAL={}; for(const n in T) _PT_TO_INTERNAL[_norm(T[n][0])]=n;
 function _toInternal(n){ if(T[n]) return n; const k=_norm(n); return NAME_TO_TEAM[k]||_PT_TO_INTERNAL[k]||null; }
-function importOdds(text){
-  let raw; try{ raw=JSON.parse(text); }catch(e){ return {ok:false, msg:"JSON inválido."}; }
+// converte o objeto cru (odds decimais) -> {ok,out,nQ,nC,warn,msg}; out já de-vigged
+function _parseOdds(raw){
   if(!raw||typeof raw!=="object") return {ok:false, msg:"JSON inválido."};
   const out={ updated:(typeof raw.updated==="string"?raw.updated:""), fonte:(typeof raw.fonte==="string"?raw.fonte:""), qualify:{}, champion:null };
   let nQ=0, nC=0; const warn=[];
@@ -496,12 +498,68 @@ function importOdds(text){
     if(ent.length){ const inv=ent.map(e=>1/e[1]), sum=inv.reduce((a,b)=>a+b,0);
       out.champion={}; ent.forEach((e,i)=>out.champion[e[0]]=inv[i]/sum); nC=ent.length; }
   }
-  if(!nQ && !nC) return {ok:false, msg:'Sem odds reconhecidas. Usa "qualificacao" e/ou "campeao".'};
-  ODDS=out; saveState(); recompute(); renderKnockout(); if(_hubOnChange) _hubOnChange();
-  return {ok:true, msg:`Importado: ${nQ} jogo(s) de qualificação · ${nC} equipa(s) de campeão.`+(warn.length?` Ignorado: ${warn.join(", ")}.`:"")};
+  const ok=(nQ||nC)>0;
+  return {ok, out, nQ, nC, warn, msg: ok ? `${nQ} jogo(s) de qualificação · ${nC} equipa(s) de campeão.`+(warn.length?` Ignorado: ${warn.join(", ")}.`:"") : 'Sem odds reconhecidas. Usa "qualificacao" e/ou "campeao".' };
+}
+function applyOdds(out, persist){ ODDS=out; if(persist) saveState(); recompute(); renderKnockout(); if(_hubOnChange) _hubOnChange(); }
+function importOdds(text){                                  // paste local (pré-visualizar; persiste em localStorage)
+  let raw; try{ raw=JSON.parse(text); }catch(e){ return {ok:false, msg:"JSON inválido."}; }
+  const p=_parseOdds(raw); if(!p.ok) return {ok:false, msg:p.msg};
+  p.out.src="local"; applyOdds(p.out, true);
+  return {ok:true, msg:"Pré-visualização local: "+p.msg};
 }
 function clearOdds(){ ODDS=null; saveState(); recompute(); renderKnockout(); if(_hubOnChange) _hubOnChange(); }
-function oddsInfo(){ if(!ODDS) return null; return {updated:ODDS.updated||"", fonte:ODDS.fonte||"", nQualify:Object.keys(ODDS.qualify||{}).length, nChampion:ODDS.champion?Object.keys(ODDS.champion).length:0}; }
+function oddsInfo(){ if(!ODDS) return null; return {updated:ODDS.updated||"", fonte:ODDS.fonte||"", src:ODDS.src||"local", nQualify:Object.keys(ODDS.qualify||{}).length, nChampion:ODDS.champion?Object.keys(ODDS.champion).length:0}; }
+
+/* odds publicadas: data/odds.json (rede direta — o SW deixa passar; ver sw.js). Prioridade sobre o paste local. */
+async function fetchPublishedOdds(){
+  try{
+    const r=await fetch("data/odds.json?ts="+Date.now(),{cache:"no-store"});
+    if(!r.ok) return;                                       // 404 (ainda sem publicação) -> mantém local/ranking
+    const raw=await r.json();
+    const p=_parseOdds(raw);
+    if(p.ok){ p.out.src="remote"; applyOdds(p.out, false); }   // publicado vence; não persiste (é sempre fresco)
+  }catch(e){}
+}
+// jogos por decidir (já sorteados) + equipas vivas — para montar o pedido a um agente
+function oddsTargets(){
+  _ensureInit();
+  const matches=[];
+  for(const id in R32DEF){
+    if(KO_FINAL[id]) continue;
+    const A=resolveSrc(R32DEF[id][0]).name, B=resolveSrc(R32DEF[id][1]).name;
+    if(A&&B) matches.push({id, home:A, away:B, homePt:pt(A), awayPt:pt(B)});
+  }
+  const dead=new Set(); for(const id in KO_FINAL) dead.add(KO_FINAL[id].loser);
+  const alive=[], seen=new Set();
+  for(const id in R32DEF) for(const s of R32DEF[id]){ const n=resolveSrc(s).name; if(n&&!seen.has(n)){ seen.add(n); if(!dead.has(n)) alive.push({name:n,pt:pt(n)}); } }
+  return {matches, alive};
+}
+
+/* publicar no GitHub (token só do utilizador, passado pela UI; nunca guardado aqui). Contents API + CORS. */
+const GH_OWNER="diogoandrefsilva-ghc", GH_REPO="FutebolSelecoes", GH_PATH="data/odds.json", GH_BRANCH="main";
+function _b64utf8(s){ return btoa(unescape(encodeURIComponent(s))); }   // base64 seguro p/ UTF-8
+async function publishOdds(token, text){
+  if(!token) return {ok:false, msg:"Falta o token do GitHub."};
+  let raw; try{ raw=JSON.parse(text); }catch(e){ return {ok:false, msg:"JSON inválido."}; }
+  const p=_parseOdds(raw); if(!p.ok) return {ok:false, msg:p.msg};
+  const pretty=JSON.stringify(raw,null,2);
+  const api=`https://api.github.com/repos/${GH_OWNER}/${GH_REPO}/contents/${GH_PATH}`;
+  const hdr={ "Authorization":"Bearer "+token, "Accept":"application/vnd.github+json", "X-GitHub-Api-Version":"2022-11-28" };
+  try{
+    let sha=null;
+    const g=await fetch(api+"?ref="+GH_BRANCH+"&t="+Date.now(),{headers:hdr,cache:"no-store"});
+    if(g.status===200){ sha=(await g.json()).sha; }
+    else if(g.status===401) return {ok:false, msg:"Token inválido."};
+    else if(g.status===403) return {ok:false, msg:"Token sem permissão (precisa de Contents: read/write neste repo)."};
+    const body={ message:"Atualiza odds"+(p.out.updated?(" ("+p.out.updated+")"):""), content:_b64utf8(pretty), branch:GH_BRANCH };
+    if(sha) body.sha=sha;
+    const r=await fetch(api,{method:"PUT",headers:hdr,body:JSON.stringify(body)});
+    if(r.ok){ p.out.src="remote"; applyOdds(p.out, false); return {ok:true, msg:"Publicado no GitHub ✓ — todos passam a ver estas odds ("+p.msg+")"}; }
+    const e=await r.json().catch(()=>({}));
+    return {ok:false, msg:"Falhou ("+r.status+"): "+(e.message||"erro do GitHub")};
+  }catch(e){ return {ok:false, msg:"Sem ligação ao GitHub."}; }
+}
 
 function gWin(L,W){ W=W||CUR; return "ABCDEFGHI".includes(L)?FIXED[L].w:W.res[L].order[0]; }
 function gRun(L,W){ W=W||CUR; return "ABCDEFGHI".includes(L)?FIXED[L].r:W.res[L].order[1]; }
@@ -1001,7 +1059,7 @@ function mount(opts){
   _ensureInit();
   const ko=document.getElementById("knockout");
   if(!_mounted && ko){ _mounted=true; ko.addEventListener("click",_onKoClick);
-    fetchStandings();
+    fetchStandings(); fetchPublishedOdds();                 // odds publicadas (data/odds.json) — todos veem
     if(LIVE_ENABLED){ fetchLive(false); setInterval(()=>fetchLive(false),60000); } }
   renderKnockout();
 }
@@ -1253,6 +1311,7 @@ function matchListHTML(selTeam){
   return h;
 }
 
-window.LIVE2026={ mount, reset, percursoStagesHTML, currentStage, matchListHTML, groupSchedLabel, importOdds, clearOdds, oddsInfo, renderKnockout:function(){ _ensureInit(); renderKnockout(); } };
+window.LIVE2026={ mount, reset, percursoStagesHTML, currentStage, matchListHTML, groupSchedLabel,
+  importOdds, clearOdds, oddsInfo, publishOdds, oddsTargets, fetchPublishedOdds, renderKnockout:function(){ _ensureInit(); renderKnockout(); } };
 
 })();
