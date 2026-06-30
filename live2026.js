@@ -843,7 +843,7 @@ function koSide(id, side, S, both, pick, score, isWin, locked, hasScore, pen, pr
   const hasProb = Number.isFinite(prob) && !hasScore && !!S.name;   // % de avançar (só jogos por disputar)
   // a posição do grupo só faz sentido enquanto o jogo não tem resultado nem prob. à direita
   const tag= (S.name&&S.tag&&!hasScore&&!hasProb)? `<span class="src">${S.tag}</span>` : "";
-  const scEl= Number.isFinite(score)? `<span class="kosc">${score}${Number.isFinite(pen)?`<span class="pen"> (${pen})</span>`:""}</span>` : "";
+  const scEl= Number.isFinite(score)? `<span class="kosc">${Number.isFinite(pen)?`<span class="pen">(${pen}) </span>`:""}${score}</span>` : "";   // penáltis à esquerda -> placar principal sempre à direita
   const prEl= hasProb? `<span class="koprob">${prob<0.005?"<1":Math.round(prob*100)}%</span>` : "";
   return `<button class="${cls.join(' ')}" data-id="${id}" data-side="${side}" ${both&&!locked?'':'disabled'}>
     <span class="fl">${flg}</span><span class="nm">${nm}</span>${tag}${scEl}${prEl}</button>`;

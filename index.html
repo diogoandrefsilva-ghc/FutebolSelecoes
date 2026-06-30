@@ -193,8 +193,8 @@
   .bracket-hint .k{color:var(--cyan)}
   .bracket-scroll{overflow-x:auto;overflow-y:hidden;-webkit-overflow-scrolling:touch;padding:2px 2px 14px;
                   scrollbar-width:thin}
-  .bracket{display:flex;gap:34px;min-width:976px}
-  .col{display:flex;flex-direction:column;flex:0 0 168px}
+  .bracket{display:flex;gap:24px;min-width:856px}
+  .col{display:flex;flex-direction:column;flex:0 0 152px}
   .chead{height:30px;flex:0 0 30px;display:flex;align-items:center;justify-content:center;margin-bottom:8px;
          font-family:Inter,sans-serif;font-size:11px;letter-spacing:1px;color:var(--cyan);
          text-transform:uppercase;border-bottom:1px solid var(--line)}
@@ -202,24 +202,24 @@
      evitando que os últimos 16-avos transbordem e fiquem escondidos sob o banner do campeão.
      Todas as colunas ficam com a mesma altura (stretch) -> conectores continuam alinhados. */
   .games{flex:1 1 auto;display:flex;flex-direction:column}
-  .gw{flex:1 0 90px;display:flex;align-items:center;position:relative}
+  .gw{flex:1 0 72px;display:flex;align-items:center;position:relative}
   .gw .ko{width:100%}
-  /* conectores: cada par liga-se ao jogo seguinte */
+  /* conectores: cada par liga-se ao jogo seguinte (largura = metade do gap das colunas) */
   .col:not(:last-child) .gw:nth-child(odd)::after{
-    content:"";position:absolute;right:-17px;top:50%;width:17px;height:100%;
+    content:"";position:absolute;right:-12px;top:50%;width:12px;height:100%;
     border-top:2px solid var(--line2);border-right:2px solid var(--line2)}
   .col:not(:last-child) .gw:nth-child(even)::after{
-    content:"";position:absolute;right:-17px;top:50%;width:17px;height:2px;background:var(--line2)}
+    content:"";position:absolute;right:-12px;top:50%;width:12px;height:2px;background:var(--line2)}
   .col:not(:first-child) .gw::before{
-    content:"";position:absolute;left:-17px;top:50%;width:17px;height:2px;background:var(--line2)}
+    content:"";position:absolute;left:-12px;top:50%;width:12px;height:2px;background:var(--line2)}
 
-  .ko{background:var(--panel2);border:1px solid var(--line);border-radius:9px;overflow:hidden}
-  .ko .jno{font-family:Inter,sans-serif;font-size:9px;letter-spacing:.5px;color:var(--dim);
-           padding:4px 8px 1px;display:flex;justify-content:space-between}
-  .koteam{display:flex;align-items:center;gap:6px;padding:7px 7px;border:0;background:transparent;color:var(--txt);
+  .ko{background:var(--panel2);border:1px solid var(--line);border-radius:8px;overflow:hidden}
+  .ko .jno{font-family:Inter,sans-serif;font-size:8.5px;letter-spacing:.4px;color:var(--dim);
+           padding:3px 7px 0;display:flex;justify-content:space-between}
+  .koteam{display:flex;align-items:center;gap:5px;padding:5px 6px;border:0;background:transparent;color:var(--txt);
           font-family:Inter,sans-serif;font-size:12px;text-align:left;width:100%;cursor:pointer;border-top:1px solid var(--line)}
   .koteam:first-child{border-top:0}
-  .koteam .fl{font-size:14px;width:16px;text-align:center;flex:none}
+  .koteam .fl{font-size:13px;width:15px;text-align:center;flex:none}
   .koteam .nm{flex:1;font-weight:600;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   .koteam .src{color:var(--dim);font-family:Inter,sans-serif;font-size:9px;flex:none}
   .koteam.pick{background:linear-gradient(90deg,rgba(91,140,0,.18),transparent)}
@@ -427,7 +427,6 @@
   .deferred{border:1px dashed var(--line2);border-radius:14px;padding:26px 18px;text-align:center;color:var(--mut);background:var(--panel2);line-height:1.6}
   .deferred .ic{font-size:30px;display:block;margin-bottom:10px}
   .deferred b{color:var(--txt)}
-  .bracket{min-width:760px}
   .koteam .kosc{margin-left:auto;font-family:ui-monospace,"SF Mono","Cascadia Mono","Roboto Mono",Menlo,Consolas,monospace;
     font-weight:700;font-size:15px;color:var(--mut);flex:none;white-space:nowrap;padding-right:4px;font-variant-numeric:tabular-nums;font-feature-settings:"tnum" 1}
   .koteam.pick .kosc{color:var(--lime)}
@@ -646,7 +645,7 @@
 <!-- Módulo live do 2026: Anexo C (emparelhamento dos 16-avos), quadro interativo,
      simulação Monte Carlo do percurso e live ESPN. (Caveat: o Anexo C herdado assume
      8 grupos; rever para os 12 grupos do formato de 48 num próximo torneio.) -->
-<script src="live2026.js?v=10"></script>
+<script src="live2026.js?v=11"></script>
 <script>
 "use strict";
 /* =====================================================================
@@ -997,7 +996,7 @@ function koCardClosed(tie, label){
   const row=(name,g,pen)=>{
     const cls=["koteam"]; if(name===w) cls.push("pick"); if(name===FAV) cls.push("por");
     return `<div class="${cls.join(' ')}"><span class="fl">${fl(name)}</span><span class="nm">${pt(name)}</span>
-      <span class="kosc">${g}${pen!=null?`<span class="pen"> (${pen})</span>`:""}</span></div>`;
+      <span class="kosc">${pen!=null?`<span class="pen">(${pen}) </span>`:""}${g}</span></div>`;
   };
   return `<div class="ko ${haspor?'haspor':''}">
     <div class="jno"><span>${label||tie.round}</span></div>
