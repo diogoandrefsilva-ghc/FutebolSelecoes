@@ -474,26 +474,25 @@
   /* --- PLAYOFFS: sub-menu (lista/bracket) + lista cronológica de jogos --- */
   .posub{display:none}
   .posub.active{display:block;animation:fade .18s ease}
-  /* --- painel "Importar odds" --- */
-  .oddspanel{margin:18px 0 4px;border:1px solid var(--line2);border-radius:12px;background:var(--panel2);overflow:hidden}
-  .oddsbar{display:flex;align-items:center;gap:10px;padding:10px 12px}
-  .oddssrc{flex:1;min-width:0;font-family:Inter,sans-serif;font-size:11.5px;color:var(--mut);line-height:1.35}
+  /* --- caixa discreta "Odds & probabilidades · admin" (no fim dos Playoffs) --- */
+  .oddsadminbox{margin:34px 0 4px;border:1px solid var(--line);border-radius:11px;background:var(--panel2)}
+  .oddsadminbox > summary{cursor:pointer;list-style:none;font-family:Inter,sans-serif;font-weight:700;font-size:11px;
+    letter-spacing:.4px;color:var(--dim);padding:11px 13px}
+  .oddsadminbox > summary::-webkit-details-marker{display:none}
+  .oddsadminbox[open] > summary{color:var(--mut);border-bottom:1px solid var(--line)}
+  .oddsbox{padding:12px 13px}
+  .oddssrc{font-family:Inter,sans-serif;font-size:11.5px;color:var(--mut);line-height:1.35;margin-bottom:10px}
   .oddssrc b{color:var(--cyan);font-weight:700}
-  .oddsbtn{flex:none;font-family:Inter,sans-serif;font-weight:800;font-size:11.5px;color:var(--on-accent);
-    background:var(--lime);border:0;border-radius:20px;padding:7px 13px;cursor:pointer;letter-spacing:.2px}
-  .oddsbtn:focus-visible{outline:3px solid var(--cyan);outline-offset:2px}
-  .oddsform{padding:0 12px 12px;border-top:1px solid var(--line)}
-  .oddsform[hidden]{display:none}
-  .oddsform textarea{width:100%;box-sizing:border-box;margin-top:10px;resize:vertical;min-height:120px;
+  .oddsbox textarea{width:100%;box-sizing:border-box;resize:vertical;min-height:130px;
     font-family:ui-monospace,Consolas,Menlo,monospace;font-size:12px;line-height:1.45;color:var(--txt);
     background:var(--ink);border:1px solid var(--line2);border-radius:9px;padding:9px 11px}
-  .oddsform textarea:focus{outline:none;border-color:var(--cyan)}
+  .oddsbox textarea:focus{outline:none;border-color:var(--cyan)}
   .oddsrow{display:flex;gap:8px;margin-top:9px;flex-wrap:wrap;align-items:center}
   .oddsmsg{margin-top:8px;font-family:Inter,sans-serif;font-size:11.5px;line-height:1.4}
   .oddsmsg.ok{color:var(--lime)}
   .oddsmsg.err{color:var(--red)}
   .btn.sm{font-size:11px;padding:6px 10px}
-  .oddssub{margin-top:10px;border:1px solid var(--line);border-radius:9px;background:var(--ink);padding:0}
+  .oddssub{margin-bottom:10px;border:1px solid var(--line);border-radius:9px;background:var(--ink);padding:0}
   .oddssub > summary{cursor:pointer;list-style:none;font-family:Inter,sans-serif;font-weight:700;font-size:11.5px;
     color:var(--cyan);padding:9px 11px}
   .oddssub > summary::-webkit-details-marker{display:none}
@@ -508,7 +507,9 @@
   .ghinput{flex:1;min-width:160px;box-sizing:border-box;font-family:ui-monospace,Consolas,monospace;font-size:12px;
     color:var(--txt);background:var(--panel2);border:1px solid var(--line2);border-radius:8px;padding:8px 10px}
   .ghinput:focus{outline:none;border-color:var(--cyan)}
-  .oddsadmin > summary{color:var(--gold)}
+  /* --- probabilidade de avançar, nos cartões do bracket (jogos por disputar) --- */
+  .koteam .koprob{margin-left:auto;font-family:Inter,sans-serif;font-weight:700;font-size:11px;color:var(--cyan);flex:none;padding-right:3px}
+  .koteam.dim .koprob{color:var(--mut)}
   .mlround{display:flex;align-items:center;gap:10px;margin:18px 2px 9px;font-family:Inter,sans-serif;
     font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--cyan)}
   .mlround:first-child{margin-top:2px}
@@ -594,40 +595,6 @@
     </section>
 
     <section class="panel" id="p-quadro">
-      <div id="oddsPanel" class="oddspanel" style="display:none">
-        <div class="oddsbar">
-          <span class="oddssrc" id="oddsInfoLbl">Probabilidades pelo <b>ranking FIFA</b></span>
-          <button class="oddsbtn" id="oddsToggle" type="button" aria-expanded="false">＋ Importar odds</button>
-        </div>
-        <div class="oddsform" id="oddsForm" hidden>
-          <details class="oddssub" id="oddsFmt">
-            <summary>Formato esperado — copia e pede a um agente</summary>
-            <div class="oddshint">Odds <b>decimais</b>. <b>qualificacao</b>: odd de cada equipa <b>passar a eliminatória</b> (com prolongamento/penáltis), por jogo. <b>campeao</b>: odd de <b>vencer o Mundial</b>. A app tira a margem sozinha.</div>
-            <pre id="oddsTpl" class="oddstpl"></pre>
-            <div class="oddsrow">
-              <button class="btn ghost sm" id="oddsCopyFmt" type="button">Copiar formato</button>
-              <button class="btn ghost sm" id="oddsCopyPrompt" type="button">Copiar pedido p/ agente</button>
-            </div>
-          </details>
-          <textarea id="oddsText" rows="8" spellcheck="false" placeholder='Cola aqui o JSON das odds…'></textarea>
-          <div class="oddsrow">
-            <button class="btn" id="oddsImport" type="button">Pré-visualizar</button>
-            <button class="btn ghost" id="oddsClear" type="button">Limpar</button>
-          </div>
-          <div class="oddsmsg" id="oddsMsg" aria-live="polite"></div>
-          <details class="oddssub oddsadmin" id="oddsAdmin">
-            <summary>Publicar no site (admin)</summary>
-            <div class="oddshint">Para todos verem as odds. O <b>token fica só no teu browser</b> (localStorage), nunca é guardado no site. Usa um <b>fine-grained token</b> do GitHub com <b>Contents: Read and write</b> só neste repositório.</div>
-            <div class="oddsrow">
-              <input id="ghToken" class="ghinput" type="password" autocomplete="off" spellcheck="false" placeholder="GitHub token (github_pat_… / ghp_…)">
-              <button class="btn ghost sm" id="ghSave" type="button">Guardar token</button>
-              <button class="btn ghost sm" id="ghForget" type="button">Esquecer</button>
-            </div>
-            <button class="btn" id="ghPublish" type="button">Guardar odds no GitHub</button>
-            <div class="oddsmsg" id="ghMsg" aria-live="polite"></div>
-          </details>
-        </div>
-      </div>
       <div class="oddsmode" id="poModes" role="tablist" aria-label="Vista dos playoffs" style="margin:20px 0 14px">
         <button class="omode active" data-po="lista" role="tab" aria-selected="true">Lista de jogos</button>
         <button class="omode" data-po="bracket" role="tab" aria-selected="false">Bracket</button>
@@ -641,6 +608,36 @@
           <button class="btn ghost" onclick="window.LIVE2026&&window.LIVE2026.reset()">↺ Limpar escolhas do quadro</button>
         </div>
       </div>
+
+      <details id="oddsPanel" class="oddsadminbox" style="display:none">
+        <summary>⚙︎ Odds &amp; probabilidades · admin</summary>
+        <div class="oddsbox">
+          <div class="oddssrc" id="oddsInfoLbl">Probabilidades pelo <b>ranking FIFA</b></div>
+          <details class="oddssub" id="oddsFmt">
+            <summary>Formato — copia e pede a um agente</summary>
+            <div class="oddshint">Odds <b>decimais</b>. <b>qualificacao</b>: odd de cada equipa <b>passar a eliminatória</b> (com prolong./penáltis), por jogo. <b>campeao</b>: odd de <b>vencer o Mundial</b>. A app tira a margem sozinha.</div>
+            <pre id="oddsTpl" class="oddstpl"></pre>
+            <div class="oddsrow">
+              <button class="btn ghost sm" id="oddsCopyFmt" type="button">Copiar formato</button>
+              <button class="btn ghost sm" id="oddsCopyPrompt" type="button">Copiar pedido p/ agente</button>
+            </div>
+          </details>
+          <textarea id="oddsText" rows="8" spellcheck="false" placeholder='Cola aqui o JSON das odds…'></textarea>
+          <div class="oddsrow">
+            <button class="btn" id="oddsUpdate" type="button">Atualizar odds</button>
+            <button class="btn ghost" id="oddsPreview" type="button">Pré-ver local</button>
+            <button class="btn ghost" id="oddsClear" type="button">Limpar</button>
+          </div>
+          <div class="oddsmsg" id="oddsMsg" aria-live="polite"></div>
+          <div class="oddshint" style="margin-top:12px"><b>Token GitHub</b> (fica só neste browser; fine-grained com <b>Contents: Read and write</b> no repo <b>AppDataJSON</b>). "Atualizar odds" grava lá e todos passam a ver.</div>
+          <div class="oddsrow">
+            <input id="ghToken" class="ghinput" type="password" autocomplete="off" spellcheck="false" placeholder="GitHub token (github_pat_… / ghp_…)">
+            <button class="btn ghost sm" id="ghSave" type="button">Guardar token</button>
+            <button class="btn ghost sm" id="ghForget" type="button">Esquecer</button>
+          </div>
+          <div class="oddsmsg" id="ghMsg" aria-live="polite"></div>
+        </div>
+      </details>
     </section>
   </main>
 
@@ -649,7 +646,7 @@
 <!-- Módulo live do 2026: Anexo C (emparelhamento dos 16-avos), quadro interativo,
      simulação Monte Carlo do percurso e live ESPN. (Caveat: o Anexo C herdado assume
      8 grupos; rever para os 12 grupos do formato de 48 num próximo torneio.) -->
-<script src="live2026.js?v=9"></script>
+<script src="live2026.js?v=10"></script>
 <script>
 "use strict";
 /* =====================================================================
@@ -1197,38 +1194,36 @@ async function copyToClipboard(text, btn){
 }
 function setupOdds(){
   const $=id=>document.getElementById(id);
-  const toggle=$("oddsToggle"), form=$("oddsForm"), imp=$("oddsImport"), clr=$("oddsClear"),
-        txt=$("oddsText"), msg=$("oddsMsg");
-  if(!toggle||!form) return;
-  toggle.addEventListener("click",()=>{ const open=form.hidden; form.hidden=!open;
-    toggle.setAttribute("aria-expanded",String(open)); toggle.textContent=open?"× Fechar":"＋ Importar odds";
-    if(open) renderOddsTemplate(); });
-  imp.addEventListener("click",()=>{
+  const panel=$("oddsPanel"), upd=$("oddsUpdate"), prev=$("oddsPreview"), clr=$("oddsClear"),
+        txt=$("oddsText"), msg=$("oddsMsg"), tok=$("ghToken"), ghMsg=$("ghMsg");
+  if(!panel) return;
+  panel.addEventListener("toggle",()=>{ if(panel.open) renderOddsTemplate(); });   // gera o template quando abre
+  const tokenVal=()=>((tok&&tok.value)||"").trim()||(()=>{try{return localStorage.getItem(GH_TOKEN_KEY)||"";}catch(e){return"";}})();
+  // Atualizar odds = publicar no GitHub (grava o ficheiro -> todos veem) + aplicar localmente
+  upd && upd.addEventListener("click",async()=>{
+    if(!(window.LIVE2026&&window.LIVE2026.publishOdds)) return;
+    msg.textContent="A atualizar no GitHub…"; msg.className="oddsmsg";
+    const r=await window.LIVE2026.publishOdds(tokenVal(), txt.value||"");
+    msg.textContent=r.msg; msg.className="oddsmsg "+(r.ok?"ok":"err");
+    if(r.ok) refreshOddsUI();
+  });
+  // Pré-ver local = só neste browser, não publica
+  prev && prev.addEventListener("click",()=>{
     if(!(window.LIVE2026&&window.LIVE2026.importOdds)) return;
     const r=window.LIVE2026.importOdds(txt.value||"");
     msg.textContent=r.msg; msg.className="oddsmsg "+(r.ok?"ok":"err");
     if(r.ok) refreshOddsUI();
   });
-  clr.addEventListener("click",()=>{
+  clr && clr.addEventListener("click",()=>{
     if(window.LIVE2026&&window.LIVE2026.clearOdds) window.LIVE2026.clearOdds();
-    txt.value=""; msg.textContent="Pré-visualização limpa — voltou às odds publicadas / ranking."; msg.className="oddsmsg";
+    txt.value=""; msg.textContent="Pré-visualização limpa — volta às odds publicadas / ranking."; msg.className="oddsmsg";
     refreshOddsUI();
   });
   $("oddsCopyFmt") && $("oddsCopyFmt").addEventListener("click",e=>{ renderOddsTemplate(); copyToClipboard($("oddsTpl").textContent, e.currentTarget); });
   $("oddsCopyPrompt") && $("oddsCopyPrompt").addEventListener("click",e=>copyToClipboard(oddsAgentPrompt(), e.currentTarget));
-  // --- admin: token + publicar ---
-  const tok=$("ghToken"), ghMsg=$("ghMsg");
   if(tok){ try{ tok.value=localStorage.getItem(GH_TOKEN_KEY)||""; }catch(e){} }
   $("ghSave") && $("ghSave").addEventListener("click",()=>{ try{ localStorage.setItem(GH_TOKEN_KEY,(tok.value||"").trim()); ghMsg.textContent="Token guardado neste browser."; ghMsg.className="oddsmsg ok"; }catch(e){ ghMsg.textContent="Não foi possível guardar."; ghMsg.className="oddsmsg err"; } });
   $("ghForget") && $("ghForget").addEventListener("click",()=>{ try{ localStorage.removeItem(GH_TOKEN_KEY); }catch(e){} tok.value=""; ghMsg.textContent="Token esquecido."; ghMsg.className="oddsmsg"; });
-  $("ghPublish") && $("ghPublish").addEventListener("click",async()=>{
-    const token=((tok&&tok.value)||"").trim()||(()=>{try{return localStorage.getItem(GH_TOKEN_KEY)||"";}catch(e){return"";}})();
-    if(!(window.LIVE2026&&window.LIVE2026.publishOdds)) return;
-    ghMsg.textContent="A publicar no GitHub…"; ghMsg.className="oddsmsg";
-    const r=await window.LIVE2026.publishOdds(token, txt.value||"");
-    ghMsg.textContent=r.msg; ghMsg.className="oddsmsg "+(r.ok?"ok":"err");
-    if(r.ok) refreshOddsUI();
-  });
 }
 setupOdds();
 

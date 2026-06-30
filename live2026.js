@@ -470,11 +470,11 @@ function loadState(){
 }
 
 /* ===== ODDS =====
-   Formato (mesmo no paste, no data/odds.json e no publish):
+   Formato (igual no paste, no ficheiro publicado e no publish):
      { updated, fonte, qualificacao:{ "M77":{Equipa:odd,...} }, campeao:{ Equipa:odd,... } }
    - odds decimais (>1); nomes em inglês interno OU em português (resolvidos por _toInternal)
    - de-vig: qualificação normaliza os 2 lados; campeão normaliza as equipas dadas
-   Fontes: data/odds.json (publicado, todos veem) tem prioridade; senão paste local (localStorage). */
+   Fontes: ficheiro publicado em AppDataJSON (todos veem) tem prioridade; senão paste local (localStorage). */
 const _PT_TO_INTERNAL={}; for(const n in T) _PT_TO_INTERNAL[_norm(T[n][0])]=n;
 function _toInternal(n){ if(T[n]) return n; const k=_norm(n); return NAME_TO_TEAM[k]||_PT_TO_INTERNAL[k]||null; }
 // converte o objeto cru (odds decimais) -> {ok,out,nQ,nC,warn,msg}; out já de-vigged
@@ -511,15 +511,21 @@ function importOdds(text){                                  // paste local (pré
 function clearOdds(){ ODDS=null; saveState(); recompute(); renderKnockout(); if(_hubOnChange) _hubOnChange(); }
 function oddsInfo(){ if(!ODDS) return null; return {updated:ODDS.updated||"", fonte:ODDS.fonte||"", src:ODDS.src||"local", nQualify:Object.keys(ODDS.qualify||{}).length, nChampion:ODDS.champion?Object.keys(ODDS.champion).length:0}; }
 
-/* odds publicadas: data/odds.json (rede direta — o SW deixa passar; ver sw.js). Prioridade sobre o paste local. */
+/* publicação no repo de dados AppDataJSON (público p/ ler; token do utilizador só p/ gravar) */
+const GH_OWNER="diogoandrefsilva-ghc", GH_DATA_REPO="AppDataJSON", GH_DATA_PATH="futebol-selecoes-odds-data.json";
+
+/* odds publicadas: lidas de raw.githubusercontent.com (repo público, sem token). Prioridade sobre o paste local. */
 async function fetchPublishedOdds(){
-  try{
-    const r=await fetch("data/odds.json?ts="+Date.now(),{cache:"no-store"});
-    if(!r.ok) return;                                       // 404 (ainda sem publicação) -> mantém local/ranking
-    const raw=await r.json();
-    const p=_parseOdds(raw);
-    if(p.ok){ p.out.src="remote"; applyOdds(p.out, false); }   // publicado vence; não persiste (é sempre fresco)
-  }catch(e){}
+  for(const br of ["main","master"]){                       // tenta o branch por defeito (main; senão master)
+    try{
+      const r=await fetch(`https://raw.githubusercontent.com/${GH_OWNER}/${GH_DATA_REPO}/${br}/${GH_DATA_PATH}?ts=`+Date.now(),{cache:"no-store"});
+      if(!r.ok) continue;
+      const raw=await r.json();
+      const p=_parseOdds(raw);
+      if(p.ok){ p.out.src="remote"; applyOdds(p.out, false); }   // publicado vence; não persiste (é sempre fresco)
+      return;                                                 // ficheiro encontrado nesse branch -> termina
+    }catch(e){}
+  }
 }
 // jogos por decidir (já sorteados) + equipas vivas — para montar o pedido a um agente
 function oddsTargets(){
@@ -536,23 +542,24 @@ function oddsTargets(){
   return {matches, alive};
 }
 
-/* publicar no GitHub (token só do utilizador, passado pela UI; nunca guardado aqui). Contents API + CORS. */
-const GH_OWNER="diogoandrefsilva-ghc", GH_REPO="FutebolSelecoes", GH_PATH="data/odds.json", GH_BRANCH="main";
+/* publicar no GitHub (token só do utilizador, passado pela UI; nunca guardado aqui). Contents API + CORS.
+   Sem branch -> usa o branch por defeito do repo AppDataJSON. */
 function _b64utf8(s){ return btoa(unescape(encodeURIComponent(s))); }   // base64 seguro p/ UTF-8
 async function publishOdds(token, text){
   if(!token) return {ok:false, msg:"Falta o token do GitHub."};
   let raw; try{ raw=JSON.parse(text); }catch(e){ return {ok:false, msg:"JSON inválido."}; }
   const p=_parseOdds(raw); if(!p.ok) return {ok:false, msg:p.msg};
   const pretty=JSON.stringify(raw,null,2);
-  const api=`https://api.github.com/repos/${GH_OWNER}/${GH_REPO}/contents/${GH_PATH}`;
+  const api=`https://api.github.com/repos/${GH_OWNER}/${GH_DATA_REPO}/contents/${GH_DATA_PATH}`;
   const hdr={ "Authorization":"Bearer "+token, "Accept":"application/vnd.github+json", "X-GitHub-Api-Version":"2022-11-28" };
   try{
     let sha=null;
-    const g=await fetch(api+"?ref="+GH_BRANCH+"&t="+Date.now(),{headers:hdr,cache:"no-store"});
+    const g=await fetch(api+"?t="+Date.now(),{headers:hdr,cache:"no-store"});
     if(g.status===200){ sha=(await g.json()).sha; }
     else if(g.status===401) return {ok:false, msg:"Token inválido."};
-    else if(g.status===403) return {ok:false, msg:"Token sem permissão (precisa de Contents: read/write neste repo)."};
-    const body={ message:"Atualiza odds"+(p.out.updated?(" ("+p.out.updated+")"):""), content:_b64utf8(pretty), branch:GH_BRANCH };
+    else if(g.status===403) return {ok:false, msg:"Token sem permissão (precisa de Contents: read/write no repo AppDataJSON)."};
+    else if(g.status===404){ /* ficheiro/repo ainda sem este caminho -> cria de novo */ }
+    const body={ message:"Atualiza odds"+(p.out.updated?(" ("+p.out.updated+")"):""), content:_b64utf8(pretty) };
     if(sha) body.sha=sha;
     const r=await fetch(api,{method:"PUT",headers:hdr,body:JSON.stringify(body)});
     if(r.ok){ p.out.src="remote"; applyOdds(p.out, false); return {ok:true, msg:"Publicado no GitHub ✓ — todos passam a ver estas odds ("+p.msg+")"}; }
@@ -815,7 +822,15 @@ const COLS=[
   {name:"Meias",   ids:["M101","M102"]},
   {name:"Final",   ids:["M104"]}
 ];
-function koSide(id, side, S, both, pick, score, isWin, locked, hasScore, pen){
+// prob. de cada lado AVANÇAR num jogo por disputar (já sorteado): odds de qualificação (c/ ajuste live) -> campeão -> ranking
+function koAdvanceProb(id){
+  if(KO_FINAL[id]) return null;                            // já decidido -> mostra-se o resultado, não a prob.
+  const A=resolveSrc(ALLDEF[id][0]).name, B=resolveSrc(ALLDEF[id][1]).name;
+  if(!A||!B) return null;                                  // falta uma equipa (ronda futura) -> sem prob.
+  const ov=matchAdvanceProb(id); if(ov) return ov;
+  const pa=pWin(A,B); return {a:pa, b:1-pa};
+}
+function koSide(id, side, S, both, pick, score, isWin, locked, hasScore, pen, prob){
   const isPick=pick===side, isDim=pick&&pick!==side, por=S.name===POR;
   const cls=["koteam"];
   if(!S.name) cls.push("tbd");
@@ -825,11 +840,13 @@ function koSide(id, side, S, both, pick, score, isWin, locked, hasScore, pen){
   if(isWin)  cls.push("kowin");           // vencedor real trancado
   const nm = S.name? pt(S.name) : (S.ph||S.tag||"A definir");
   const flg= S.name? fl(S.name) : "·";
-  // a posição do grupo só faz sentido enquanto o jogo não tem resultado (ao vivo ou terminado)
-  const tag= (S.name&&S.tag&&!hasScore)? `<span class="src">${S.tag}</span>` : "";
+  const hasProb = Number.isFinite(prob) && !hasScore && !!S.name;   // % de avançar (só jogos por disputar)
+  // a posição do grupo só faz sentido enquanto o jogo não tem resultado nem prob. à direita
+  const tag= (S.name&&S.tag&&!hasScore&&!hasProb)? `<span class="src">${S.tag}</span>` : "";
   const scEl= Number.isFinite(score)? `<span class="kosc">${score}${Number.isFinite(pen)?`<span class="pen"> (${pen})</span>`:""}</span>` : "";
+  const prEl= hasProb? `<span class="koprob">${prob<0.005?"<1":Math.round(prob*100)}%</span>` : "";
   return `<button class="${cls.join(' ')}" data-id="${id}" data-side="${side}" ${both&&!locked?'':'disabled'}>
-    <span class="fl">${flg}</span><span class="nm">${nm}</span>${tag}${scEl}</button>`;
+    <span class="fl">${flg}</span><span class="nm">${nm}</span>${tag}${scEl}${prEl}</button>`;
 }
 function koCard(id){
   const def=ALLDEF[id];
@@ -846,9 +863,10 @@ function koCard(id){
   const corner = champ?'<span>🏆</span>':(id==='M103'?'<span>3.º/4.º</span>':'');
   const cls=["ko"]; if(haspor)cls.push("haspor"); if(champ)cls.push("champ");
   if(state==="in")cls.push("inplay"); if(fin)cls.push("locked");
+  const adv = both ? koAdvanceProb(id) : null;            // % de avançar (jogos por disputar)
   return `<div class="${cls.join(' ')}">
     <div class="jno"><span>JOGO ${num}</span>${chip}${corner}</div>
-    <div class="teams">${koSide(id,'a',A,both,pick,sc?sc.hg:null,winner&&winner===A.name,!!fin,!!sc, sc&&sc.pens?sc.pens[0]:null)}${koSide(id,'b',B,both,pick,sc?sc.ag:null,winner&&winner===B.name,!!fin,!!sc, sc&&sc.pens?sc.pens[1]:null)}</div></div>`;
+    <div class="teams">${koSide(id,'a',A,both,pick,sc?sc.hg:null,winner&&winner===A.name,!!fin,!!sc, sc&&sc.pens?sc.pens[0]:null, adv?adv.a:null)}${koSide(id,'b',B,both,pick,sc?sc.ag:null,winner&&winner===B.name,!!fin,!!sc, sc&&sc.pens?sc.pens[1]:null, adv?adv.b:null)}</div></div>`;
 }
 function renderKnockout(){
   let cols="";
@@ -1059,7 +1077,7 @@ function mount(opts){
   _ensureInit();
   const ko=document.getElementById("knockout");
   if(!_mounted && ko){ _mounted=true; ko.addEventListener("click",_onKoClick);
-    fetchStandings(); fetchPublishedOdds();                 // odds publicadas (data/odds.json) — todos veem
+    fetchStandings(); fetchPublishedOdds();                 // odds publicadas (AppDataJSON) — todos veem
     if(LIVE_ENABLED){ fetchLive(false); setInterval(()=>fetchLive(false),60000); } }
   renderKnockout();
 }

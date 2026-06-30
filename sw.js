@@ -1,9 +1,9 @@
 /* Service worker — Seleções: Mundiais & Euros (cache-first com atualização em rede) */
-const CACHE = "selecoes-v9";
+const CACHE = "selecoes-v10";
 const ASSETS = [
   "./",
   "./index.html",
-  "./live2026.js?v=9",
+  "./live2026.js?v=10",
   "./manifest.webmanifest",
   "./icon.svg",
   "./data/2026.json",
@@ -40,13 +40,7 @@ self.addEventListener("fetch", e => {
   const req = e.request;
   if (req.method !== "GET") return;
   const url = new URL(req.url);
-  if (url.origin !== self.location.origin) return;
-  // odds publicadas: sempre da rede (nunca em cache) para todos verem a última versão
-  if (url.pathname.endsWith("/data/odds.json")) {
-    e.respondWith(fetch(req, { cache: "no-store" }).catch(() =>
-      new Response("{}", { status: 200, headers: { "Content-Type": "application/json" } })));
-    return;
-  }
+  if (url.origin !== self.location.origin) return;   // odds (AppDataJSON / raw.githubusercontent / api.github) são cross-origin → passam direto
   e.respondWith(
     caches.match(req).then(hit => {
       const net = fetch(req).then(res => {
