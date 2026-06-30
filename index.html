@@ -474,6 +474,24 @@
   /* --- PLAYOFFS: sub-menu (lista/bracket) + lista cronológica de jogos --- */
   .posub{display:none}
   .posub.active{display:block;animation:fade .18s ease}
+  /* --- painel "Importar odds" --- */
+  .oddspanel{margin:18px 0 4px;border:1px solid var(--line2);border-radius:12px;background:var(--panel2);overflow:hidden}
+  .oddsbar{display:flex;align-items:center;gap:10px;padding:10px 12px}
+  .oddssrc{flex:1;min-width:0;font-family:Inter,sans-serif;font-size:11.5px;color:var(--mut);line-height:1.35}
+  .oddssrc b{color:var(--cyan);font-weight:700}
+  .oddsbtn{flex:none;font-family:Inter,sans-serif;font-weight:800;font-size:11.5px;color:var(--on-accent);
+    background:var(--lime);border:0;border-radius:20px;padding:7px 13px;cursor:pointer;letter-spacing:.2px}
+  .oddsbtn:focus-visible{outline:3px solid var(--cyan);outline-offset:2px}
+  .oddsform{padding:0 12px 12px;border-top:1px solid var(--line)}
+  .oddsform[hidden]{display:none}
+  .oddsform textarea{width:100%;box-sizing:border-box;margin-top:10px;resize:vertical;min-height:120px;
+    font-family:ui-monospace,Consolas,Menlo,monospace;font-size:12px;line-height:1.45;color:var(--txt);
+    background:var(--ink);border:1px solid var(--line2);border-radius:9px;padding:9px 11px}
+  .oddsform textarea:focus{outline:none;border-color:var(--cyan)}
+  .oddsrow{display:flex;gap:8px;margin-top:9px}
+  .oddsmsg{margin-top:8px;font-family:Inter,sans-serif;font-size:11.5px;line-height:1.4}
+  .oddsmsg.ok{color:var(--lime)}
+  .oddsmsg.err{color:var(--red)}
   .mlround{display:flex;align-items:center;gap:10px;margin:18px 2px 9px;font-family:Inter,sans-serif;
     font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--cyan)}
   .mlround:first-child{margin-top:2px}
@@ -559,6 +577,20 @@
     </section>
 
     <section class="panel" id="p-quadro">
+      <div id="oddsPanel" class="oddspanel" style="display:none">
+        <div class="oddsbar">
+          <span class="oddssrc" id="oddsInfoLbl">Probabilidades pelo <b>ranking FIFA</b></span>
+          <button class="oddsbtn" id="oddsToggle" type="button" aria-expanded="false">＋ Importar odds</button>
+        </div>
+        <div class="oddsform" id="oddsForm" hidden>
+          <textarea id="oddsText" rows="7" spellcheck="false" placeholder='Cola aqui o JSON das odds (qualificação por jogo e/ou campeão)…'></textarea>
+          <div class="oddsrow">
+            <button class="btn" id="oddsImport" type="button">Importar</button>
+            <button class="btn ghost" id="oddsClear" type="button">Limpar odds</button>
+          </div>
+          <div class="oddsmsg" id="oddsMsg" aria-live="polite"></div>
+        </div>
+      </div>
       <div class="oddsmode" id="poModes" role="tablist" aria-label="Vista dos playoffs" style="margin:20px 0 14px">
         <button class="omode active" data-po="lista" role="tab" aria-selected="true">Lista de jogos</button>
         <button class="omode" data-po="bracket" role="tab" aria-selected="false">Bracket</button>
@@ -580,7 +612,7 @@
 <!-- Módulo live do 2026: Anexo C (emparelhamento dos 16-avos), quadro interativo,
      simulação Monte Carlo do percurso e live ESPN. (Caveat: o Anexo C herdado assume
      8 grupos; rever para os 12 grupos do formato de 48 num próximo torneio.) -->
-<script src="live2026.js"></script>
+<script src="live2026.js?v=8"></script>
 <script>
 "use strict";
 /* =====================================================================
@@ -958,10 +990,14 @@ function bracketOrder(ko){
 function renderBracket(){
   const box=document.getElementById("knockout");
   const reset=document.getElementById("koReset");
+  const odp=document.getElementById("oddsPanel");
+  if(odp) odp.style.display="none";
   // edição em curso: delega no módulo live (quadro interativo + Anexo C + simulação)
   if(ED.status==="live"){
     if(ED.id==="2026" && window.LIVE2026){
       reset.style.display="flex";
+      if(odp) odp.style.display="block";
+      refreshOddsUI();
       window.LIVE2026.mount({onChange:()=>{renderPercurso(); renderMatchList();}});
     }else{
       reset.style.display="none";
@@ -1088,6 +1124,35 @@ async function loadEdition(id, isInitial){
   if(isInitial) requestAnimationFrame(()=>setTimeout(hideSplash,150));
   else hideSwitchDim();
 }
+
+/* ===== Importar odds (painel nos Playoffs; o motor vive no módulo live) ===== */
+function refreshOddsUI(){
+  const lbl=document.getElementById("oddsInfoLbl"); if(!lbl) return;
+  const info=(window.LIVE2026&&window.LIVE2026.oddsInfo)?window.LIVE2026.oddsInfo():null;
+  lbl.innerHTML = info
+    ? `Probabilidades por <b>odds</b> · ${info.nQualify} jogo(s) · ${info.nChampion} p/ campeão${info.updated?` · ${info.updated}`:""}`
+    : `Probabilidades pelo <b>ranking FIFA</b>`;
+}
+function setupOdds(){
+  const toggle=document.getElementById("oddsToggle"), form=document.getElementById("oddsForm"),
+        imp=document.getElementById("oddsImport"), clr=document.getElementById("oddsClear"),
+        txt=document.getElementById("oddsText"), msg=document.getElementById("oddsMsg");
+  if(!toggle||!form) return;
+  toggle.addEventListener("click",()=>{ const open=form.hidden; form.hidden=!open;
+    toggle.setAttribute("aria-expanded",String(open)); toggle.textContent=open?"× Fechar":"＋ Importar odds"; });
+  imp.addEventListener("click",()=>{
+    if(!(window.LIVE2026&&window.LIVE2026.importOdds)) return;
+    const r=window.LIVE2026.importOdds(txt.value||"");
+    msg.textContent=r.msg; msg.className="oddsmsg "+(r.ok?"ok":"err");
+    if(r.ok) refreshOddsUI();
+  });
+  clr.addEventListener("click",()=>{
+    if(window.LIVE2026&&window.LIVE2026.clearOdds) window.LIVE2026.clearOdds();
+    txt.value=""; msg.textContent="Odds removidas — voltou ao ranking FIFA."; msg.className="oddsmsg";
+    refreshOddsUI();
+  });
+}
+setupOdds();
 
 /* tabs */
 document.querySelectorAll(".tab").forEach(tb=>tb.addEventListener("click",()=>{

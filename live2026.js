@@ -242,7 +242,57 @@ const SIM_ORDER=["M89","M90","M91","M92","M93","M94","M95","M96","M97","M98","M9
 
 /* ============ MODELO DE FORÇA (reutiliza o ranking FIFA / Elo) ============ */
 function eloRating(t){ const r=Math.min(frank(t),40); return (40-r)*25; }
-function pWin(a,b){ return 1/(1+Math.pow(10,(eloRating(b)-eloRating(a))/400)); }   // prob. de 'a' vencer 'b' (jogo a eliminar)
+function pWinElo(a,b){ return 1/(1+Math.pow(10,(eloRating(b)-eloRating(a))/400)); }   // pseudo-Elo do ranking FIFA
+// pWin(a,b): prob. de 'a' passar/vencer 'b' num jogo a eliminar. Precedência da FONTE:
+//   1) odds de QUALIFICAÇÃO por jogo (com ajuste ao vivo) -> entram a nível de jogo em matchAdvanceProb()
+//   2) odds de CAMPEÃO (força de mercado, para qualquer confronto) -> pWinMarket()
+//   3) ranking FIFA (fallback) -> pWinElo()
+function pWin(a,b){ const m=pWinMarket(a,b); return m!=null?m:pWinElo(a,b); }
+
+/* ===== Probabilidades a partir de odds importadas (ver importOdds) ===== */
+// força de mercado a partir das odds de campeão (log da prob. justa de ser campeão)
+function pWinMarket(a,b){
+  if(!ODDS||!ODDS.champion) return null;
+  const ca=ODDS.champion[a], cb=ODDS.champion[b];
+  if(!(ca>0)||!(cb>0)) return null;
+  const K=0.62;                                          // declive (quão decisiva é a diferença de favoritismo)
+  const p=1/(1+Math.exp(-K*(Math.log(ca)-Math.log(cb))));
+  return Math.min(0.92,Math.max(0.08,p));                // trava extremos absurdos num jogo único
+}
+// Poisson (linha de probabilidades 0..N golos) + resolução do confronto por diferença de golos
+function _poisRow(lam,N){ const r=[]; let p=Math.exp(-lam); for(let k=0;k<=N;k++){ r[k]=p; p=p*lam/(k+1); } return r; }
+function _advProb(lamA,lamB,offA,offB,q){                // P(A passa): golos esperados restantes + golos já feitos (offA/offB)
+  const N=9, pa=_poisRow(lamA,N), pb=_poisRow(lamB,N);
+  let win=0, lev=0;
+  for(let i=0;i<=N;i++) for(let j=0;j<=N;j++){ const pp=pa[i]*pb[j], fa=offA+i, fb=offB+j;
+    if(fa>fb) win+=pp; else if(fa===fb) lev+=pp; }
+  return win + lev*q;                                    // empate -> prolong./penáltis (q = prob. de A o ganhar)
+}
+// calibra a "força" (delta de golos) que reproduz a prob. pré-jogo p0 de A passar (total ~MU golos)
+function _solveDelta(p0, MU){
+  const f=d=>{ const la=Math.max(0.05,MU/2+d), lb=Math.max(0.05,MU/2-d), q=1/(1+Math.exp(-1.2*d)); return _advProb(la,lb,0,0,q); };
+  let lo=-1.6, hi=1.6;                                   // f é crescente em d -> bissecção
+  for(let it=0; it<42; it++){ const mid=(lo+hi)/2; if(f(mid)<p0) lo=mid; else hi=mid; }
+  return (lo+hi)/2;
+}
+// prob. de cada lado passar num jogo JÁ SORTEADO com odds de qualificação, ajustada ao resultado ao vivo
+function matchAdvanceProb(id){
+  if(!ODDS||!ODDS.qualify||!ODDS.qualify[id]) return null;
+  const A=resolveSrc(ALLDEF[id][0]).name, B=resolveSrc(ALLDEF[id][1]).name;
+  if(!A||!B) return null;
+  const o=ODDS.qualify[id]; let p0A=o[A], p0B=o[B];
+  if(!(p0A>0)||!(p0B>0)) return null;                    // nomes não batem com o cartão -> ignora (fallback)
+  const s=p0A+p0B; p0A/=s; p0B/=s;                       // (já vem de-vigged do import; reforça normalização)
+  const MU=2.6, d=_solveDelta(Math.min(0.985,Math.max(0.015,p0A)), MU);
+  const lamA=Math.max(0.05,MU/2+d), lamB=Math.max(0.05,MU/2-d), qq=1/(1+Math.exp(-1.2*d));
+  const lv=KO_LIVE[id];
+  if(lv && lv.state==="in"){                             // ao vivo: ajusta pelo placar e tempo que falta
+    const m=Math.min(120,Math.max(0,lv.minute||0)), tRem=Math.max(0,(90-m)/90);
+    const pA=_advProb(lamA*tRem, lamB*tRem, lv.hg|0, lv.ag|0, qq);
+    return {a:pA, b:1-pA};
+  }
+  return {a:p0A, b:p0B};                                 // pré-jogo / agendado: a própria odd
+}
 
 /* ============ SIMULAÇÃO DO PERCURSO DE UMA SELEÇÃO (Monte Carlo) ============ */
 function r32TeamsOf(id){ return ALLDEF[id].map(src=>resolveSrc(src).name); }   // equipas concretas nos 16-avos
@@ -264,6 +314,9 @@ function simulateTeam(team, N){
     if(winDist[id]) return;
     const f=KO_FINAL[id];
     if(f){ winDist[id]=new Map([[f.winner,1]]); loseDist[id]=new Map([[f.loser,1]]); return; }   // jogo já decidido: determinista
+    const ov=matchAdvanceProb(id);                                            // odds de qualificação (já sorteado, com ajuste ao vivo)
+    if(ov){ const A=resolveSrc(ALLDEF[id][0]).name, B=resolveSrc(ALLDEF[id][1]).name;
+      winDist[id]=new Map([[A,ov.a],[B,ov.b]]); loseDist[id]=new Map([[A,ov.b],[B,ov.a]]); return; }
     if(R32DEF[id]){ const [a,b]=r32[id];
       winDist[id]=new Map([[a,pWin(a,b)],[b,pWin(b,a)]]);
       loseDist[id]=new Map([[a,pWin(b,a)],[b,pWin(a,b)]]); return; }
@@ -297,9 +350,11 @@ function simulateTeam(team, N){
       opp[lab].set(o,(opp[lab].get(o)||0)+reachP);
       winP = fl.winner===team ? reachP : 0;
     } else {
+      const ov=matchAdvanceProb(id);                 // odds de qualificação (com ajuste ao vivo) p/ o jogo da própria seleção
       let winHere=0;
       for(const [o,pc] of oppDist){ if(pc<=0) continue;
-        opp[lab].set(o,(opp[lab].get(o)||0)+reachP*pc); winHere += pc*pWin(team,o); }
+        opp[lab].set(o,(opp[lab].get(o)||0)+reachP*pc); if(!ov) winHere += pc*pWin(team,o); }
+      if(ov) winHere = (resolveSrc(ALLDEF[id][0]).name===team) ? ov.a : ov.b;   // prob. de a própria passar vem das odds
       winP = reachP*winHere;
     }
     if(id==="M104") reach["Campeão"]=winP;
@@ -386,14 +441,14 @@ let FINAL = {};                                        // "G:mi" -> [h,a] result
 let PICKS = {};
 let SEL_TEAM = POR;     // seleção escolhida no separador Percurso (banner = seletor)
 let CUR = null;
-let ODDS = null;
 let LIVE = { J:[{},{}], K:[{},{}], L:[{},{}] };   // {state,minute} por jogo (preenchido pelo ESPN)
 let KO_FINAL = {};   // "M##" -> {winner,loser,hg,ag} resultado real trancado do mata-eliminatórias (persiste)
 let KO_LIVE  = {};   // "M##" -> {hg,ag,state,minute} snapshot transitório por fetch (placar nos cartões)
 let VIEW = "prob";   // "prob" = probabilidades pré-jogo · "result" = adversário com o resultado atual
+let ODDS = null;     // odds importadas (de-vigged): {updated,fonte,qualify:{Mxx:{team:p}},champion:{team:p}} — ver importOdds
 
 const LS_KEY="mundial2026:v2";
-function saveState(){ try{ localStorage.setItem(LS_KEY, JSON.stringify({scores:SCORES, view:VIEW, manual:[...MANUAL], final:FINAL, koFinal:KO_FINAL})); }catch(e){} }
+function saveState(){ try{ localStorage.setItem(LS_KEY, JSON.stringify({scores:SCORES, view:VIEW, manual:[...MANUAL], final:FINAL, koFinal:KO_FINAL, odds:ODDS})); }catch(e){} }
 function loadState(){
   try{
     const o=JSON.parse(localStorage.getItem(LS_KEY)||"null"); if(!o) return;
@@ -409,9 +464,44 @@ function loadState(){
         if(Array.isArray(f.pens)&&Number.isFinite(f.pens[0])&&Number.isFinite(f.pens[1])) KO_FINAL[id].pens=[f.pens[0]|0,f.pens[1]|0];
       }
     }
+    if(o.odds && typeof o.odds==="object" && (o.odds.qualify||o.odds.champion)) ODDS=o.odds;   // odds importadas (já de-vigged)
     if(o.view==="result"||o.view==="prob") VIEW=o.view;
   }catch(e){}
 }
+
+/* ===== IMPORTAR ODDS (JSON colado pelo utilizador) =====
+   Formato: { updated, fonte, qualificacao:{ "M77":{Equipa:odd,...} }, campeao:{ Equipa:odd,... } }
+   - odds decimais (>1); nomes em inglês interno OU em português (resolvidos por _toInternal)
+   - de-vig: qualificação normaliza os 2 lados; campeão normaliza as equipas dadas */
+const _PT_TO_INTERNAL={}; for(const n in T) _PT_TO_INTERNAL[_norm(T[n][0])]=n;
+function _toInternal(n){ if(T[n]) return n; const k=_norm(n); return NAME_TO_TEAM[k]||_PT_TO_INTERNAL[k]||null; }
+function importOdds(text){
+  let raw; try{ raw=JSON.parse(text); }catch(e){ return {ok:false, msg:"JSON inválido."}; }
+  if(!raw||typeof raw!=="object") return {ok:false, msg:"JSON inválido."};
+  const out={ updated:(typeof raw.updated==="string"?raw.updated:""), fonte:(typeof raw.fonte==="string"?raw.fonte:""), qualify:{}, champion:null };
+  let nQ=0, nC=0; const warn=[];
+  if(raw.qualificacao && typeof raw.qualificacao==="object"){
+    for(const id in raw.qualificacao){
+      if(!ALLDEF[id]){ warn.push(id); continue; }                                   // id de jogo inválido
+      const o=raw.qualificacao[id]; if(!o||typeof o!=="object") continue;
+      const ent=Object.keys(o).map(n=>[_toInternal(n),Number(o[n])]).filter(e=>e[0]&&e[1]>1);
+      if(ent.length!==2){ warn.push(id); continue; }                                 // precisa de exatamente 2 odds válidas
+      const inv=ent.map(e=>1/e[1]), sum=inv[0]+inv[1], fair={};
+      ent.forEach((e,i)=>fair[e[0]]=inv[i]/sum);
+      out.qualify[id]=fair; nQ++;
+    }
+  }
+  if(raw.campeao && typeof raw.campeao==="object"){
+    const ent=Object.keys(raw.campeao).map(n=>[_toInternal(n),Number(raw.campeao[n])]).filter(e=>e[0]&&e[1]>1);
+    if(ent.length){ const inv=ent.map(e=>1/e[1]), sum=inv.reduce((a,b)=>a+b,0);
+      out.champion={}; ent.forEach((e,i)=>out.champion[e[0]]=inv[i]/sum); nC=ent.length; }
+  }
+  if(!nQ && !nC) return {ok:false, msg:'Sem odds reconhecidas. Usa "qualificacao" e/ou "campeao".'};
+  ODDS=out; saveState(); recompute(); renderKnockout(); if(_hubOnChange) _hubOnChange();
+  return {ok:true, msg:`Importado: ${nQ} jogo(s) de qualificação · ${nC} equipa(s) de campeão.`+(warn.length?` Ignorado: ${warn.join(", ")}.`:"")};
+}
+function clearOdds(){ ODDS=null; saveState(); recompute(); renderKnockout(); if(_hubOnChange) _hubOnChange(); }
+function oddsInfo(){ if(!ODDS) return null; return {updated:ODDS.updated||"", fonte:ODDS.fonte||"", nQualify:Object.keys(ODDS.qualify||{}).length, nChampion:ODDS.champion?Object.keys(ODDS.champion).length:0}; }
 
 function gWin(L,W){ W=W||CUR; return "ABCDEFGHI".includes(L)?FIXED[L].w:W.res[L].order[0]; }
 function gRun(L,W){ W=W||CUR; return "ABCDEFGHI".includes(L)?FIXED[L].r:W.res[L].order[1]; }
@@ -1070,6 +1160,9 @@ function bracketDists(){
     if(winDist[id]) return;
     const wn=matchWinner(id);                                    // já escolhido na lista/bracket?
     if(wn){ winDist[id]=new Map([[wn,1]]); loseDist[id]=new Map([[matchLoser(id)||wn,1]]); return; }
+    const ov=matchAdvanceProb(id);                               // odds de qualificação (já sorteado, com ajuste ao vivo)
+    if(ov){ const A=resolveSrc(ALLDEF[id][0]).name, B=resolveSrc(ALLDEF[id][1]).name;
+      winDist[id]=new Map([[A,ov.a],[B,ov.b]]); loseDist[id]=new Map([[A,ov.b],[B,ov.a]]); return; }
     if(R32DEF[id]){ const [a,b]=r32[id];
       if(a==null||b==null){ winDist[id]=new Map(); loseDist[id]=new Map(); return; }
       winDist[id]=new Map([[a,pWin(a,b)],[b,pWin(b,a)]]);
@@ -1160,6 +1253,6 @@ function matchListHTML(selTeam){
   return h;
 }
 
-window.LIVE2026={ mount, reset, percursoStagesHTML, currentStage, matchListHTML, groupSchedLabel, renderKnockout:function(){ _ensureInit(); renderKnockout(); } };
+window.LIVE2026={ mount, reset, percursoStagesHTML, currentStage, matchListHTML, groupSchedLabel, importOdds, clearOdds, oddsInfo, renderKnockout:function(){ _ensureInit(); renderKnockout(); } };
 
 })();
