@@ -404,8 +404,10 @@ function loadState(){
         FINAL[k]=[s[0]|0,s[1]|0]; LSCORE[k[0]][+k[2]]=FINAL[k].slice();   // o resultado final trancado é também a verdade live
       } }
     if(o.koFinal&&typeof o.koFinal==="object") for(const id in o.koFinal){ const f=o.koFinal[id];
-      if(/^M\d+$/.test(id)&&ALLDEF[id]&&f&&f.winner&&f.loser)
+      if(/^M\d+$/.test(id)&&ALLDEF[id]&&f&&f.winner&&f.loser){
         KO_FINAL[id]={winner:f.winner, loser:f.loser, hg:f.hg|0, ag:f.ag|0};   // PICKS sincronizados após recompute()
+        if(Array.isArray(f.pens)&&Number.isFinite(f.pens[0])&&Number.isFinite(f.pens[1])) KO_FINAL[id].pens=[f.pens[0]|0,f.pens[1]|0];
+      }
     }
     if(o.view==="result"||o.view==="prob") VIEW=o.view;
   }catch(e){}
@@ -665,7 +667,7 @@ const COLS=[
   {name:"Meias",   ids:["M101","M102"]},
   {name:"Final",   ids:["M104"]}
 ];
-function koSide(id, side, S, both, pick, score, isWin, locked, hasScore){
+function koSide(id, side, S, both, pick, score, isWin, locked, hasScore, pen){
   const isPick=pick===side, isDim=pick&&pick!==side, por=S.name===POR;
   const cls=["koteam"];
   if(!S.name) cls.push("tbd");
@@ -677,7 +679,7 @@ function koSide(id, side, S, both, pick, score, isWin, locked, hasScore){
   const flg= S.name? fl(S.name) : "·";
   // a posição do grupo só faz sentido enquanto o jogo não tem resultado (ao vivo ou terminado)
   const tag= (S.name&&S.tag&&!hasScore)? `<span class="src">${S.tag}</span>` : "";
-  const scEl= Number.isFinite(score)? `<span class="kosc">${score}</span>` : "";
+  const scEl= Number.isFinite(score)? `<span class="kosc">${score}${Number.isFinite(pen)?`<span class="pen"> (${pen})</span>`:""}</span>` : "";
   return `<button class="${cls.join(' ')}" data-id="${id}" data-side="${side}" ${both&&!locked?'':'disabled'}>
     <span class="fl">${flg}</span><span class="nm">${nm}</span>${tag}${scEl}</button>`;
 }
@@ -689,17 +691,16 @@ function koCard(id){
   const num=id.slice(1);
   // placar/estado ao vivo: o resultado trancado tem prioridade; senão o snapshot do fetch atual
   const fin=KO_FINAL[id], lv=KO_LIVE[id];
-  const sc = fin ? {hg:fin.hg, ag:fin.ag} : (lv ? {hg:lv.hg, ag:lv.ag} : null);
+  const sc = fin ? {hg:fin.hg, ag:fin.ag, pens:fin.pens||null} : (lv ? {hg:lv.hg, ag:lv.ag, pens:null} : null);
   const state = fin ? "post" : (lv ? lv.state : null);
   const winner = fin ? fin.winner : null;
-  const chip = state==="in" ? `<span class="kostate live">${lv&&lv.minute?lv.minute+"'":"a jogar"}</span>`
-             : state==="post" ? `<span class="kostate done">Fim</span>` : "";
+  const chip = state==="in" ? `<span class="kostate live">${lv&&lv.minute?lv.minute+"'":"a jogar"}</span>` : "";   // só "live"; jogos terminados não levam chip (como nas edições anteriores)
   const corner = champ?'<span>🏆</span>':(id==='M103'?'<span>3.º/4.º</span>':'');
   const cls=["ko"]; if(haspor)cls.push("haspor"); if(champ)cls.push("champ");
   if(state==="in")cls.push("inplay"); if(fin)cls.push("locked");
   return `<div class="${cls.join(' ')}">
     <div class="jno"><span>JOGO ${num}</span>${chip}${corner}</div>
-    <div class="teams">${koSide(id,'a',A,both,pick,sc?sc.hg:null,winner&&winner===A.name,!!fin,!!sc)}${koSide(id,'b',B,both,pick,sc?sc.ag:null,winner&&winner===B.name,!!fin,!!sc)}</div></div>`;
+    <div class="teams">${koSide(id,'a',A,both,pick,sc?sc.hg:null,winner&&winner===A.name,!!fin,!!sc, sc&&sc.pens?sc.pens[0]:null)}${koSide(id,'b',B,both,pick,sc?sc.ag:null,winner&&winner===B.name,!!fin,!!sc, sc&&sc.pens?sc.pens[1]:null)}</div></div>`;
 }
 function renderKnockout(){
   let cols="";
@@ -752,15 +753,20 @@ function applyKnockoutLive(espnGames){
       if(!A||!B) continue;                                   // cartão ainda sem as duas equipas definidas
       const g=byPair[koPairKey(A,B)]; if(!g) continue;       // sem jogo real correspondente
       const hg=g.score[A], ag=g.score[B];
+      const pa=g.pens?g.pens[A]:null, pb=g.pens?g.pens[B]:null;
+      const pens=(Number.isFinite(pa)&&Number.isFinite(pb))?[pa,pb]:null;   // grandes penalidades, na ordem [A,B] do cartão
       if(g.state==="post"){
         const w=koWinnerOf(g,A,B); if(!w) continue;          // empate sem vencedor declarado: não tranca
         KO_LIVE[id]={hg,ag,state:"post",minute:90};
         const prev=KO_FINAL[id];
-        if(!prev || prev.winner!==w){
+        const winChg = !prev || prev.winner!==w;
+        const penChg = !!pens && (!prev || !prev.pens || prev.pens[0]!==pens[0] || prev.pens[1]!==pens[1]);
+        if(winChg || penChg){
           if(prev && prev.winner!==w) clearDescendants(id);  // correção de um resultado já trancado -> limpa o ramo
           KO_FINAL[id]={winner:w, loser:w===A?B:A, hg:hg|0, ag:ag|0};
+          if(pens) KO_FINAL[id].pens=[pens[0]|0,pens[1]|0];
           PICKS[id]= w===A ? "a" : "b";
-          changed=true; lockedNew=true;                      // novo tranco -> re-resolver os ramos seguintes
+          changed=true; if(winChg) lockedNew=true;           // novo vencedor trancado -> re-resolver os ramos seguintes
         }
       } else if(g.state==="in" && !KO_FINAL[id]){
         KO_LIVE[id]={hg,ag,state:"in",minute:g.minute|0};
@@ -839,14 +845,16 @@ async function fetchLive(manual){
       const parts=[];
       for(const c of (comp.competitors||[])){
         const ab=c.team&&c.team.abbreviation, sc=parseInt(c.score,10), score=Number.isFinite(sc)?sc:null;
+        const psc=parseInt(c.shootoutScore,10), pen=Number.isFinite(psc)?psc:null;   // grandes penalidades (só em jogo decidido nos penáltis)
         if(ab){ const prev=gmap[ab]; if(!(prev && stateRank(prev.state)>stateRank(state))) gmap[ab]={score, state, minute}; }
-        const nm=espnTeamToInternal(c); if(nm) parts.push({name:nm, score, winner:c.winner===true});
+        const nm=espnTeamToInternal(c); if(nm) parts.push({name:nm, score, pen, winner:c.winner===true});
       }
       if(parts.length===2 && parts[0].name!==parts[1].name){
         const id=ev.id||(parts[0].name+"|"+parts[1].name), prev=egame[id];
         if(!(prev && stateRank(prev.state)>stateRank(state)))
           egame[id]={teams:[parts[0].name,parts[1].name],
             score:{[parts[0].name]:parts[0].score,[parts[1].name]:parts[1].score},
+            pens:{[parts[0].name]:parts[0].pen,[parts[1].name]:parts[1].pen},
             winner:parts[0].winner?parts[0].name:(parts[1].winner?parts[1].name:null), state, minute};
       }
     }
@@ -922,29 +930,57 @@ function percursoStagesHTML(t, prefix){
     return `<div class="stagewrap">${prefix}</div><div class="livenote"><span class="ic">🧭</span><div class="tx">A aguardar o fecho dos grupos.</div></div>`;
   const path=teamPathMatches(m0);
   const labels=["16-avos","Oitavos","Quartos","Meias-finais","Final"];
+  const FULLLAB=lab=>({"16-avos":"16-avos de final","Oitavos":"Oitavos de final","Quartos":"Quartos de final"})[lab]||lab;
   let h=`<div class="stagewrap">`+prefix;
-  labels.forEach((lab,k)=>{
-    const id=path[k]; const rc=sim.reach[lab]||0, p=rc/sim.N;
+  let eliminated=false, apuradaMarked=false;
+  for(let k=0;k<labels.length;k++){
+    const lab=labels[k], id=path[k], fin=KO_FINAL[id];
+    const playedHere = !!fin && (fin.winner===t || fin.loser===t);   // jogo REAL desta seleção nesta fase
+    if(playedHere){
+      // resultado real trancado: "venceu"/"eliminada" + adversário + placar à direita (igual às edições anteriores)
+      const won = fin.winner===t;
+      const teamIsA = resolveSrc(ALLDEF[id][0]).name===t;            // hg/ag = lados A/B do cartão
+      const opp = won ? fin.loser : fin.winner;
+      const myg = teamIsA ? fin.hg : fin.ag, og = teamIsA ? fin.ag : fin.hg;
+      const pens = fin.pens ? (teamIsA ? ` · gp ${fin.pens[0]}–${fin.pens[1]}` : ` · gp ${fin.pens[1]}–${fin.pens[0]}`) : "";
+      const rc = won?'done':'gone';
+      h+=`<div class="stage ${rc}"><div class="sh"><span class="sr">${FULLLAB(lab)}</span>
+        <span class="reach ${rc}">${won?'venceu':'eliminada'}</span></div>
+        <div class="oppwrap"><div class="oppline ${won?'cert':''} ${opp===POR?'por':''}">
+          <span class="of">${fl(opp)}</span><span class="on">${pt(opp)}</span>
+          <span class="kpath-sc">${myg}–${og}${pens}</span></div></div></div>`;
+      if(!won){ eliminated=true; break; }                            // como nas edições anteriores: não mostra fases além da eliminação
+      continue;
+    }
+    // sem jogo real desta seleção nesta fase: fase atual (já apurada, por jogar) ou fase futura (probabilidade)
+    const reachC=sim.reach[lab]||0, p=reachC/sim.N;
     const cls=p>=0.999?"done":p>0?"reachable":"gone";
-    const rcls=p>=0.999?"done":p<=0?"gone":(p>=0.5?"hi":"");
-    const reachTxt = p>=0.999 ? "apuramento garantido"
-                    : p<=0 ? "sem cenários"
-                    : ("probabilidade apuramento "+(p<0.01?"<1":Math.round(p*100))+" %");
-    h+=`<div class="stage ${cls}"><div class="sh"><span class="sr">${lab==='16-avos'?'16-avos de final':lab==='Oitavos'?'Oitavos de final':lab==='Quartos'?'Quartos de final':lab}</span>
-      <span class="reach ${rcls}">${k===0?'apurada':reachTxt}</span></div>
+    let label, rcls;
+    if(!apuradaMarked && p>=0.999){
+      label="apurada"; rcls="done"; apuradaMarked=true;              // garantidamente presente, ainda por disputar
+    } else {
+      rcls=p>=0.999?"done":p<=0?"gone":(p>=0.5?"hi":"");
+      label = p>=0.999 ? "apuramento garantido"
+            : p<=0 ? "sem cenários"
+            : ("probabilidade apuramento "+(p<0.01?"<1":Math.round(p*100))+" %");
+    }
+    h+=`<div class="stage ${cls}"><div class="sh"><span class="sr">${FULLLAB(lab)}</span>
+      <span class="reach ${rcls}">${label}</span></div>
       <div class="when"><span class="v">${schedLabel(id)}</span></div>
-      ${oppLinesHTML(sim.opp[lab],rc)}</div>`;
-  });
+      ${oppLinesHTML(sim.opp[lab],reachC)}</div>`;
+  }
   h+=`</div>`;
-  const champP=(sim.reach["Campeão"]||0)/sim.N;
-  const champTxt = champP>=0.999 ? "garantido" : (champP<0.001?'<0,1%':(champP*100).toFixed(champP<0.1?1:0)+"%");
-  h+=`<div class="champline"><span class="cup">🏆</span><span class="ct ${t===POR?'por':''}">${pt(t)} campeão</span>
-       <span class="cp">${champTxt}</span></div>`;
-  const tpRc=sim.reach["3.º/4.º lugar"]||0;
-  if(tpRc>0){
-    h+=`<div class="card" style="margin-top:12px"><div class="grp-h"><div class="nm" style="font-size:14px">Se perder a meia-final · disputa do 3.º/4.º lugar</div></div>
-      <div class="when" style="margin:0 0 8px"><span class="v">${schedLabel("M103")}</span></div>
-      ${oppLinesHTML(sim.opp["3.º/4.º lugar"],tpRc)}</div>`;
+  if(!eliminated){   // eliminada -> termina no jogo da queda (sem "campeão" nem disputa do 3.º/4.º especulativos)
+    const champP=(sim.reach["Campeão"]||0)/sim.N;
+    const champTxt = champP>=0.999 ? "garantido" : (champP<0.001?'<0,1%':(champP*100).toFixed(champP<0.1?1:0)+"%");
+    h+=`<div class="champline"><span class="cup">🏆</span><span class="ct ${t===POR?'por':''}">${pt(t)} campeão</span>
+         <span class="cp">${champTxt}</span></div>`;
+    const tpRc=sim.reach["3.º/4.º lugar"]||0;
+    if(tpRc>0){
+      h+=`<div class="card" style="margin-top:12px"><div class="grp-h"><div class="nm" style="font-size:14px">Se perder a meia-final · disputa do 3.º/4.º lugar</div></div>
+        <div class="when" style="margin:0 0 8px"><span class="v">${schedLabel("M103")}</span></div>
+        ${oppLinesHTML(sim.opp["3.º/4.º lugar"],tpRc)}</div>`;
+    }
   }
   return h;
 }
@@ -1017,6 +1053,8 @@ function currentStage(t){
   if(cur==="M104" && matchWinner("M104")===t) return {label:"Campeão", cls:"win"};
   const FULL={"16-avos":"16-avos de final","Oitavos":"Oitavos de final","Quartos":"Quartos de final","Meias-finais":"Meias-finais","Final":"Final"};
   const lab=ROUND_OF2[cur]||"16-avos";
+  const fin=KO_FINAL[cur];
+  if(fin && fin.loser===t) return {label:FULL[lab]||lab, cls:"out"};   // já caiu nesta fase -> badge "eliminada" (vermelho)
   return {label:FULL[lab]||lab, cls:"live"};
 }
 
@@ -1107,10 +1145,11 @@ function matchListHTML(selTeam){
     const predrow = (oA||oB) ? " predrow" : "";   // jogo por definir -> lados alinhados ao topo
     // placar/estado ao vivo: resultado trancado tem prioridade; senão o snapshot do fetch atual (lados na ordem A=h, B=a)
     const fin=KO_FINAL[id], lv=KO_LIVE[id];
-    const sc = fin ? {hg:fin.hg, ag:fin.ag} : (lv ? {hg:lv.hg, ag:lv.ag} : null);
+    const sc = fin ? {hg:fin.hg, ag:fin.ag, pens:fin.pens||null} : (lv ? {hg:lv.hg, ag:lv.ag, pens:null} : null);
     const state = fin ? "post" : (lv ? lv.state : null);
     const liveChip = state==="in" ? `<span class="mlstate live">${lv&&lv.minute?lv.minute+"'":"a jogar"}</span>` : "";
-    const mid = sc ? `<span class="sc">${sc.hg}–${sc.ag}</span>` : `<span class="sc up">vs</span>`;
+    const pk = sc&&sc.pens ? `<span class="pk">gp ${sc.pens[0]}–${sc.pens[1]}</span>` : "";   // grandes penalidades (como nas edições anteriores)
+    const mid = sc ? `<span class="sc">${sc.hg}–${sc.ag}${pk}</span>` : `<span class="sc up">vs</span>`;
     h+=`<div class="gpm${tm}${predrow}${state==="in"?" inplay":""}">
       ${side(A.name, A.tag||A.ph||"A definir", oA, 'h', winner&&winner===A.name)}
       <div class="mlmid">${mid}</div>
