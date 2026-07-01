@@ -1276,12 +1276,13 @@ function matchListHTML(selTeam){
     const line=(e,rk)=>`<span class="predline ${rk}${e[0]===ME?' sel':''}">`
       +`<span class="fl">${fl(e[0])}</span><span class="nm">${pt(e[0])}</span><span class="pp">${fmt(e[1]/o.total)}</span></span>`;
     return o.top.map((e,i)=>line(e,i===0?'p1':'p2')).join('')+(o.extra?line(o.extra,'pe'):''); };
-  // um lado do jogo: concreto, ou previsão dos prováveis ocupantes, ou rótulo seco
-  const side=(name,ph,o,which,win)=>{
+  // um lado do jogo: concreto (com % de vitória, se ambos definidos), previsão dos prováveis ocupantes, ou rótulo seco
+  const side=(name,ph,o,which,win,wp)=>{
     const cls=`s ${which}${win?' win':''}${name&&name===ME?' me':''}${!name&&o?' pred':''}`;
-    if(name){ const nmfl=which==='h'
-        ? `<span class="nm">${pt(name)}</span><span class="fl">${fl(name)}</span>`
-        : `<span class="fl">${fl(name)}</span><span class="nm">${pt(name)}</span>`;
+    if(name){ const wpt=wp!=null?`<span class="mlwp">${fmt(wp)}</span>`:"";
+      const nmfl=which==='h'
+        ? `<span class="nm">${pt(name)}</span><span class="fl">${fl(name)}</span>${wpt}`
+        : `${wpt}<span class="fl">${fl(name)}</span><span class="nm">${pt(name)}</span>`;
       return `<div class="${cls}">${nmfl}</div>`; }
     if(o) return `<div class="${cls}"><span class="predcol"><span class="plabel">${ph}</span>${predLines(o)}</span></div>`;
     return `<div class="${cls}"><span class="nm">${ph}</span><span class="fl">·</span></div>`;
@@ -1308,10 +1309,16 @@ function matchListHTML(selTeam){
     const liveChip = state==="in" ? `<span class="mlstate live">${lv&&lv.minute?lv.minute+"'":"a jogar"}</span>` : "";
     const pk = sc&&sc.pens ? `<span class="pk">gp ${sc.pens[0]}–${sc.pens[1]}</span>` : "";   // grandes penalidades (como nas edições anteriores)
     const mid = sc ? `<span class="sc">${sc.hg}–${sc.ag}${pk}</span>` : `<span class="sc up">vs</span>`;
+    // ambos os adversários definidos e jogo por disputar (sem placar nem escolha manual) -> % de vitória de cada um
+    let wpA=null, wpB=null;
+    if(A.name && B.name && !sc && !winner){
+      const wd=BD.winDist[id], pa=wd&&wd.get(A.name), pb=wd&&wd.get(B.name);
+      if(pa!=null && pb!=null){ const tot=pa+pb||1; wpA=pa/tot; wpB=pb/tot; }
+    }
     h+=`<div class="gpm${tm}${predrow}${state==="in"?" inplay":""}">
-      ${side(A.name, A.tag||A.ph||"A definir", oA, 'h', winner&&winner===A.name)}
+      ${side(A.name, A.tag||A.ph||"A definir", oA, 'h', winner&&winner===A.name, wpA)}
       <div class="mlmid">${mid}</div>
-      ${side(B.name, B.tag||B.ph||"A definir", oB, 'a', winner&&winner===B.name)}
+      ${side(B.name, B.tag||B.ph||"A definir", oB, 'a', winner&&winner===B.name, wpB)}
       <div class="mlin"><span class="v">${schedLabel(id)}</span>${liveChip}</div>
     </div>`;
   }
