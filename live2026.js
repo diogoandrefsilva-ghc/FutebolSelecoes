@@ -1172,26 +1172,30 @@ const GROUP_STADIUMS={
   TOR:["BMO Field","Toronto"],               MIA:["Hard Rock Stadium","Miami"]
 };
 // Calendário real da fase de grupos (FIFA 2026), por grupo × jogo (idx 0–5, na MESMA ordem
-// dos jogos em data/2026.json): [dia de junho, código do estádio]. Datas e locais oficiais;
-// não mostramos a hora exata do apito (as horas variam jogo-a-jogo e não são fiáveis à mão).
+// dos jogos em data/2026.json): [dia (junho, HORA DE PORTUGAL), código do estádio, hora PT].
+// Datas/horas de Portugal e locais oficiais da tabela FIFA (jogos noturnos ET aparecem no dia
+// seguinte em PT — daí, p.ex., Colômbia×Portugal a 28 jun 00h30).
 const GROUP_SCHED={
-  A:[[11,"AZT"],[11,"AKR"],[18,"ATL"],[18,"AKR"],[24,"AZT"],[24,"BBVA"]],   // México em casa
-  B:[[12,"TOR"],[13,"SF"],[18,"LA"],[18,"VAN"],[24,"VAN"],[24,"SEA"]],       // Canadá em casa
-  C:[[13,"NY"],[13,"BOS"],[19,"BOS"],[19,"PHI"],[24,"MIA"],[24,"ATL"]],
-  D:[[12,"LA"],[13,"VAN"],[19,"SEA"],[19,"SF"],[25,"LA"],[25,"SF"]],          // EUA em casa
-  E:[[14,"HOU"],[14,"PHI"],[20,"TOR"],[20,"KC"],[25,"PHI"],[25,"NY"]],
-  F:[[14,"DAL"],[14,"AKR"],[20,"HOU"],[20,"AKR"],[25,"DAL"],[25,"KC"]],
-  G:[[15,"SEA"],[15,"LA"],[21,"LA"],[21,"VAN"],[26,"SEA"],[26,"VAN"]],
-  H:[[15,"ATL"],[15,"MIA"],[21,"ATL"],[21,"MIA"],[26,"HOU"],[26,"AKR"]],
-  I:[[16,"NY"],[16,"BOS"],[22,"PHI"],[22,"NY"],[26,"NY"],[26,"TOR"]],
-  J:[[16,"KC"],[16,"SF"],[22,"DAL"],[22,"SF"],[27,"KC"],[27,"DAL"]],
-  K:[[17,"HOU"],[17,"AZT"],[23,"HOU"],[23,"AKR"],[27,"MIA"],[27,"ATL"]],
-  L:[[17,"DAL"],[17,"TOR"],[23,"BOS"],[23,"TOR"],[27,"NY"],[27,"PHI"]]
+  A:[[11,"AZT","20:00"],[12,"AKR","03:00"],[18,"ATL","17:00"],[19,"AKR","02:00"],[25,"AZT","02:00"],[25,"BBVA","02:00"]],
+  B:[[12,"TOR","20:00"],[13,"SF","22:00"],[18,"LA","20:00"],[18,"VAN","23:00"],[24,"VAN","20:00"],[24,"SEA","20:00"]],
+  C:[[13,"NY","23:00"],[14,"BOS","02:00"],[19,"BOS","23:00"],[20,"PHI","01:30"],[24,"MIA","23:00"],[24,"ATL","23:00"]],
+  D:[[13,"LA","02:00"],[13,"VAN","05:00"],[19,"SEA","20:00"],[19,"SF","04:00"],[26,"LA","03:00"],[26,"SF","03:00"]],
+  E:[[14,"HOU","18:00"],[15,"PHI","00:00"],[20,"TOR","21:00"],[21,"KC","01:00"],[25,"PHI","21:00"],[25,"NY","21:00"]],
+  F:[[14,"DAL","21:00"],[15,"BBVA","03:00"],[20,"HOU","18:00"],[21,"BBVA","03:00"],[26,"DAL","00:00"],[26,"KC","00:00"]],
+  G:[[15,"SEA","20:00"],[16,"LA","02:00"],[21,"LA","20:00"],[22,"VAN","02:00"],[27,"SEA","04:00"],[27,"VAN","04:00"]],
+  H:[[15,"ATL","17:00"],[15,"MIA","23:00"],[21,"ATL","17:00"],[21,"MIA","23:00"],[27,"HOU","01:00"],[27,"AKR","01:00"]],
+  I:[[16,"NY","20:00"],[16,"BOS","23:00"],[22,"PHI","22:00"],[23,"NY","01:00"],[26,"BOS","20:00"],[26,"TOR","20:00"]],
+  J:[[17,"KC","02:00"],[17,"SF","05:00"],[22,"DAL","18:00"],[23,"SF","04:00"],[28,"KC","03:00"],[28,"DAL","02:00"]],
+  K:[[17,"HOU","18:00"],[18,"AZT","01:00"],[23,"HOU","18:00"],[24,"AKR","03:00"],[28,"MIA","00:30"],[28,"ATL","00:30"]],
+  L:[[17,"DAL","21:00"],[18,"TOR","00:00"],[23,"BOS","21:00"],[24,"TOR","00:00"],[27,"NY","22:00"],[27,"PHI","22:00"]]
 };
 function groupSchedLabel(G, idx){
   const row=(GROUP_SCHED[G]||[])[idx]; if(!row||idx==null) return "";
-  const [day,code]=row, vc=(code&&GROUP_STADIUMS[code])||["",""];
-  return fmtSched({ d:`2026-06-${String(day).padStart(2,'0')}`, v:vc[0], c:vc[1] });   // data + local (sem hora)
+  const [day,code,time]=row, vc=(code&&GROUP_STADIUMS[code])||["",""];
+  const dt=new Date(Date.UTC(2026,5,day,12,0,0));                     // dia de junho em PT (mês 5 = junho)
+  const wd=WEEKDAYS_PT[dt.getUTCDay()];
+  const tt=time?` · ${time.replace(":","h")} (PT)`:"";
+  return `${wd}, ${day} ${MONTHS_PT[5]}${tt} · ${vc[0]}, ${vc[1]}`;   // ex.: "dom, 28 jun · 00h30 (PT) · Hard Rock Stadium, Miami"
 }
 
 /* ===== HUB · fase atual de uma seleção apurada (reflete os picks do bracket interativo) ===== */
