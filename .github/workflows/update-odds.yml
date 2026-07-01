@@ -32,6 +32,35 @@ on:
     - cron: "50 20 18 7 *"  # M103 · 18 jul 17:00 ET (3.º/4.º lugar)
     - cron: "50 18 19 7 *"  # M104 · 19 jul 15:00 ET (final)
 
+    # ~2h20 depois do kickoff (90min + intervalo/descontos) — atualiza o mercado de
+    # campeão após a eliminação. Jogos que vão a prolongamento/penáltis podem escapar
+    # a este gatilho; apanham a corrida seguinte.
+    - cron: "20 18 1 7 *"   # M80 · depois
+    - cron: "20 22 1 7 *"   # M82 · depois
+    - cron: "20 2 2 7 *"    # M81 · depois
+    - cron: "20 21 2 7 *"   # M84 · depois
+    - cron: "20 1 3 7 *"    # M83 · depois
+    - cron: "20 5 3 7 *"    # M85 · depois
+    - cron: "20 20 3 7 *"   # M88 · depois
+    - cron: "20 0 4 7 *"    # M86 · depois
+    - cron: "50 3 4 7 *"    # M87 · depois
+    - cron: "20 19 4 7 *"   # M90 · depois
+    - cron: "20 23 4 7 *"   # M89 · depois
+    - cron: "20 22 5 7 *"   # M91 · depois
+    - cron: "20 2 6 7 *"    # M92 · depois
+    - cron: "20 21 6 7 *"   # M93 · depois
+    - cron: "20 2 7 7 *"    # M94 · depois
+    - cron: "20 18 7 7 *"   # M95 · depois
+    - cron: "20 22 7 7 *"   # M96 · depois
+    - cron: "20 22 9 7 *"   # M97 · depois
+    - cron: "20 21 10 7 *"  # M98 · depois
+    - cron: "20 23 11 7 *"  # M100 · depois
+    - cron: "20 3 12 7 *"   # M99 · depois
+    - cron: "20 21 14 7 *"  # M101 · depois
+    - cron: "20 21 15 7 *"  # M102 · depois
+    - cron: "20 23 18 7 *"  # M103 · depois
+    - cron: "20 21 19 7 *"  # M104 · depois
+
   workflow_dispatch: {}    # permite correr manualmente no separador Actions
 
 jobs:
