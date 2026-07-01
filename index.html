@@ -241,6 +241,9 @@
      mais recuada em ecrã (o tamanho do texto varia com o dispositivo — nada de 72px fixos),
      por isso nunca há sobreposição. Os conectores (% da altura do .gw) acompanham sozinhos. */
   .bracket.fit .gw{flex:0 0 calc(var(--slot)*var(--span,1));min-height:0;transition:flex-basis .3s ease}
+  /* re-renders (picks/live/regresso à app) aplicam o espaçamento SEM animar — só a troca
+     deliberada de janela nos chips é que desliza */
+  .bracket.notrans .gw{transition:none}
   @media (prefers-reduced-motion:reduce){.bracket.fit .gw{transition:none}}
   .gw .ko{width:100%}
   /* conectores: cada par liga-se ao jogo seguinte (largura = metade do gap das colunas) */
@@ -268,6 +271,9 @@
   /* previsão: equipa provável numa vaga por decidir, em tom desvanecido */
   .koteam.ghost{opacity:.42}
   .koteam.ghost .nm{font-weight:500}
+  .koteam.ghost.gpick{opacity:.55}
+  .koteam.ghost.gpick .nm{color:var(--lime)}
+  .champ-banner.pred{opacity:.62;border-style:dashed}
   .koteam:disabled{cursor:default}
   .koteam:focus-visible{outline:2px solid var(--cyan);outline-offset:-2px}
   .ko.haspor{border-color:var(--gold)}
@@ -673,7 +679,7 @@
 <!-- Módulo live do 2026: Anexo C (emparelhamento dos 16-avos), quadro interativo,
      simulação Monte Carlo do percurso e live ESPN. (Caveat: o Anexo C herdado assume
      8 grupos; rever para os 12 grupos do formato de 48 num próximo torneio.) -->
-<script src="live2026.js?v=21"></script>
+<script src="live2026.js?v=22"></script>
 <script>
 "use strict";
 /* =====================================================================
@@ -1181,10 +1187,11 @@ function bracketNavHTML(names){
    visíveis e repartem a largura. O slot vertical parte da altura REAL dos cartões da ronda "a"
    (varia com o tamanho de texto do dispositivo) — as rondas seguintes duplicam o espaçamento.
    Com 3 rondas em ecrã os cartões compactam ("tight"); com 4+ ficam bandeira+resultado ("tiny"). */
-function bracketApplyWindow(){
+function bracketApplyWindow(animate){
   const box=document.getElementById("knockout"); if(!box) return;
   if(!box.offsetWidth) return;   // separador escondido: sem medidas fiáveis (o ResizeObserver volta cá ao revelar)
   const br=box.querySelector(".bracket.fit"); if(!br) return;
+  if(!animate) br.classList.add("notrans");
   const cols=[...br.querySelectorAll(".col")], n=cols.length; if(!n) return;
   let [a,b]=(box.dataset.brwin||"0,2").split(",").map(Number);
   if(!(a>=0&&b>=a)){ a=0; b=Math.min(2,n-1); }
@@ -1196,6 +1203,7 @@ function bracketApplyWindow(){
     c.classList.toggle("vfirst",i===a); c.classList.toggle("vlast",i===b); });
   let card=0; cols[a].querySelectorAll(".ko").forEach(k=>{ card=Math.max(card,k.offsetHeight); });
   br.style.setProperty("--slot",((card||66)+6)/Math.pow(2,a)+"px");
+  if(!animate){ void br.offsetWidth; br.classList.remove("notrans"); }   // consome o reflow antes de reativar transições
   const nav=box.querySelector(".brnav");
   if(nav) [...nav.children].forEach((btn,i)=>{ const on=i>=a&&i<=b;
     btn.classList.toggle("active",on); btn.classList.toggle("lead",i===a);
@@ -1204,7 +1212,7 @@ function bracketApplyWindow(){
 // chips: toque = essa ronda + a seguinte; arrastar pelos chips = janela com as rondas varridas
 (function(){
   const box=document.getElementById("knockout"); if(!box) return;
-  let from=null, to=null;
+  let from=null, to=null, x0=0;
   const chipAt=e=>{ const el=document.elementFromPoint(e.clientX,e.clientY);
     const btn=el&&el.closest&&el.closest(".brnav button"); return btn?+btn.dataset.bri:null; };
   const paint=(a,b)=>{ const nav=box.querySelector(".brnav"); if(!nav) return;
@@ -1212,10 +1220,10 @@ function bracketApplyWindow(){
       btn.classList.toggle("lead",i===a); }); };
   box.addEventListener("pointerdown",e=>{
     const btn=e.target.closest(".brnav button"); if(!btn) return;
-    from=to=+btn.dataset.bri; paint(from,to);
+    from=to=+btn.dataset.bri; x0=e.clientX; paint(from,to);
   });
   box.addEventListener("pointermove",e=>{
-    if(from===null) return;
+    if(from===null || Math.abs(e.clientX-x0)<8) return;   // <8px é toque, não arrasto
     const i=chipAt(e); if(i!==null && i!==to){ to=i; paint(Math.min(from,to),Math.max(from,to)); }
   });
   const done=e=>{
@@ -1224,16 +1232,19 @@ function bracketApplyWindow(){
     const n=br?br.querySelectorAll(".col").length:0;
     let a=Math.min(from,to), b=Math.max(from,to);
     if(a===b) b=Math.min(a+2,n-1);   // toque simples -> essa ronda + até 2 seguintes
+    if(a===b) a=Math.max(0,a-1);     // a Final nunca aparece sozinha: puxa as Meias
     from=to=null;
     if(!n) return;
     box.dataset.brwin=Math.min(a,n-1)+","+Math.min(b,n-1);
-    bracketApplyWindow();
+    bracketApplyWindow(true);
   };
   window.addEventListener("pointerup",done);
   window.addEventListener("pointercancel",()=>{ if(from===null) return; from=to=null; bracketApplyWindow(); });
-  // re-mede quando o quadro muda de tamanho OU passa de escondido a visível (troca de separador);
-  // idempotente: aplicar a mesma janela duas vezes não altera nada, logo o observer estabiliza
-  new ResizeObserver(()=>bracketApplyWindow()).observe(box);
+  // re-mede quando a LARGURA muda (rotação, resize, passar de escondido a visível). Reagir à
+  // altura seria realimentação: as próprias animações/aplicações mudam a altura do contentor
+  let lastW=0;
+  new ResizeObserver(()=>{ const w=box.offsetWidth;
+    if(w && w!==lastW){ lastW=w; bracketApplyWindow(); } }).observe(box);
 })();
 
 /* ===================== RENDER: LISTA DE JOGOS (só playoffs) ===================== */

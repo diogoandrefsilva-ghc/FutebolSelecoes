@@ -808,7 +808,7 @@ function predictSrc(src){
   if(!A||!B) return null;
   return (k==="win")===(pWin(A,B)>=0.5) ? A : B;
 }
-function koSide(id, side, S, both, pick, score, isWin, locked, hasScore, pen, prob, ghost){
+function koSide(id, side, S, both, pick, score, isWin, locked, hasScore, pen, prob, ghost, gwin){
   const isPick=pick===side, isDim=pick&&pick!==side, por=S.name===POR;
   const cls=["koteam"];
   if(!S.name) cls.push("tbd");
@@ -817,6 +817,7 @@ function koSide(id, side, S, both, pick, score, isWin, locked, hasScore, pen, pr
   if(por)    cls.push("por");
   if(isWin)  cls.push("kowin");           // vencedor real trancado
   if(!S.name&&ghost) cls.push("ghost");   // previsão: mostra a equipa provável, desvanecida
+  if(!S.name&&ghost&&ghost===gwin) cls.push("gpick");   // vencedor previsto (final e 3.º/4.º)
   const nm = S.name? pt(S.name) : (ghost? pt(ghost) : (S.ph||S.tag||"A definir"));
   const flg= S.name? fl(S.name) : (ghost? fl(ghost) : "·");
   const hasProb = Number.isFinite(prob) && !hasScore && !!S.name;   // % de avançar (só jogos por disputar)
@@ -845,9 +846,11 @@ function koCard(id){
   const adv = both ? koAdvanceProb(id) : null;            // % de avançar (jogos por disputar)
   const gA = A.name? null : predictSrc(def[0]);           // vagas por decidir: equipa provável (previsão)
   const gB = B.name? null : predictSrc(def[1]);
+  // na final e no 3.º/4.º não há ronda seguinte a revelar quem passa -> marca o vencedor previsto
+  const pw = (champ||id==="M103")&&(gA||gB) ? predictSrc("win:"+id) : null;
   return `<div class="${cls.join(' ')}">
     <div class="jno"><span>JOGO ${num}</span>${chip}${corner}</div>
-    <div class="teams">${koSide(id,'a',A,both,pick,sc?sc.hg:null,winner&&winner===A.name,!!fin,!!sc, sc&&sc.pens?sc.pens[0]:null, adv?adv.a:null, gA)}${koSide(id,'b',B,both,pick,sc?sc.ag:null,winner&&winner===B.name,!!fin,!!sc, sc&&sc.pens?sc.pens[1]:null, adv?adv.b:null, gB)}</div></div>`;
+    <div class="teams">${koSide(id,'a',A,both,pick,sc?sc.hg:null,winner&&winner===A.name,!!fin,!!sc, sc&&sc.pens?sc.pens[0]:null, adv?adv.a:null, gA, pw)}${koSide(id,'b',B,both,pick,sc?sc.ag:null,winner&&winner===B.name,!!fin,!!sc, sc&&sc.pens?sc.pens[1]:null, adv?adv.b:null, gB, pw)}</div></div>`;
 }
 function renderKnockout(){
   let cols="";
@@ -858,9 +861,13 @@ function renderKnockout(){
     cols+=`<div class="col" style="--span:${Math.pow(2,ci)}"><div class="chead">${c.name}</div><div class="games">${games}</div></div>`;
   });
   const champName=matchWinner("M104");
+  const predChamp=champName?null:predictSrc("win:M104");   // sem campeão real/escolhido: previsão desvanecida
   const champ = champName
     ? `<div class="champ-banner"><span class="cup">🏆</span><span class="fl">${fl(champName)}</span>
          <span class="cwrap"><span class="cn ${champName===POR?'por':''}">${pt(champName)}</span><span class="ct">CAMPEÃO DO MUNDO</span></span></div>`
+    : predChamp
+    ? `<div class="champ-banner pred"><span class="cup">🏆</span><span class="fl">${fl(predChamp)}</span>
+         <span class="cwrap"><span class="cn ${predChamp===POR?'por':''}">${pt(predChamp)}</span><span class="ct">PREVISÃO · CAMPEÃO DO MUNDO</span></span></div>`
     : `<div class="champ-banner empty">🏆 Escolhe os vencedores até à final para coroar o campeão</div>`;
   const tp = `<div class="thirdplace"><div class="tp-h">Disputa do 3.º / 4.º lugar</div>${koCard("M103")}</div>`;
   const box=document.getElementById("knockout");
