@@ -284,10 +284,10 @@
     border:1px solid var(--gold);border-radius:14px;background:linear-gradient(180deg,rgba(255,200,61,.14),var(--panel2))}
   .champ-banner.empty{color:var(--mut);border-style:dashed;border-color:var(--line2);background:var(--panel2);font-size:13px;font-weight:500}
   .champ-banner .cup,.champ-banner .fl{font-size:26px;flex:none}
-  .cwrap{display:flex;flex-direction:column;line-height:1.05}
+  .cwrap{display:flex;flex-direction:column;line-height:1.2}   /* folga p/ descendentes (Ç) não pisarem a legenda */
   .champ-banner .cn{font-family:Anton,sans-serif;font-size:22px;text-transform:uppercase;letter-spacing:.5px}
   .champ-banner .cn.por{color:var(--gold)}
-  .champ-banner .ct{font-family:Inter,sans-serif;font-size:10px;color:var(--mut);letter-spacing:1.5px}
+  .champ-banner .ct{font-family:Inter,sans-serif;font-size:10px;color:var(--mut);letter-spacing:1.5px;margin-top:2px}
 
   .thirdplace{margin-top:16px;max-width:320px}
   .tp-h{font-family:Inter,sans-serif;font-size:11px;color:var(--mut);letter-spacing:1px;margin:0 0 8px;text-transform:uppercase}
@@ -679,7 +679,7 @@
 <!-- Módulo live do 2026: Anexo C (emparelhamento dos 16-avos), quadro interativo,
      simulação Monte Carlo do percurso e live ESPN. (Caveat: o Anexo C herdado assume
      8 grupos; rever para os 12 grupos do formato de 48 num próximo torneio.) -->
-<script src="live2026.js?v=22"></script>
+<script src="live2026.js?v=23"></script>
 <script>
 "use strict";
 /* =====================================================================
