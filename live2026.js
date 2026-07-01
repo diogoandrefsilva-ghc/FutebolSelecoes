@@ -912,12 +912,6 @@ function applyKnockoutLive(espnGames){
 
 const LIVE_ENABLED = true;
 const ESPN_URL = "https://site.api.espn.com/apis/site/v2/sports/soccer/fifa.world/scoreboard";
-// Mesma ordem do GROUPS[*].rem, em siglas ESPN. Casamos por sigla -> casa/fora e indiferente.
-const ESPN_PAIRS = {
-  J: [["ALG","AUT"], ["JOR","ARG"]],   // Argelia-Austria, Jordania-Argentina
-  K: [["COL","POR"], ["COD","UZB"]],   // Colombia-Portugal, RD Congo-Usbequistao
-  L: [["PAN","ENG"], ["CRO","GHA"]]    // Panama-Inglaterra, Croacia-Gana
-};
 function setLiveStatus(txt,cls){ const el=document.getElementById("liveStatus"); if(el){ el.textContent=txt; el.className="livestatus"+(cls?(" "+cls):""); } }
 // datas (YYYYMMDD) dos jogos para pedir ao ESPN — o scoreboard "de hoje" deixa de listar jogos já terminados,
 // por isso pedimos explicitamente os dias de cada jogo (e o anterior, por fuso) para apanhar os resultados finais.
@@ -963,8 +957,7 @@ async function fetchLive(manual){
     for(const j of jsons){ if(j&&Array.isArray(j.events)) events.push(...j.events); }
     if(!events.length) throw new Error("sem eventos");
 
-    const gmap={};                         // sigla ESPN -> {score, state, minute} (usado pelos grupos J/K/L)
-    const egame={};                        // id do jogo -> {teams,score,winner,state,minute} (usado pelo mata-eliminatórias)
+    const egame={};                        // id do jogo -> {teams,score,winner,state,minute} (grupos J/K/L + mata-eliminatórias, casados por par de equipas)
     for(const ev of events){
       const comp=ev.competitions&&ev.competitions[0]; if(!comp) continue;
       const st=comp.status||ev.status||{};
@@ -977,9 +970,8 @@ async function fetchLive(manual){
       }
       const parts=[];
       for(const c of (comp.competitors||[])){
-        const ab=c.team&&c.team.abbreviation, sc=parseInt(c.score,10), score=Number.isFinite(sc)?sc:null;
+        const sc=parseInt(c.score,10), score=Number.isFinite(sc)?sc:null;
         const psc=parseInt(c.shootoutScore,10), pen=Number.isFinite(psc)?psc:null;   // grandes penalidades (só em jogo decidido nos penáltis)
-        if(ab){ const prev=gmap[ab]; if(!(prev && stateRank(prev.state)>stateRank(state))) gmap[ab]={score, state, minute}; }
         const nm=espnTeamToInternal(c); if(nm) parts.push({name:nm, score, pen, winner:c.winner===true});
       }
       if(parts.length===2 && parts[0].name!==parts[1].name){
@@ -993,10 +985,13 @@ async function fetchLive(manual){
     }
     const espnGames=Object.values(egame);
 
+    // casa cada jogo da 3.ª jornada de J/K/L ao jogo real PELO PAR DE EQUIPAS (não por sigla):
+    // assim o resultado do mata-eliminatórias de uma equipa nunca contamina o placar do seu grupo.
+    const byPairAll={}; for(const g of espnGames) byPairAll[koPairKey(g.teams[0],g.teams[1])]=g;
     const rem={}, live={};
     for(const G of "JKL".split("")){
-      rem[G]=ESPN_PAIRS[G].map(([h,a])=>[gmap[h]&&gmap[h].score, gmap[a]&&gmap[a].score]);
-      live[G]=ESPN_PAIRS[G].map(([h,a])=>{ const e=gmap[h]||gmap[a]||{}; return {state:e.state||null, minute:Number.isFinite(e.minute)?e.minute:0}; });
+      rem[G]=GROUPS[G].rem.map(([h,a])=>{ const g=byPairAll[koPairKey(h,a)]; return g?[g.score[h],g.score[a]]:[undefined,undefined]; });
+      live[G]=GROUPS[G].rem.map(([h,a])=>{ const g=byPairAll[koPairKey(h,a)]; return {state:g?g.state:null, minute:g&&Number.isFinite(g.minute)?g.minute:0}; });
     }
     LIVE=live;
 
