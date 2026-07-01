@@ -1,0 +1,9 @@
+{
+  "name": "odds-updater",
+  "private": true,
+  "type": "module",
+  "description": "Atualiza automaticamente as odds do Mundial 2026 (AppDataJSON) a partir da The Odds API.",
+  "dependencies": {
+    "playwright": "^1.47.0"
+  }
+}

@@ -1,0 +1,31 @@
+name: Atualizar odds
+
+on:
+  schedule:
+    - cron: "0 6 * * *"   # todos os dias às 6h UTC
+  workflow_dispatch: {}    # permite correr manualmente no separador Actions
+
+jobs:
+  update-odds:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Instalar dependências
+        working-directory: scripts
+        run: npm install
+
+      - name: Instalar Chromium (Playwright)
+        working-directory: scripts
+        run: npx playwright install --with-deps chromium
+
+      - name: Atualizar odds
+        working-directory: scripts
+        env:
+          ODDS_API_KEY: ${{ secrets.ODDS_API_KEY }}
+          ODDS_REPO_TOKEN: ${{ secrets.ODDS_REPO_TOKEN }}
+        run: node update-odds.mjs
