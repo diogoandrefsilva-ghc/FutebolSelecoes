@@ -71,9 +71,14 @@ async function getTargets() {
   const browser = await chromium.launch();
   try {
     const page = await browser.newPage();
-    await page.goto("about:blank");
+    // precisa de um <div id="knockout"> para o mount() correr (é o que despoleta o
+    // fetch ao vivo da ESPN que tranca os jogos já terminados / decide os grupos J,K,L)
+    await page.setContent('<!DOCTYPE html><html><body><div id="knockout"></div></body></html>');
     const script = readFileSync(path.join(__dirname, "..", "live2026.js"), "utf8");
     await page.addScriptTag({ content: script });
+    await page.evaluate(() => window.LIVE2026.mount({}));
+    // fetchLive/fetchStandings correm em segundo plano (não expostos como promise) — dá-lhes tempo
+    await page.waitForTimeout(9000);
     return await page.evaluate(() => window.LIVE2026.oddsTargets());
   } finally {
     await browser.close();
