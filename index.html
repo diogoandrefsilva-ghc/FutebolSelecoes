@@ -192,20 +192,40 @@
   .bracket-hint{color:var(--dim);font-size:11.5px;margin:2px 0 10px;display:flex;align-items:center;gap:6px}
   .bracket-hint .k{color:var(--cyan)}
   /* seletor de rondas (a "janela" de 2 chips ativos = rondas visíveis, como na app da Apple) */
-  .brnav{display:flex;gap:5px;margin:2px 0 12px}
+  .brnav{display:flex;gap:5px;margin:2px 0 10px;touch-action:pan-y;user-select:none;-webkit-user-select:none}
   .brnav button{flex:1;appearance:none;border:1px solid var(--line2);background:var(--panel2);color:var(--mut);
     font-family:Inter,sans-serif;font-weight:600;font-size:11px;padding:6px 2px;border-radius:9px;cursor:pointer;min-height:32px}
   .brnav button.active{background:var(--lime);color:var(--on-accent);border-color:var(--lime)}
   .brnav button:focus-visible{outline:3px solid var(--cyan);outline-offset:2px}
   .bracket-scroll{overflow-x:auto;overflow-y:hidden;-webkit-overflow-scrolling:touch;padding:2px 2px 14px;
                   scrollbar-width:thin}
-  /* paginação à Apple Sports: o scroll encaixa ronda a ronda; o contentor é um container
-     query para as colunas se dimensionarem a "2 rondas por ecrã" */
-  .bracket-scroll.snap{scroll-snap-type:x mandatory;container-type:inline-size}
   .bracket{display:flex;gap:24px;min-width:856px;--slot:72px}
+  /* modo "fit": sem scroll horizontal — só as rondas da janela escolhida nos chips ficam
+     visíveis e repartem a largura entre si (bracketApplyWindow) */
   .bracket.fit{min-width:0}
   .col{display:flex;flex-direction:column;flex:0 0 152px}
-  .bracket.fit .col{flex-basis:max(152px,calc((100cqi - 24px)/2));scroll-snap-align:start}
+  .bracket.fit .col{flex:1 1 0;min-width:0}
+  /* pontas da janela: sem tocos de conector a apontar para rondas escondidas */
+  .col.vfirst .gw::before{display:none!important}
+  .col.vlast .gw::after{display:none!important}
+  /* 3 rondas à vista: tipografia e caixas compactas */
+  .bracket.tight{gap:16px}
+  .bracket.tight .chead{font-size:10px;letter-spacing:.6px}
+  .bracket.tight .ko .jno{font-size:7.5px;padding:2px 5px 0}
+  .bracket.tight .koteam{font-size:10.5px;padding:3px 4px;gap:4px}
+  .bracket.tight .koteam .fl{font-size:11px;width:12px}
+  .bracket.tight .koteam .src{display:none}
+  .bracket.tight .koteam .kosc{font-size:12px;padding-right:2px}
+  .bracket.tight .koteam .koprob{font-size:9.5px;padding-right:1px}
+  .bracket.tight .col:not(:last-child) .gw:nth-child(odd)::after{right:-8px;width:8px}
+  .bracket.tight .col:not(:last-child) .gw:nth-child(even)::after{right:-8px;width:8px}
+  .bracket.tight .col:not(:first-child) .gw::before{left:-8px;width:8px}
+  /* 4+ rondas à vista: só bandeira e resultado */
+  .bracket.tiny{gap:12px}
+  .bracket.tiny .koteam .nm{display:none}
+  .bracket.tiny .col:not(:last-child) .gw:nth-child(odd)::after{right:-6px;width:6px}
+  .bracket.tiny .col:not(:last-child) .gw:nth-child(even)::after{right:-6px;width:6px}
+  .bracket.tiny .col:not(:first-child) .gw::before{left:-6px;width:6px}
   .chead{height:30px;flex:0 0 30px;display:flex;align-items:center;justify-content:center;margin-bottom:8px;
          font-family:Inter,sans-serif;font-size:11px;letter-spacing:1px;color:var(--cyan);
          text-transform:uppercase;border-bottom:1px solid var(--line)}
@@ -215,9 +235,9 @@
   .games{flex:1 1 auto;display:flex;flex-direction:column}
   .gw{flex:1 0 72px;display:flex;align-items:center;position:relative}
   /* modo "fit" (rondas que dividem 16/8/4/2/1): cada jogo ocupa --span slots de --slot px.
-     Ao arrastar para as rondas finais, o slot cai para metade por coluna que sai do ecrã
-     (ver bracketZoom) -> a distância vertical encurta e quartos/meias/final cabem à vista;
-     ao recuar, volta a crescer. Os conectores (% da altura do .gw) acompanham sozinhos. */
+     O --slot é calculado em bracketApplyWindow a partir da ALTURA REAL dos cartões da ronda
+     mais recuada em ecrã (o tamanho do texto varia com o dispositivo — nada de 72px fixos),
+     por isso nunca há sobreposição. Os conectores (% da altura do .gw) acompanham sozinhos. */
   .bracket.fit .gw{flex:0 0 calc(var(--slot)*var(--span,1));min-height:0;transition:flex-basis .3s ease}
   @media (prefers-reduced-motion:reduce){.bracket.fit .gw{transition:none}}
   .gw .ko{width:100%}
@@ -648,7 +668,7 @@
 <!-- Módulo live do 2026: Anexo C (emparelhamento dos 16-avos), quadro interativo,
      simulação Monte Carlo do percurso e live ESPN. (Caveat: o Anexo C herdado assume
      8 grupos; rever para os 12 grupos do formato de 48 num próximo torneio.) -->
-<script src="live2026.js?v=19"></script>
+<script src="live2026.js?v=20"></script>
 <script>
 "use strict";
 /* =====================================================================
@@ -1142,44 +1162,71 @@ function renderBracket(){
     : "";
   box.innerHTML=`${fit?bracketNavHTML(ko.rounds.map(r=>r.short))
       :`<div class="bracket-hint"><span class="k">↔</span> Arrasta para o lado para veres o quadro todo</div>`}
-    <div class="bracket-scroll${fit?' snap':''}"><div class="bracket${fit?' fit':''}">${cols}</div></div>${champ}${tp}`;
+    <div class="bracket-scroll"><div class="bracket${fit?' fit':''}">${cols}</div></div>${champ}${tp}`;
+  if(fit) bracketApplyWindow();
 }
 
-/* seletor de rondas por cima do quadro: os 2 chips acesos são as rondas em ecrã ("janela") */
+/* seletor de rondas por cima do quadro: os chips acesos são a janela de rondas em ecrã */
 function bracketNavHTML(names){
-  return `<div class="brnav" role="tablist" aria-label="Ronda do quadro">${names.map((nm,i)=>
-    `<button data-bri="${i}" role="tab" aria-selected="${i<2}" class="${i<2?'active':''}">${nm}</button>`).join("")}</div>`;
+  return `<div class="brnav" role="tablist" aria-label="Rondas do quadro em ecrã">${names.map((nm,i)=>
+    `<button data-bri="${i}" role="tab" aria-selected="${i<2}" class="${i<2?'active':''}">${nm}</button>`).join("")}</div>
+    <div class="bracket-hint"><span class="k">↔</span> Toca numa ronda, ou arrasta para veres várias</div>`;
 }
-/* zoom do quadro: mostram-se 2 rondas por página (scroll-snap); por cada página avançada o
-   slot vertical cai para metade — a ronda encostada à esquerda mantém os cartões sem
-   sobreposição (slot × span >= 72px) e as seguintes aproximam-se; ao recuar volta a duplicar. */
-function bracketZoom(sc){
-  const br=sc.querySelector(".bracket.fit"); if(!br) return;
-  const col=br.querySelector(".col"); if(!col) return;
-  const step=col.offsetWidth+24;                                  // largura da coluna + gap
-  const n=br.querySelectorAll(".col").length;
-  const idx=Math.min(Math.max(0,n-2), Math.max(0, Math.floor((sc.scrollLeft+6)/step)));
-  br.style.setProperty("--slot",(72/Math.pow(2,idx))+"px");
-  const nav=sc.parentElement&&sc.parentElement.querySelector(".brnav");
-  if(nav) [...nav.children].forEach((b,i)=>{ const on=i===idx||i===idx+1;
-    b.classList.toggle("active",on); b.setAttribute("aria-selected",on); });
+/* aplica a janela [a,b] guardada em #knockout (sobrevive a re-renders): só essas rondas ficam
+   visíveis e repartem a largura. O slot vertical parte da altura REAL dos cartões da ronda "a"
+   (varia com o tamanho de texto do dispositivo) — as rondas seguintes duplicam o espaçamento.
+   Com 3 rondas em ecrã os cartões compactam ("tight"); com 4+ ficam bandeira+resultado ("tiny"). */
+function bracketApplyWindow(){
+  const box=document.getElementById("knockout"); if(!box) return;
+  if(!box.offsetWidth) return;   // separador escondido: sem medidas fiáveis (o ResizeObserver volta cá ao revelar)
+  const br=box.querySelector(".bracket.fit"); if(!br) return;
+  const cols=[...br.querySelectorAll(".col")], n=cols.length; if(!n) return;
+  let [a,b]=(box.dataset.brwin||"0,1").split(",").map(Number);
+  if(!(a>=0&&b>=a)){ a=0; b=Math.min(1,n-1); }
+  b=Math.min(b,n-1); a=Math.min(a,b);
+  box.dataset.brwin=a+","+b;
+  br.classList.toggle("tight", b-a>=2);
+  br.classList.toggle("tiny",  b-a>=3);
+  cols.forEach((c,i)=>{ const on=i>=a&&i<=b; c.style.display=on?"":"none";
+    c.classList.toggle("vfirst",i===a); c.classList.toggle("vlast",i===b); });
+  let card=0; cols[a].querySelectorAll(".ko").forEach(k=>{ card=Math.max(card,k.offsetHeight); });
+  br.style.setProperty("--slot",((card||66)+6)/Math.pow(2,a)+"px");
+  const nav=box.querySelector(".brnav");
+  if(nav) [...nav.children].forEach((btn,i)=>{ const on=i>=a&&i<=b;
+    btn.classList.toggle("active",on); btn.setAttribute("aria-selected",on); });
 }
-// o scroll não borbulha -> escuta em captura no contentor, sobrevive a re-renders (live e estático)
+// chips: toque = essa ronda + a seguinte; arrastar pelos chips = janela com as rondas varridas
 (function(){
   const box=document.getElementById("knockout"); if(!box) return;
-  let raf=0;
-  box.addEventListener("scroll",e=>{
-    const t=e.target; if(!t.classList||!t.classList.contains("bracket-scroll")) return;
-    if(!raf) raf=requestAnimationFrame(()=>{ raf=0; bracketZoom(t); });
-  },true);
-  box.addEventListener("click",e=>{
-    const b=e.target.closest(".brnav button"); if(!b) return;
-    const sc=box.querySelector(".bracket-scroll"), br=sc&&sc.querySelector(".bracket.fit"); if(!br) return;
-    const col=br.querySelector(".col"); if(!col) return;
-    const idx=Math.min(+b.dataset.bri, Math.max(0, br.querySelectorAll(".col").length-2));
-    sc.scrollTo({left:idx*(col.offsetWidth+24), behavior:"smooth"});
+  let from=null, to=null;
+  const chipAt=e=>{ const el=document.elementFromPoint(e.clientX,e.clientY);
+    const btn=el&&el.closest&&el.closest(".brnav button"); return btn?+btn.dataset.bri:null; };
+  const paint=(a,b)=>{ const nav=box.querySelector(".brnav"); if(!nav) return;
+    [...nav.children].forEach((btn,i)=>btn.classList.toggle("active",i>=a&&i<=b)); };
+  box.addEventListener("pointerdown",e=>{
+    const btn=e.target.closest(".brnav button"); if(!btn) return;
+    from=to=+btn.dataset.bri; paint(from,to);
   });
-  window.addEventListener("resize",()=>{ const sc=box.querySelector(".bracket-scroll.snap"); if(sc) bracketZoom(sc); });
+  box.addEventListener("pointermove",e=>{
+    if(from===null) return;
+    const i=chipAt(e); if(i!==null && i!==to){ to=i; paint(Math.min(from,to),Math.max(from,to)); }
+  });
+  const done=e=>{
+    if(from===null) return;
+    const br=box.querySelector(".bracket.fit");
+    const n=br?br.querySelectorAll(".col").length:0;
+    let a=Math.min(from,to), b=Math.max(from,to);
+    if(a===b){ a=Math.min(a,Math.max(0,n-2)); b=Math.min(a+1,n-1); }   // toque simples -> par
+    from=to=null;
+    if(!n) return;
+    box.dataset.brwin=Math.min(a,n-1)+","+Math.min(b,n-1);
+    bracketApplyWindow();
+  };
+  window.addEventListener("pointerup",done);
+  window.addEventListener("pointercancel",()=>{ if(from===null) return; from=to=null; bracketApplyWindow(); });
+  // re-mede quando o quadro muda de tamanho OU passa de escondido a visível (troca de separador);
+  // idempotente: aplicar a mesma janela duas vezes não altera nada, logo o observer estabiliza
+  new ResizeObserver(()=>bracketApplyWindow()).observe(box);
 })();
 
 /* ===================== RENDER: LISTA DE JOGOS (só playoffs) ===================== */
