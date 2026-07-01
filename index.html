@@ -456,10 +456,31 @@
   .teamhero .finalclass.win{border-color:var(--gold);color:var(--gold)}
   .teamhero .finalclass.out{border-color:var(--red);color:var(--red)}
   .teamhero .finalclass.live{border-color:var(--cyan);color:var(--cyan)}
-  /* Histórico: destaque dourado para títulos + dot verde da linha do tempo */
+  /* Histórico: botão no banner + pop-up */
   .stage .reach.champ{color:var(--gold);border-color:var(--gold)}
-  #teamHistory .stage.done::before{background:var(--gold);border-color:var(--gold)}
-  #teamHistory .when .v.champ{color:var(--gold);font-weight:700}
+  #histBody .stage.done::before{background:var(--gold);border-color:var(--gold)}
+  #histBody .when .v.champ{color:var(--gold);font-weight:700}
+  .teamhero .heroHist{position:absolute;top:10px;right:12px;z-index:3;cursor:pointer;
+    font-family:Inter,sans-serif;font-size:11px;font-weight:700;letter-spacing:.3px;
+    border:1px solid var(--line2);background:var(--panel2);color:var(--txt);border-radius:20px;padding:5px 11px;line-height:1}
+  .teamhero .heroHist:hover{border-color:var(--gold);color:var(--gold)}
+  .teamhero .heroChev{bottom:11px}
+  .histmodal{position:fixed;inset:0;z-index:100;display:flex;align-items:center;justify-content:center;padding:16px}
+  .histmodal[hidden]{display:none}
+  .histmodal-backdrop{position:absolute;inset:0;background:rgba(0,0,0,.62)}
+  .histmodal-card{position:relative;z-index:1;width:100%;max-width:460px;max-height:86vh;display:flex;flex-direction:column;
+    background:var(--panel);border:1px solid var(--line);border-radius:16px;box-shadow:0 24px 64px rgba(0,0,0,.5);overflow:hidden}
+  .histmodal-head{display:flex;align-items:center;gap:10px;padding:13px 15px;border-bottom:1px solid var(--line)}
+  .histmodal-title{flex:1;display:flex;align-items:center;gap:10px;min-width:0}
+  .histmodal-title .hfl{font-size:26px;line-height:1;flex:none}
+  .histmodal-title .hnm{font-family:Anton,sans-serif;font-size:20px;text-transform:uppercase;letter-spacing:.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .histmodal-title .hnm.por{color:var(--gold)}
+  .histmodal-x{flex:none;width:32px;height:32px;border-radius:50%;border:1px solid var(--line2);background:var(--panel2);
+    color:var(--txt);font-size:20px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center}
+  .histmodal-x:hover{border-color:var(--red);color:var(--red)}
+  .histmodal-body{padding:15px;overflow-y:auto;-webkit-overflow-scrolling:touch}
+  .histsub{font-family:Inter,sans-serif;font-size:12px;color:var(--mut);line-height:1.5}
+  .histsub b{color:var(--txt)}
   /* adversários: top 3 + expandir os restantes */
   .oppdetails{margin-top:5px}
   .oppdetails > summary{list-style:none;cursor:pointer;font-size:11.5px;font-weight:600;color:var(--cyan);
@@ -553,7 +574,6 @@
       <button class="tab active" data-tab="percurso">Percurso</button>
       <button class="tab" data-tab="grupos">Grupos</button>
       <button class="tab" data-tab="quadro">Playoffs</button>
-      <button class="tab" data-tab="historico">Histórico</button>
     </nav>
   </header>
 
@@ -586,18 +606,26 @@
 
       <div class="oddsfooter" id="oddsFooterQuadro"></div>
     </section>
-
-    <section class="panel" id="p-historico">
-      <div id="teamHistory"></div>
-    </section>
   </main>
 
   <footer id="footer"></footer>
 </div>
+
+<!-- Pop-up do Histórico da seleção (aberto pelo botão no banner do Percurso) -->
+<div id="histModal" class="histmodal" hidden>
+  <div class="histmodal-backdrop" data-hist-close></div>
+  <div class="histmodal-card" role="dialog" aria-modal="true" aria-labelledby="histModalTitle">
+    <div class="histmodal-head">
+      <div class="histmodal-title" id="histModalTitle"></div>
+      <button class="histmodal-x" type="button" aria-label="Fechar" data-hist-close>×</button>
+    </div>
+    <div class="histmodal-body" id="histBody"></div>
+  </div>
+</div>
 <!-- Módulo live do 2026: Anexo C (emparelhamento dos 16-avos), quadro interativo,
      simulação Monte Carlo do percurso e live ESPN. (Caveat: o Anexo C herdado assume
      8 grupos; rever para os 12 grupos do formato de 48 num próximo torneio.) -->
-<script src="live2026.js?v=13"></script>
+<script src="live2026.js?v=14"></script>
 <script>
 "use strict";
 /* =====================================================================
@@ -822,7 +850,8 @@ function teamOptions(sel){
   const names = Object.keys(reg).sort((a,b)=>(reg[a].pt||a).localeCompare(reg[b].pt||b, "pt"));
   return names.map(n=>`<option value="${n}" ${n===sel?"selected":""}>${reg[n].pt||n}</option>`).join("");
 }
-function selectTeam(v){ SEL_TEAM=v; renderPercurso(); renderGroups(); renderMatchList(); renderHistory(); }
+function selectTeam(v){ SEL_TEAM=v; renderPercurso(); renderGroups(); renderMatchList();
+  if(document.getElementById("histModal") && !document.getElementById("histModal").hidden) openHistory(); }   // refresca o pop-up se estiver aberto
 
 // apurou-se da fase de grupos? (1.º/2.º sempre; 3.º só nas edições de 12 grupos, se for dos 8 melhores)
 function advancedFromGroup(t, ts){
@@ -926,6 +955,7 @@ function renderPercurso(){
     <div class="meta"><div class="nm ${favc?'por':''}">${pt(t)}</div>
       ${fc?`<div class="finalclass ${fc.cls}">${fc.label}</div>`:`<div class="gl"><b>não participou</b></div>`}</div>
     <select class="heroSel" aria-label="Trocar de seleção" onchange="selectTeam(this.value)">${teamOptions(t)}</select>
+    <button type="button" class="heroHist" onclick="event.stopPropagation();openHistory()">🏆 Histórico</button>
     <span class="heroChev" aria-hidden="true">⇄ Trocar</span></div>`;
   if(!plays){   // seleção do registo global que não jogou esta edição
     const eds=(REGISTRY.editions[t]||[]).filter(id=>id!==ED.id)
@@ -972,20 +1002,11 @@ function histEliminators(t){
   const pos=ts.pos-1;                                 // sem derrotas diretas: as equipas que ficaram à frente no grupo
   return pos>0 ? ts.table.slice(0,pos).map(r=>r.team) : [];
 }
-function renderHistory(){
-  const box=document.getElementById("teamHistory"); if(!box) return;
-  const t=SEL_TEAM;
-  setHeaderFlag(t);
-  if(!t){ box.innerHTML=`<div class="pickhint">Escolhe uma seleção para veres o histórico.</div>`; return; }
-  const favc=t===FAV;
+// conteúdo (timeline) do histórico de uma seleção; devolve o HTML interior do pop-up
+function historyContentHTML(t){
   const ids=(REGISTRY.editions[t]||[]).filter(id=>EDITION_DATA[id]);
   ids.sort((a,b)=> EDITION_DATA[a].year - EDITION_DATA[b].year);   // linha do tempo (mais antigo -> mais recente)
-  const hero=`<div class="teamhero"><span class="bigfl">${fl(t)}</span>
-    <div class="meta"><div class="nm ${favc?'por':''}">${pt(t)}</div>
-      <div class="gl">Histórico em <b>${ids.length}</b> ${ids.length===1?'edição':'edições'} · Europeus e Mundiais</div></div>
-    <select class="heroSel" aria-label="Trocar de seleção" onchange="selectTeam(this.value)">${teamOptions(t)}</select>
-    <span class="heroChev" aria-hidden="true">⇄ Trocar</span></div>`;
-  if(!ids.length){ box.innerHTML=hero+`<div class="livenote"><span class="ic">📭</span><div class="tx"><b>${pt(t)}</b> não consta nos dados de nenhuma edição.</div></div>`; return; }
+  if(!ids.length) return `<div class="livenote"><span class="ic">📭</span><div class="tx"><b>${pt(t)}</b> não consta nos dados de nenhuma edição.</div></div>`;
   let rows="", titles=0;
   for(const id of ids){
     const edObj=EDITION_DATA[id], meta=EDITIONS.find(e=>e.id===id)||{};
@@ -1008,10 +1029,21 @@ function renderHistory(){
       ${note?`<div class="when"><span class="v ${champ?'champ':''}">${note}</span></div>`:""}
     </div>`;
   }
-  const titleLine = titles>0
-    ? `<div class="livenote" style="margin:0 0 14px"><span class="ic">🏆</span><div class="tx"><b>${pt(t)}</b> — <b>${titles}</b> ${titles===1?'título':'títulos'} nestes dados.</div></div>`
-    : "";
-  box.innerHTML=hero+titleLine+`<div class="stagewrap" style="margin-top:14px">${rows}</div>`;
+  const sub = `Percurso em <b>${ids.length}</b> ${ids.length===1?'edição':'edições'} · Europeus e Mundiais`
+    + (titles>0 ? ` · <b>${titles}</b> ${titles===1?'título':'títulos'} 🏆` : "");
+  return `<div class="histsub">${sub}</div><div class="stagewrap" style="margin-top:14px">${rows}</div>`;
+}
+// abre / fecha o pop-up do histórico da seleção escolhida
+function openHistory(){
+  const t=SEL_TEAM; if(!t) return;
+  const modal=document.getElementById("histModal"); if(!modal) return;
+  document.getElementById("histModalTitle").innerHTML=`<span class="hfl">${fl(t)}</span><span class="hnm ${t===FAV?'por':''}">${pt(t)}</span>`;
+  document.getElementById("histBody").innerHTML=historyContentHTML(t);
+  modal.hidden=false; document.body.style.overflow="hidden";
+}
+function closeHistory(){
+  const modal=document.getElementById("histModal"); if(modal) modal.hidden=true;
+  document.body.style.overflow="";
 }
 
 /* ===================== RENDER: QUADRO ===================== */
@@ -1176,7 +1208,7 @@ async function loadEdition(id, isInitial){
   if(!SEL_TEAM) SEL_TEAM=defaultTeamFor();
   PICKS={};
   applyEditionChrome();
-  renderGroups(); renderPercurso(); renderBracket(); renderMatchList(); renderHistory();
+  renderGroups(); renderPercurso(); renderBracket(); renderMatchList(); closeHistory();
   if(isInitial) requestAnimationFrame(()=>setTimeout(hideSplash,150));
   else hideSwitchDim();
 }
@@ -1209,6 +1241,10 @@ document.getElementById("poModes").addEventListener("click",e=>{
   document.getElementById("po-lista").classList.toggle("active",m==="lista");
   document.getElementById("po-bracket").classList.toggle("active",m==="bracket");
 });
+
+/* pop-up do histórico: fechar no × / no fundo / com Escape */
+document.getElementById("histModal").addEventListener("click",e=>{ if(e.target.closest("[data-hist-close]")) closeHistory(); });
+document.addEventListener("keydown",e=>{ if(e.key==="Escape") closeHistory(); });
 
 /* seletor de edição (régua de chips) */
 document.getElementById("editionRow").addEventListener("click",e=>{

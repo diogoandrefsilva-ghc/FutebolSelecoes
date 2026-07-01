@@ -1171,32 +1171,27 @@ const GROUP_STADIUMS={
   SEA:["Lumen Field","Seattle"],             VAN:["BC Place","Vancouver"],
   TOR:["BMO Field","Toronto"],               MIA:["Hard Rock Stadium","Miami"]
 };
-// Local real de cada jogo da fase de grupos, por grupo × jogo (idx 0–5, na MESMA ordem
-// dos jogos em data/2026.json). Baseado no calendário oficial FIFA 2026: cada grupo joga
-// nos estádios que lhe foram atribuídos e os anfitriões (México=A, Canadá=B, EUA=D) jogam
-// em casa. Jogos confirmados pela FIFA; os restantes ficam nos estádios do próprio grupo.
-const GROUP_VENUE_MAP={
-  A:["AZT","ATL","ATL","AKR","BBVA","ATL"],   // México em casa: Cidade do México, Guadalajara, Monterrey
-  B:["VAN","LA","LA","TOR","VAN","LA"],        // Canadá em casa: Vancouver, Toronto
-  C:["NY","BOS","PHI","NY","BOS","PHI"],
-  D:["LA","SEA","SF","SEA","LA","SF"],         // EUA em casa: Los Angeles, São Francisco
-  E:["HOU","PHI","HOU","PHI","HOU","PHI"],
-  F:["DAL","BBVA","HOU","BBVA","DAL","KC"],
-  G:["SEA","LA","VAN","SEA","LA","VAN"],
-  H:["ATL","MIA","ATL","MIA","HOU","AKR"],
-  I:["NY","BOS","PHI","NY","NY","BOS"],
-  J:["KC","SF","DAL","SF","SF","DAL"],
-  K:["HOU","AZT","HOU","AKR","HOU","AZT"],
-  L:["DAL","TOR","BOS","TOR","BOS","TOR"]
+// Calendário real da fase de grupos (FIFA 2026), por grupo × jogo (idx 0–5, na MESMA ordem
+// dos jogos em data/2026.json): [dia de junho, código do estádio]. Datas e locais oficiais;
+// não mostramos a hora exata do apito (as horas variam jogo-a-jogo e não são fiáveis à mão).
+const GROUP_SCHED={
+  A:[[11,"AZT"],[11,"AKR"],[18,"ATL"],[18,"AKR"],[24,"AZT"],[24,"BBVA"]],   // México em casa
+  B:[[12,"TOR"],[13,"SF"],[18,"LA"],[18,"VAN"],[24,"VAN"],[24,"SEA"]],       // Canadá em casa
+  C:[[13,"NY"],[13,"BOS"],[19,"BOS"],[19,"PHI"],[24,"MIA"],[24,"ATL"]],
+  D:[[12,"LA"],[13,"VAN"],[19,"SEA"],[19,"SF"],[25,"LA"],[25,"SF"]],          // EUA em casa
+  E:[[14,"HOU"],[14,"PHI"],[20,"TOR"],[20,"KC"],[25,"PHI"],[25,"NY"]],
+  F:[[14,"DAL"],[14,"AKR"],[20,"HOU"],[20,"AKR"],[25,"DAL"],[25,"KC"]],
+  G:[[15,"SEA"],[15,"LA"],[21,"LA"],[21,"VAN"],[26,"SEA"],[26,"VAN"]],
+  H:[[15,"ATL"],[15,"MIA"],[21,"ATL"],[21,"MIA"],[26,"HOU"],[26,"AKR"]],
+  I:[[16,"NY"],[16,"BOS"],[22,"PHI"],[22,"NY"],[26,"NY"],[26,"TOR"]],
+  J:[[16,"KC"],[16,"SF"],[22,"DAL"],[22,"SF"],[27,"KC"],[27,"DAL"]],
+  K:[[17,"HOU"],[17,"AZT"],[23,"HOU"],[23,"AKR"],[27,"MIA"],[27,"ATL"]],
+  L:[[17,"DAL"],[17,"TOR"],[23,"BOS"],[23,"TOR"],[27,"NY"],[27,"PHI"]]
 };
-const GROUP_DAYS={ A:[11,17,24], B:[12,18,24], C:[13,19,25], D:[13,19,25], E:[14,20,26], F:[14,20,26],
-  G:[15,21,25], H:[15,21,25], I:[16,22,26], J:[16,22,26], K:[17,23,27], L:[18,23,27] };
-const GROUP_TIMES=["15:00 ET","18:00 ET","15:00 ET","18:00 ET","16:00 ET","16:00 ET"];   // 3.ª jornada em simultâneo
 function groupSchedLabel(G, idx){
-  const days=GROUP_DAYS[G]; if(!days||idx==null) return "";
-  const dd=String(days[Math.floor(idx/2)]).padStart(2,'0');          // jogos 0,1 → 1.ª jorn. · 2,3 → 2.ª · 4,5 → 3.ª
-  const code=(GROUP_VENUE_MAP[G]||[])[idx], vc=(code&&GROUP_STADIUMS[code])||["",""];
-  return fmtSched({ d:`2026-06-${dd}`, t:GROUP_TIMES[idx], v:vc[0], c:vc[1] });
+  const row=(GROUP_SCHED[G]||[])[idx]; if(!row||idx==null) return "";
+  const [day,code]=row, vc=(code&&GROUP_STADIUMS[code])||["",""];
+  return fmtSched({ d:`2026-06-${String(day).padStart(2,'0')}`, v:vc[0], c:vc[1] });   // data + local (sem hora)
 }
 
 /* ===== HUB · fase atual de uma seleção apurada (reflete os picks do bracket interativo) ===== */
