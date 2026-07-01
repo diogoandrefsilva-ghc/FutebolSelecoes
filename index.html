@@ -326,8 +326,8 @@
   .gp-h{font-family:Inter,sans-serif;font-size:11px;color:var(--mut);letter-spacing:1px;
     text-transform:uppercase;margin:2px 2px 8px}
   .gpmatches{display:flex;flex-direction:column;gap:4px;margin:0 0 12px}
-  .gpm{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:8px;
-    background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:5px 10px}
+  .gpm{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:0 8px;
+    background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:6px 10px}
   .gpm.tm{border-color:rgba(91,140,0,.32);background:linear-gradient(90deg,rgba(91,140,0,.07),transparent)}
   .gpm .s{display:flex;align-items:center;gap:7px;min-width:0}
   .gpm .s.h{justify-content:flex-end;text-align:right}
@@ -518,7 +518,7 @@
   /* data/hora/local dentro da própria caixa do jogo (linha a toda a largura, por baixo do placar);
      o estado ao vivo (tempo de jogo) fica encostado à direita dessa mesma linha */
   .gpm .mlin{grid-column:1/-1;position:relative;font-family:Inter,sans-serif;font-size:10px;color:var(--dim);text-align:center;
-    margin-top:2px;padding:4px 4px 0;border-top:1px dashed var(--line)}
+    margin-top:5px;padding:4px 4px 0;border-top:1px dashed var(--line)}
   .gpm .mlin .v{color:var(--dim)}
   .mlin .mlstate{position:absolute;right:4px;top:6px;font-family:Inter,sans-serif;font-size:8.5px;font-weight:800;letter-spacing:.4px}
   .mlin .mlstate.live{color:var(--cyan);display:inline-flex;align-items:center;gap:4px}
