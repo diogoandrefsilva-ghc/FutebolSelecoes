@@ -473,39 +473,9 @@
   /* --- PLAYOFFS: sub-menu (lista/bracket) + lista cronológica de jogos --- */
   .posub{display:none}
   .posub.active{display:block;animation:fade .18s ease}
-  /* --- caixa discreta "Odds & probabilidades · admin" (no fim dos Playoffs) --- */
-  .oddsadminbox{margin:34px 0 4px;border:1px solid var(--line);border-radius:11px;background:var(--panel2)}
-  .oddsadminbox > summary{cursor:pointer;list-style:none;font-family:Inter,sans-serif;font-weight:700;font-size:11px;
-    letter-spacing:.4px;color:var(--dim);padding:11px 13px}
-  .oddsadminbox > summary::-webkit-details-marker{display:none}
-  .oddsadminbox[open] > summary{color:var(--mut);border-bottom:1px solid var(--line)}
-  .oddsbox{padding:12px 13px}
-  .oddssrc{font-family:Inter,sans-serif;font-size:11.5px;color:var(--mut);line-height:1.35;margin-bottom:10px}
-  .oddssrc b{color:var(--cyan);font-weight:700}
-  .oddsbox textarea{width:100%;box-sizing:border-box;resize:vertical;min-height:130px;
-    font-family:ui-monospace,Consolas,Menlo,monospace;font-size:12px;line-height:1.45;color:var(--txt);
-    background:var(--ink);border:1px solid var(--line2);border-radius:9px;padding:9px 11px}
-  .oddsbox textarea:focus{outline:none;border-color:var(--cyan)}
-  .oddsrow{display:flex;gap:8px;margin-top:9px;flex-wrap:wrap;align-items:center}
-  .oddsmsg{margin-top:8px;font-family:Inter,sans-serif;font-size:11.5px;line-height:1.4}
-  .oddsmsg.ok{color:var(--lime)}
-  .oddsmsg.err{color:var(--red)}
-  .btn.sm{font-size:11px;padding:6px 10px}
-  .oddssub{margin-bottom:10px;border:1px solid var(--line);border-radius:9px;background:var(--ink);padding:0}
-  .oddssub > summary{cursor:pointer;list-style:none;font-family:Inter,sans-serif;font-weight:700;font-size:11.5px;
-    color:var(--cyan);padding:9px 11px}
-  .oddssub > summary::-webkit-details-marker{display:none}
-  .oddssub > summary::before{content:"▸ ";color:var(--mut)}
-  .oddssub[open] > summary::before{content:"▾ "}
-  .oddssub[open] > summary{border-bottom:1px solid var(--line)}
-  .oddssub > :not(summary){margin:9px 11px}
-  .oddshint{font-family:Inter,sans-serif;font-size:11px;line-height:1.5;color:var(--mut)}
-  .oddshint b{color:var(--txt);font-weight:600}
-  .oddstpl{font-family:ui-monospace,Consolas,Menlo,monospace;font-size:11px;line-height:1.4;color:var(--txt);
-    background:var(--panel2);border:1px solid var(--line2);border-radius:8px;padding:9px 11px;overflow:auto;max-height:220px;white-space:pre}
-  .ghinput{flex:1;min-width:160px;box-sizing:border-box;font-family:ui-monospace,Consolas,monospace;font-size:12px;
-    color:var(--txt);background:var(--panel2);border:1px solid var(--line2);border-radius:8px;padding:8px 10px}
-  .ghinput:focus{outline:none;border-color:var(--cyan)}
+  /* --- nota discreta com a hora da última atualização das odds (fim de Percurso/Playoffs) --- */
+  .oddsfooter{margin-top:18px;font-family:Inter,sans-serif;font-size:11px;color:var(--mut)}
+  .oddsfooter:empty{display:none}
   /* --- probabilidade de avançar, nos cartões do bracket (jogos por disputar) --- */
   .koteam .koprob{margin-left:auto;font-family:Inter,sans-serif;font-weight:700;font-size:11px;color:var(--cyan);flex:none;padding-right:3px}
   .koteam.dim .koprob{color:var(--mut)}
@@ -585,6 +555,7 @@
   <main>
     <section class="panel active" id="p-percurso">
       <div id="teamPath"></div>
+      <div class="oddsfooter" id="oddsFooterPercurso"></div>
     </section>
 
     <section class="panel" id="p-grupos">
@@ -608,35 +579,7 @@
         </div>
       </div>
 
-      <details id="oddsPanel" class="oddsadminbox" style="display:none">
-        <summary>⚙︎ Odds &amp; probabilidades · admin</summary>
-        <div class="oddsbox">
-          <div class="oddssrc" id="oddsInfoLbl">Probabilidades pelo <b>ranking FIFA</b></div>
-          <details class="oddssub" id="oddsFmt">
-            <summary>Formato — copia e pede a um agente</summary>
-            <div class="oddshint">Odds <b>decimais</b>. <b>qualificacao</b>: odd de cada equipa <b>passar a eliminatória</b> (com prolong./penáltis), por jogo. <b>campeao</b>: odd de <b>vencer o Mundial</b>. A app tira a margem sozinha.</div>
-            <pre id="oddsTpl" class="oddstpl"></pre>
-            <div class="oddsrow">
-              <button class="btn ghost sm" id="oddsCopyFmt" type="button">Copiar formato</button>
-              <button class="btn ghost sm" id="oddsCopyPrompt" type="button">Copiar pedido p/ agente</button>
-            </div>
-          </details>
-          <textarea id="oddsText" rows="8" spellcheck="false" placeholder='Cola aqui o JSON das odds…'></textarea>
-          <div class="oddsrow">
-            <button class="btn" id="oddsUpdate" type="button">Atualizar odds</button>
-            <button class="btn ghost" id="oddsPreview" type="button">Pré-ver local</button>
-            <button class="btn ghost" id="oddsClear" type="button">Limpar</button>
-          </div>
-          <div class="oddsmsg" id="oddsMsg" aria-live="polite"></div>
-          <div class="oddshint" style="margin-top:12px"><b>Token GitHub</b> (fica só neste browser; fine-grained com <b>Contents: Read and write</b> no repo <b>AppDataJSON</b>). "Atualizar odds" grava lá e todos passam a ver.</div>
-          <div class="oddsrow">
-            <input id="ghToken" class="ghinput" type="password" autocomplete="off" spellcheck="false" placeholder="GitHub token (github_pat_… / ghp_…)">
-            <button class="btn ghost sm" id="ghSave" type="button">Guardar token</button>
-            <button class="btn ghost sm" id="ghForget" type="button">Esquecer</button>
-          </div>
-          <div class="oddsmsg" id="ghMsg" aria-live="polite"></div>
-        </div>
-      </details>
+      <div class="oddsfooter" id="oddsFooterQuadro"></div>
     </section>
   </main>
 
@@ -645,7 +588,7 @@
 <!-- Módulo live do 2026: Anexo C (emparelhamento dos 16-avos), quadro interativo,
      simulação Monte Carlo do percurso e live ESPN. (Caveat: o Anexo C herdado assume
      8 grupos; rever para os 12 grupos do formato de 48 num próximo torneio.) -->
-<script src="live2026.js?v=11"></script>
+<script src="live2026.js?v=12"></script>
 <script>
 "use strict";
 /* =====================================================================
@@ -963,6 +906,7 @@ function knockoutPathHTML(t, prefix){
 
 function renderPercurso(){
   const t=SEL_TEAM, box=document.getElementById("teamPath");
+  renderOddsFooter();
   setHeaderFlag(t);
   if(!t||!ED){ box.innerHTML=`<div class="pickhint">Escolhe uma seleção para veres o percurso.</div>`; return; }
   const ts=teamStanding(t), favc=t===FAV, plays=!!ts;
@@ -1023,14 +967,11 @@ function bracketOrder(ko){
 function renderBracket(){
   const box=document.getElementById("knockout");
   const reset=document.getElementById("koReset");
-  const odp=document.getElementById("oddsPanel");
-  if(odp) odp.style.display="none";
+  renderOddsFooter();
   // edição em curso: delega no módulo live (quadro interativo + Anexo C + simulação)
   if(ED.status==="live"){
     if(ED.id==="2026" && window.LIVE2026){
       reset.style.display="flex";
-      if(odp) odp.style.display="block";
-      refreshOddsUI();
       window.LIVE2026.mount({onChange:()=>{renderPercurso(); renderMatchList();}});
     }else{
       reset.style.display="none";
@@ -1158,73 +1099,16 @@ async function loadEdition(id, isInitial){
   else hideSwitchDim();
 }
 
-/* ===== Importar / publicar odds (painel nos Playoffs; o motor vive no módulo live) ===== */
-const GH_TOKEN_KEY="mundial2026:ghtoken";
-function refreshOddsUI(){
-  const lbl=document.getElementById("oddsInfoLbl"); if(!lbl) return;
-  const info=(window.LIVE2026&&window.LIVE2026.oddsInfo)?window.LIVE2026.oddsInfo():null;
-  lbl.innerHTML = info
-    ? `Probabilidades por <b>odds${info.src==="remote"?" publicadas":" (pré-visualização local)"}</b> · ${info.nQualify} jogo(s) · ${info.nChampion} p/ campeão${info.updated?` · ${info.updated}`:""}`
-    : `Probabilidades pelo <b>ranking FIFA</b>`;
+/* ===== Rodapé com a hora da última atualização das odds (Percurso + Playoffs) =====
+   As odds são geridas por automação (workflow GitHub Actions -> AppDataJSON);
+   aqui só se mostra, de forma discreta, quando foram atualizadas pela última vez. */
+function renderOddsFooter(){
+  const els=[document.getElementById("oddsFooterPercurso"), document.getElementById("oddsFooterQuadro")].filter(Boolean);
+  if(!els.length) return;
+  const info=(ED&&ED.status==="live"&&ED.id==="2026"&&window.LIVE2026&&window.LIVE2026.oddsInfo)?window.LIVE2026.oddsInfo():null;
+  const txt=(info&&info.updated)?`Odds atualizadas · ${info.updated}`:"";
+  for(const el of els) el.textContent=txt;
 }
-function oddsTemplateObj(){
-  const tg=(window.LIVE2026&&window.LIVE2026.oddsTargets)?window.LIVE2026.oddsTargets():{matches:[],alive:[]};
-  const q={}; tg.matches.forEach(m=>{ q[m.id]={[m.home]:0,[m.away]:0}; });
-  const c={}; tg.alive.forEach(t=>{ c[t.name]=0; });
-  return {updated:"", fonte:"", qualificacao:q, campeao:c};
-}
-function renderOddsTemplate(){ const pre=document.getElementById("oddsTpl"); if(pre) pre.textContent=JSON.stringify(oddsTemplateObj(),null,2); }
-function oddsAgentPrompt(){
-  const tg=(window.LIVE2026&&window.LIVE2026.oddsTargets)?window.LIVE2026.oddsTargets():{matches:[],alive:[]};
-  const tpl=JSON.stringify(oddsTemplateObj(),null,2);
-  const games=tg.matches.map(m=>`  ${m.id}: ${m.homePt} vs ${m.awayPt}`).join("\n")||"  (nenhum jogo por decidir de momento)";
-  return `Preciso das odds decimais (formato europeu) do Mundial de futebol 2026, para colar numa app. Devolve SÓ um JSON, exatamente neste formato (substitui os 0 pelas odds; mantém as chaves e os nomes tal como estão):\n\n`
-    + tpl
-    + `\n\nRegras:\n`
-    + `- "qualificacao": para cada jogo, a odd de CADA equipa PASSAR a eliminatória (inclui prolongamento e penáltis).\n`
-    + `- "campeao": a odd de cada equipa VENCER o Mundial.\n`
-    + `- Usa a média de Betclic, Betano e bwin (ou as melhores que tiveres). Preenche "updated" (data/hora) e "fonte".\n\n`
-    + `Referência dos jogos por decidir:\n${games}`;
-}
-async function copyToClipboard(text, btn){
-  try{ await navigator.clipboard.writeText(text); }
-  catch(e){ const ta=document.createElement("textarea"); ta.value=text; ta.style.position="fixed"; ta.style.opacity="0"; document.body.appendChild(ta); ta.select(); try{document.execCommand("copy");}catch(_){} ta.remove(); }
-  if(btn){ const o=btn.textContent; btn.textContent="Copiado ✓"; setTimeout(()=>btn.textContent=o,1400); }
-}
-function setupOdds(){
-  const $=id=>document.getElementById(id);
-  const panel=$("oddsPanel"), upd=$("oddsUpdate"), prev=$("oddsPreview"), clr=$("oddsClear"),
-        txt=$("oddsText"), msg=$("oddsMsg"), tok=$("ghToken"), ghMsg=$("ghMsg");
-  if(!panel) return;
-  panel.addEventListener("toggle",()=>{ if(panel.open) renderOddsTemplate(); });   // gera o template quando abre
-  const tokenVal=()=>((tok&&tok.value)||"").trim()||(()=>{try{return localStorage.getItem(GH_TOKEN_KEY)||"";}catch(e){return"";}})();
-  // Atualizar odds = publicar no GitHub (grava o ficheiro -> todos veem) + aplicar localmente
-  upd && upd.addEventListener("click",async()=>{
-    if(!(window.LIVE2026&&window.LIVE2026.publishOdds)) return;
-    msg.textContent="A atualizar no GitHub…"; msg.className="oddsmsg";
-    const r=await window.LIVE2026.publishOdds(tokenVal(), txt.value||"");
-    msg.textContent=r.msg; msg.className="oddsmsg "+(r.ok?"ok":"err");
-    if(r.ok) refreshOddsUI();
-  });
-  // Pré-ver local = só neste browser, não publica
-  prev && prev.addEventListener("click",()=>{
-    if(!(window.LIVE2026&&window.LIVE2026.importOdds)) return;
-    const r=window.LIVE2026.importOdds(txt.value||"");
-    msg.textContent=r.msg; msg.className="oddsmsg "+(r.ok?"ok":"err");
-    if(r.ok) refreshOddsUI();
-  });
-  clr && clr.addEventListener("click",()=>{
-    if(window.LIVE2026&&window.LIVE2026.clearOdds) window.LIVE2026.clearOdds();
-    txt.value=""; msg.textContent="Pré-visualização limpa — volta às odds publicadas / ranking."; msg.className="oddsmsg";
-    refreshOddsUI();
-  });
-  $("oddsCopyFmt") && $("oddsCopyFmt").addEventListener("click",e=>{ renderOddsTemplate(); copyToClipboard($("oddsTpl").textContent, e.currentTarget); });
-  $("oddsCopyPrompt") && $("oddsCopyPrompt").addEventListener("click",e=>copyToClipboard(oddsAgentPrompt(), e.currentTarget));
-  if(tok){ try{ tok.value=localStorage.getItem(GH_TOKEN_KEY)||""; }catch(e){} }
-  $("ghSave") && $("ghSave").addEventListener("click",()=>{ try{ localStorage.setItem(GH_TOKEN_KEY,(tok.value||"").trim()); ghMsg.textContent="Token guardado neste browser."; ghMsg.className="oddsmsg ok"; }catch(e){ ghMsg.textContent="Não foi possível guardar."; ghMsg.className="oddsmsg err"; } });
-  $("ghForget") && $("ghForget").addEventListener("click",()=>{ try{ localStorage.removeItem(GH_TOKEN_KEY); }catch(e){} tok.value=""; ghMsg.textContent="Token esquecido."; ghMsg.className="oddsmsg"; });
-}
-setupOdds();
 
 /* tabs */
 document.querySelectorAll(".tab").forEach(tb=>tb.addEventListener("click",()=>{

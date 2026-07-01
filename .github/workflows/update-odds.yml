@@ -2,7 +2,65 @@ name: Atualizar odds
 
 on:
   schedule:
-    - cron: "0 6 * * *"   # todos os dias às 6h UTC
+    - cron: "0 8 * * *"     # diária às 9h de Lisboa (WEST = UTC+1 em julho)
+
+    # 10 minutos antes de cada jogo por disputar (horário oficial FIFA, ET = UTC-4 em julho).
+    # Data/hora fixas por posição no calendário (M##), independentes das equipas apuradas.
+    - cron: "50 15 1 7 *"   # M80 · 1 jul 12:00 ET
+    - cron: "50 19 1 7 *"   # M82 · 1 jul 16:00 ET
+    - cron: "50 23 1 7 *"   # M81 · 1 jul 20:00 ET
+    - cron: "50 2 3 7 *"    # M85 · 2 jul 23:00 ET
+    - cron: "50 18 2 7 *"   # M84 · 2 jul 15:00 ET
+    - cron: "50 22 2 7 *"   # M83 · 2 jul 19:00 ET
+    - cron: "50 17 3 7 *"   # M88 · 3 jul 14:00 ET
+    - cron: "50 21 3 7 *"   # M86 · 3 jul 18:00 ET
+    - cron: "20 1 4 7 *"    # M87 · 3 jul 21:30 ET
+    - cron: "50 16 4 7 *"   # M90 · 4 jul 13:00 ET
+    - cron: "50 20 4 7 *"   # M89 · 4 jul 17:00 ET
+    - cron: "50 19 5 7 *"   # M91 · 5 jul 16:00 ET
+    - cron: "50 23 5 7 *"   # M92 · 5 jul 20:00 ET
+    - cron: "50 18 6 7 *"   # M93 · 6 jul 15:00 ET
+    - cron: "50 23 6 7 *"   # M94 · 6 jul 20:00 ET
+    - cron: "50 15 7 7 *"   # M95 · 7 jul 12:00 ET
+    - cron: "50 19 7 7 *"   # M96 · 7 jul 16:00 ET
+    - cron: "50 19 9 7 *"   # M97 · 9 jul 16:00 ET (quartos)
+    - cron: "50 18 10 7 *"  # M98 · 10 jul 15:00 ET (quartos)
+    - cron: "50 20 11 7 *"  # M100 · 11 jul 17:00 ET (quartos)
+    - cron: "50 0 12 7 *"   # M99 · 11 jul 21:00 ET (quartos)
+    - cron: "50 18 14 7 *"  # M101 · 14 jul 15:00 ET (meia-final)
+    - cron: "50 18 15 7 *"  # M102 · 15 jul 15:00 ET (meia-final)
+    - cron: "50 20 18 7 *"  # M103 · 18 jul 17:00 ET (3.º/4.º lugar)
+    - cron: "50 18 19 7 *"  # M104 · 19 jul 15:00 ET (final)
+
+    # 3h depois do kickoff (90min + intervalo/descontos + folga para prolongamento/
+    # penáltis) — atualiza o mercado de campeão após a eliminação. Jogos raríssimos
+    # com atraso adicional podem ainda assim escapar; apanham a corrida seguinte.
+    - cron: "0 19 1 7 *"    # M80 · depois
+    - cron: "0 23 1 7 *"    # M82 · depois
+    - cron: "0 3 2 7 *"     # M81 · depois
+    - cron: "0 22 2 7 *"    # M84 · depois
+    - cron: "0 2 3 7 *"     # M83 · depois
+    - cron: "0 6 3 7 *"     # M85 · depois
+    - cron: "0 21 3 7 *"    # M88 · depois
+    - cron: "0 1 4 7 *"     # M86 · depois
+    - cron: "30 4 4 7 *"    # M87 · depois
+    - cron: "0 20 4 7 *"    # M90 · depois
+    - cron: "0 0 5 7 *"     # M89 · depois
+    - cron: "0 23 5 7 *"    # M91 · depois
+    - cron: "0 3 6 7 *"     # M92 · depois
+    - cron: "0 22 6 7 *"    # M93 · depois
+    - cron: "0 3 7 7 *"     # M94 · depois
+    - cron: "0 19 7 7 *"    # M95 · depois
+    - cron: "0 23 7 7 *"    # M96 · depois
+    - cron: "0 23 9 7 *"    # M97 · depois
+    - cron: "0 22 10 7 *"   # M98 · depois
+    - cron: "0 0 12 7 *"    # M100 · depois
+    - cron: "0 4 12 7 *"    # M99 · depois
+    - cron: "0 22 14 7 *"   # M101 · depois
+    - cron: "0 22 15 7 *"   # M102 · depois
+    - cron: "0 0 19 7 *"    # M103 · depois
+    - cron: "0 22 19 7 *"   # M104 · depois
+
   workflow_dispatch: {}    # permite correr manualmente no separador Actions
 
 jobs:
