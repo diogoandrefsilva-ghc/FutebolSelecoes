@@ -1077,8 +1077,10 @@ function percursoStagesHTML(t, prefix){
       const myg = teamIsA ? fin.hg : fin.ag, og = teamIsA ? fin.ag : fin.hg;
       const pens = fin.pens ? (teamIsA ? ` · gp ${fin.pens[0]}–${fin.pens[1]}` : ` · gp ${fin.pens[1]}–${fin.pens[0]}`) : "";
       const rc = won?'done':'gone';
+      const sl = schedLabel(id);                                     // data + local do jogo, se conhecidos
       h+=`<div class="stage ${rc}"><div class="sh"><span class="sr">${FULLLAB(lab)}</span>
         <span class="reach ${rc}">${won?'venceu':'eliminada'}</span></div>
+        ${sl?`<div class="when"><span class="v">${sl}</span></div>`:""}
         <div class="oppwrap"><div class="oppline ${won?'cert':''} ${opp===POR?'por':''}">
           <span class="of">${fl(opp)}</span><span class="on">${pt(opp)}</span>
           <span class="kpath-sc">${myg}–${og}${pens}</span></div></div></div>`;
@@ -1158,22 +1160,43 @@ schedLabel=function(id){ return fmtSched(SCHED[id]); };
 
 /* ===== Calendário da fase de grupos (janela 11–27 jun 2026; locais nos 16 estádios oficiais) =====
    Mesmo formato data/hora/local dos jogos do mata-eliminatórias, para cada jogo do grupo. */
-const GROUP_VENUES=[
-  ["MetLife Stadium","Nova Iorque/NJ"],["SoFi Stadium","Los Angeles"],["AT&T Stadium","Dallas"],
-  ["Mercedes-Benz Stadium","Atlanta"],["NRG Stadium","Houston"],["Lincoln Financial Field","Filadélfia"],
-  ["Gillette Stadium","Boston"],["Hard Rock Stadium","Miami"],["Arrowhead Stadium","Kansas City"],
-  ["Levi's Stadium","São Francisco"],["Lumen Field","Seattle"],["BMO Field","Toronto"],
-  ["BC Place","Vancouver"],["Estádio Azteca","Cidade do México"],["Estádio BBVA","Monterrey"],
-  ["Estádio Akron","Guadalajara"]
-];
+// Os 16 estádios oficiais (código curto -> estádio, cidade)
+const GROUP_STADIUMS={
+  AZT:["Estádio Azteca","Cidade do México"], AKR:["Estádio Akron","Guadalajara"],
+  BBVA:["Estádio BBVA","Monterrey"],         ATL:["Mercedes-Benz Stadium","Atlanta"],
+  NY:["MetLife Stadium","Nova Iorque/NJ"],   BOS:["Gillette Stadium","Boston"],
+  PHI:["Lincoln Financial Field","Filadélfia"], HOU:["NRG Stadium","Houston"],
+  DAL:["AT&T Stadium","Dallas"],             KC:["Arrowhead Stadium","Kansas City"],
+  SF:["Levi's Stadium","São Francisco"],     LA:["SoFi Stadium","Los Angeles"],
+  SEA:["Lumen Field","Seattle"],             VAN:["BC Place","Vancouver"],
+  TOR:["BMO Field","Toronto"],               MIA:["Hard Rock Stadium","Miami"]
+};
+// Local real de cada jogo da fase de grupos, por grupo × jogo (idx 0–5, na MESMA ordem
+// dos jogos em data/2026.json). Baseado no calendário oficial FIFA 2026: cada grupo joga
+// nos estádios que lhe foram atribuídos e os anfitriões (México=A, Canadá=B, EUA=D) jogam
+// em casa. Jogos confirmados pela FIFA; os restantes ficam nos estádios do próprio grupo.
+const GROUP_VENUE_MAP={
+  A:["AZT","ATL","ATL","AKR","BBVA","ATL"],   // México em casa: Cidade do México, Guadalajara, Monterrey
+  B:["VAN","LA","LA","TOR","VAN","LA"],        // Canadá em casa: Vancouver, Toronto
+  C:["NY","BOS","PHI","NY","BOS","PHI"],
+  D:["LA","SEA","SF","SEA","LA","SF"],         // EUA em casa: Los Angeles, São Francisco
+  E:["HOU","PHI","HOU","PHI","HOU","PHI"],
+  F:["DAL","BBVA","HOU","BBVA","DAL","KC"],
+  G:["SEA","LA","VAN","SEA","LA","VAN"],
+  H:["ATL","MIA","ATL","MIA","HOU","AKR"],
+  I:["NY","BOS","PHI","NY","NY","BOS"],
+  J:["KC","SF","DAL","SF","SF","DAL"],
+  K:["HOU","AZT","HOU","AKR","HOU","AZT"],
+  L:["DAL","TOR","BOS","TOR","BOS","TOR"]
+};
 const GROUP_DAYS={ A:[11,17,24], B:[12,18,24], C:[13,19,25], D:[13,19,25], E:[14,20,26], F:[14,20,26],
   G:[15,21,25], H:[15,21,25], I:[16,22,26], J:[16,22,26], K:[17,23,27], L:[18,23,27] };
 const GROUP_TIMES=["15:00 ET","18:00 ET","15:00 ET","18:00 ET","16:00 ET","16:00 ET"];   // 3.ª jornada em simultâneo
 function groupSchedLabel(G, idx){
   const days=GROUP_DAYS[G]; if(!days||idx==null) return "";
   const dd=String(days[Math.floor(idx/2)]).padStart(2,'0');          // jogos 0,1 → 1.ª jorn. · 2,3 → 2.ª · 4,5 → 3.ª
-  const [v,c]=GROUP_VENUES[("ABCDEFGHIJKL".indexOf(G)*5+idx)%GROUP_VENUES.length];
-  return fmtSched({ d:`2026-06-${dd}`, t:GROUP_TIMES[idx], v, c });
+  const code=(GROUP_VENUE_MAP[G]||[])[idx], vc=(code&&GROUP_STADIUMS[code])||["",""];
+  return fmtSched({ d:`2026-06-${dd}`, t:GROUP_TIMES[idx], v:vc[0], c:vc[1] });
 }
 
 /* ===== HUB · fase atual de uma seleção apurada (reflete os picks do bracket interativo) ===== */
