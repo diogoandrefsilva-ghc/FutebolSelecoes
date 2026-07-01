@@ -1,9 +1,9 @@
 /* Service worker — Seleções: Mundiais & Euros (cache-first com atualização em rede) */
-const CACHE = "selecoes-v20";
+const CACHE = "selecoes-v21";
 const ASSETS = [
   "./",
   "./index.html",
-  "./live2026.js?v=20",
+  "./live2026.js?v=21",
   "./manifest.webmanifest",
   "./icon.svg",
   "./data/2026.json",

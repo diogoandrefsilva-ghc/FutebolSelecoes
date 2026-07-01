@@ -797,7 +797,18 @@ function koAdvanceProb(id){
   const ov=matchAdvanceProb(id); if(ov) return ov;
   const pa=pWin(A,B); return {a:pa, b:1-pa};
 }
-function koSide(id, side, S, both, pick, score, isWin, locked, hasScore, pen, prob){
+// nome mais provável a sair de uma fonte por decidir (previsão em cadeia até às vagas reais):
+// resolve cada ramo pelo lado mais forte (odds de campeão -> ranking); vagas de grupos em aberto
+// não se preveem (ficam "A definir" até os grupos fecharem)
+function predictSrc(src){
+  const r=resolveSrc(src); if(r.name) return r.name;
+  const q=src.split(":"), k=q[0], id=q[1];
+  if(k!=="win"&&k!=="lose") return null;
+  const A=predictSrc(ALLDEF[id][0]), B=predictSrc(ALLDEF[id][1]);
+  if(!A||!B) return null;
+  return (k==="win")===(pWin(A,B)>=0.5) ? A : B;
+}
+function koSide(id, side, S, both, pick, score, isWin, locked, hasScore, pen, prob, ghost){
   const isPick=pick===side, isDim=pick&&pick!==side, por=S.name===POR;
   const cls=["koteam"];
   if(!S.name) cls.push("tbd");
@@ -805,8 +816,9 @@ function koSide(id, side, S, both, pick, score, isWin, locked, hasScore, pen, pr
   if(isDim)  cls.push("dim");
   if(por)    cls.push("por");
   if(isWin)  cls.push("kowin");           // vencedor real trancado
-  const nm = S.name? pt(S.name) : (S.ph||S.tag||"A definir");
-  const flg= S.name? fl(S.name) : "·";
+  if(!S.name&&ghost) cls.push("ghost");   // previsão: mostra a equipa provável, desvanecida
+  const nm = S.name? pt(S.name) : (ghost? pt(ghost) : (S.ph||S.tag||"A definir"));
+  const flg= S.name? fl(S.name) : (ghost? fl(ghost) : "·");
   const hasProb = Number.isFinite(prob) && !hasScore && !!S.name;   // % de avançar (só jogos por disputar)
   // a posição do grupo só faz sentido enquanto o jogo não tem resultado nem prob. à direita
   const tag= (S.name&&S.tag&&!hasScore&&!hasProb)? `<span class="src">${S.tag}</span>` : "";
@@ -831,9 +843,11 @@ function koCard(id){
   const cls=["ko"]; if(haspor)cls.push("haspor"); if(champ)cls.push("champ");
   if(state==="in")cls.push("inplay"); if(fin)cls.push("locked");
   const adv = both ? koAdvanceProb(id) : null;            // % de avançar (jogos por disputar)
+  const gA = A.name? null : predictSrc(def[0]);           // vagas por decidir: equipa provável (previsão)
+  const gB = B.name? null : predictSrc(def[1]);
   return `<div class="${cls.join(' ')}">
     <div class="jno"><span>JOGO ${num}</span>${chip}${corner}</div>
-    <div class="teams">${koSide(id,'a',A,both,pick,sc?sc.hg:null,winner&&winner===A.name,!!fin,!!sc, sc&&sc.pens?sc.pens[0]:null, adv?adv.a:null)}${koSide(id,'b',B,both,pick,sc?sc.ag:null,winner&&winner===B.name,!!fin,!!sc, sc&&sc.pens?sc.pens[1]:null, adv?adv.b:null)}</div></div>`;
+    <div class="teams">${koSide(id,'a',A,both,pick,sc?sc.hg:null,winner&&winner===A.name,!!fin,!!sc, sc&&sc.pens?sc.pens[0]:null, adv?adv.a:null, gA)}${koSide(id,'b',B,both,pick,sc?sc.ag:null,winner&&winner===B.name,!!fin,!!sc, sc&&sc.pens?sc.pens[1]:null, adv?adv.b:null, gB)}</div></div>`;
 }
 function renderKnockout(){
   let cols="";
