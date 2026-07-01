@@ -1171,32 +1171,31 @@ const GROUP_STADIUMS={
   SEA:["Lumen Field","Seattle"],             VAN:["BC Place","Vancouver"],
   TOR:["BMO Field","Toronto"],               MIA:["Hard Rock Stadium","Miami"]
 };
-// Local real de cada jogo da fase de grupos, por grupo × jogo (idx 0–5, na MESMA ordem
-// dos jogos em data/2026.json). Baseado no calendário oficial FIFA 2026: cada grupo joga
-// nos estádios que lhe foram atribuídos e os anfitriões (México=A, Canadá=B, EUA=D) jogam
-// em casa. Jogos confirmados pela FIFA; os restantes ficam nos estádios do próprio grupo.
-const GROUP_VENUE_MAP={
-  A:["AZT","ATL","ATL","AKR","BBVA","ATL"],   // México em casa: Cidade do México, Guadalajara, Monterrey
-  B:["VAN","LA","LA","TOR","VAN","LA"],        // Canadá em casa: Vancouver, Toronto
-  C:["NY","BOS","PHI","NY","BOS","PHI"],
-  D:["LA","SEA","SF","SEA","LA","SF"],         // EUA em casa: Los Angeles, São Francisco
-  E:["HOU","PHI","HOU","PHI","HOU","PHI"],
-  F:["DAL","BBVA","HOU","BBVA","DAL","KC"],
-  G:["SEA","LA","VAN","SEA","LA","VAN"],
-  H:["ATL","MIA","ATL","MIA","HOU","AKR"],
-  I:["NY","BOS","PHI","NY","NY","BOS"],
-  J:["KC","SF","DAL","SF","SF","DAL"],
-  K:["HOU","AZT","HOU","AKR","HOU","AZT"],
-  L:["DAL","TOR","BOS","TOR","BOS","TOR"]
+// Calendário real da fase de grupos (FIFA 2026), por grupo × jogo (idx 0–5, na MESMA ordem
+// dos jogos em data/2026.json): [dia (junho, HORA DE PORTUGAL), código do estádio, hora PT].
+// Datas/horas de Portugal e locais oficiais da tabela FIFA (jogos noturnos ET aparecem no dia
+// seguinte em PT — daí, p.ex., Colômbia×Portugal a 28 jun 00h30).
+const GROUP_SCHED={
+  A:[[11,"AZT","20:00"],[12,"AKR","03:00"],[18,"ATL","17:00"],[19,"AKR","02:00"],[25,"AZT","02:00"],[25,"BBVA","02:00"]],
+  B:[[12,"TOR","20:00"],[13,"SF","22:00"],[18,"LA","20:00"],[18,"VAN","23:00"],[24,"VAN","20:00"],[24,"SEA","20:00"]],
+  C:[[13,"NY","23:00"],[14,"BOS","02:00"],[19,"BOS","23:00"],[20,"PHI","01:30"],[24,"MIA","23:00"],[24,"ATL","23:00"]],
+  D:[[13,"LA","02:00"],[13,"VAN","05:00"],[19,"SEA","20:00"],[19,"SF","04:00"],[26,"LA","03:00"],[26,"SF","03:00"]],
+  E:[[14,"HOU","18:00"],[15,"PHI","00:00"],[20,"TOR","21:00"],[21,"KC","01:00"],[25,"PHI","21:00"],[25,"NY","21:00"]],
+  F:[[14,"DAL","21:00"],[15,"BBVA","03:00"],[20,"HOU","18:00"],[21,"BBVA","03:00"],[26,"DAL","00:00"],[26,"KC","00:00"]],
+  G:[[15,"SEA","20:00"],[16,"LA","02:00"],[21,"LA","20:00"],[22,"VAN","02:00"],[27,"SEA","04:00"],[27,"VAN","04:00"]],
+  H:[[15,"ATL","17:00"],[15,"MIA","23:00"],[21,"ATL","17:00"],[21,"MIA","23:00"],[27,"HOU","01:00"],[27,"AKR","01:00"]],
+  I:[[16,"NY","20:00"],[16,"BOS","23:00"],[22,"PHI","22:00"],[23,"NY","01:00"],[26,"BOS","20:00"],[26,"TOR","20:00"]],
+  J:[[17,"KC","02:00"],[17,"SF","05:00"],[22,"DAL","18:00"],[23,"SF","04:00"],[28,"KC","03:00"],[28,"DAL","02:00"]],
+  K:[[17,"HOU","18:00"],[18,"AZT","01:00"],[23,"HOU","18:00"],[24,"AKR","03:00"],[28,"MIA","00:30"],[28,"ATL","00:30"]],
+  L:[[17,"DAL","21:00"],[18,"TOR","00:00"],[23,"BOS","21:00"],[24,"TOR","00:00"],[27,"NY","22:00"],[27,"PHI","22:00"]]
 };
-const GROUP_DAYS={ A:[11,17,24], B:[12,18,24], C:[13,19,25], D:[13,19,25], E:[14,20,26], F:[14,20,26],
-  G:[15,21,25], H:[15,21,25], I:[16,22,26], J:[16,22,26], K:[17,23,27], L:[18,23,27] };
-const GROUP_TIMES=["15:00 ET","18:00 ET","15:00 ET","18:00 ET","16:00 ET","16:00 ET"];   // 3.ª jornada em simultâneo
 function groupSchedLabel(G, idx){
-  const days=GROUP_DAYS[G]; if(!days||idx==null) return "";
-  const dd=String(days[Math.floor(idx/2)]).padStart(2,'0');          // jogos 0,1 → 1.ª jorn. · 2,3 → 2.ª · 4,5 → 3.ª
-  const code=(GROUP_VENUE_MAP[G]||[])[idx], vc=(code&&GROUP_STADIUMS[code])||["",""];
-  return fmtSched({ d:`2026-06-${dd}`, t:GROUP_TIMES[idx], v:vc[0], c:vc[1] });
+  const row=(GROUP_SCHED[G]||[])[idx]; if(!row||idx==null) return "";
+  const [day,code,time]=row, vc=(code&&GROUP_STADIUMS[code])||["",""];
+  const dt=new Date(Date.UTC(2026,5,day,12,0,0));                     // dia de junho em PT (mês 5 = junho)
+  const wd=WEEKDAYS_PT[dt.getUTCDay()];
+  const tt=time?` · ${time.replace(":","h")} (PT)`:"";
+  return `${wd}, ${day} ${MONTHS_PT[5]}${tt} · ${vc[0]}, ${vc[1]}`;   // ex.: "dom, 28 jun · 00h30 (PT) · Hard Rock Stadium, Miami"
 }
 
 /* ===== HUB · fase atual de uma seleção apurada (reflete os picks do bracket interativo) ===== */
