@@ -191,10 +191,21 @@
   /* ---- PLAYOFFS / BRACKET ---- */
   .bracket-hint{color:var(--dim);font-size:11.5px;margin:2px 0 10px;display:flex;align-items:center;gap:6px}
   .bracket-hint .k{color:var(--cyan)}
+  /* seletor de rondas (a "janela" de 2 chips ativos = rondas visíveis, como na app da Apple) */
+  .brnav{display:flex;gap:5px;margin:2px 0 12px}
+  .brnav button{flex:1;appearance:none;border:1px solid var(--line2);background:var(--panel2);color:var(--mut);
+    font-family:Inter,sans-serif;font-weight:600;font-size:11px;padding:6px 2px;border-radius:9px;cursor:pointer;min-height:32px}
+  .brnav button.active{background:var(--lime);color:var(--on-accent);border-color:var(--lime)}
+  .brnav button:focus-visible{outline:3px solid var(--cyan);outline-offset:2px}
   .bracket-scroll{overflow-x:auto;overflow-y:hidden;-webkit-overflow-scrolling:touch;padding:2px 2px 14px;
                   scrollbar-width:thin}
+  /* paginação à Apple Sports: o scroll encaixa ronda a ronda; o contentor é um container
+     query para as colunas se dimensionarem a "2 rondas por ecrã" */
+  .bracket-scroll.snap{scroll-snap-type:x mandatory;container-type:inline-size}
   .bracket{display:flex;gap:24px;min-width:856px;--slot:72px}
+  .bracket.fit{min-width:0}
   .col{display:flex;flex-direction:column;flex:0 0 152px}
+  .bracket.fit .col{flex-basis:max(152px,calc((100cqi - 24px)/2));scroll-snap-align:start}
   .chead{height:30px;flex:0 0 30px;display:flex;align-items:center;justify-content:center;margin-bottom:8px;
          font-family:Inter,sans-serif;font-size:11px;letter-spacing:1px;color:var(--cyan);
          text-transform:uppercase;border-bottom:1px solid var(--line)}
@@ -1129,20 +1140,29 @@ function renderBracket(){
   const tp=ko.third
     ? `<div class="thirdplace"><div class="tp-h">Disputa do 3.º / 4.º lugar</div>${koCardClosed(Object.assign({id:"TP",round:"3.º/4.º"}, ko.third), "3.º/4.º lugar")}</div>`
     : "";
-  box.innerHTML=`<div class="bracket-hint"><span class="k">↔</span> Arrasta para o lado para veres o quadro todo</div>
-    <div class="bracket-scroll"><div class="bracket${fit?' fit':''}">${cols}</div></div>${champ}${tp}`;
+  box.innerHTML=`${fit?bracketNavHTML(ko.rounds.map(r=>r.short))
+      :`<div class="bracket-hint"><span class="k">↔</span> Arrasta para o lado para veres o quadro todo</div>`}
+    <div class="bracket-scroll${fit?' snap':''}"><div class="bracket${fit?' fit':''}">${cols}</div></div>${champ}${tp}`;
 }
 
-/* zoom do quadro: por cada coluna que sai do ecrã ao arrastar para a direita, o slot vertical
-   cai para metade — a coluna que fica encostada à esquerda mantém os cartões sem sobreposição
-   (slot × span >= 72px) e as rondas seguintes aproximam-se; ao recuar, o slot volta a duplicar. */
+/* seletor de rondas por cima do quadro: os 2 chips acesos são as rondas em ecrã ("janela") */
+function bracketNavHTML(names){
+  return `<div class="brnav" role="tablist" aria-label="Ronda do quadro">${names.map((nm,i)=>
+    `<button data-bri="${i}" role="tab" aria-selected="${i<2}" class="${i<2?'active':''}">${nm}</button>`).join("")}</div>`;
+}
+/* zoom do quadro: mostram-se 2 rondas por página (scroll-snap); por cada página avançada o
+   slot vertical cai para metade — a ronda encostada à esquerda mantém os cartões sem
+   sobreposição (slot × span >= 72px) e as seguintes aproximam-se; ao recuar volta a duplicar. */
 function bracketZoom(sc){
   const br=sc.querySelector(".bracket.fit"); if(!br) return;
   const col=br.querySelector(".col"); if(!col) return;
   const step=col.offsetWidth+24;                                  // largura da coluna + gap
   const n=br.querySelectorAll(".col").length;
-  const idx=Math.min(n-1, Math.max(0, Math.floor((sc.scrollLeft+2)/step)));
+  const idx=Math.min(Math.max(0,n-2), Math.max(0, Math.floor((sc.scrollLeft+6)/step)));
   br.style.setProperty("--slot",(72/Math.pow(2,idx))+"px");
+  const nav=sc.parentElement&&sc.parentElement.querySelector(".brnav");
+  if(nav) [...nav.children].forEach((b,i)=>{ const on=i===idx||i===idx+1;
+    b.classList.toggle("active",on); b.setAttribute("aria-selected",on); });
 }
 // o scroll não borbulha -> escuta em captura no contentor, sobrevive a re-renders (live e estático)
 (function(){
@@ -1152,6 +1172,14 @@ function bracketZoom(sc){
     const t=e.target; if(!t.classList||!t.classList.contains("bracket-scroll")) return;
     if(!raf) raf=requestAnimationFrame(()=>{ raf=0; bracketZoom(t); });
   },true);
+  box.addEventListener("click",e=>{
+    const b=e.target.closest(".brnav button"); if(!b) return;
+    const sc=box.querySelector(".bracket-scroll"), br=sc&&sc.querySelector(".bracket.fit"); if(!br) return;
+    const col=br.querySelector(".col"); if(!col) return;
+    const idx=Math.min(+b.dataset.bri, Math.max(0, br.querySelectorAll(".col").length-2));
+    sc.scrollTo({left:idx*(col.offsetWidth+24), behavior:"smooth"});
+  });
+  window.addEventListener("resize",()=>{ const sc=box.querySelector(".bracket-scroll.snap"); if(sc) bracketZoom(sc); });
 })();
 
 /* ===================== RENDER: LISTA DE JOGOS (só playoffs) ===================== */

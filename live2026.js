@@ -854,8 +854,8 @@ function renderKnockout(){
   // guarda o scroll horizontal e repõe-no (com o zoom certo) antes do próximo paint
   const prev=box.querySelector(".bracket-scroll"), sl=prev?prev.scrollLeft:0;
   box.innerHTML =
-    `<div class="bracket-hint"><span class="k">↔</span> Arrasta para o lado para veres o quadro todo</div>
-     <div class="bracket-scroll"><div class="bracket fit">${cols}</div></div>
+    `${typeof bracketNavHTML==="function" ? bracketNavHTML(COLS.map(c=>c.name)) : ""}
+     <div class="bracket-scroll snap"><div class="bracket fit">${cols}</div></div>
      ${champ}${tp}`;
   if(sl){ const sc=box.querySelector(".bracket-scroll"); sc.scrollLeft=sl;
           if(typeof bracketZoom==="function") bracketZoom(sc); }
