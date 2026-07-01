@@ -193,7 +193,7 @@
   .bracket-hint .k{color:var(--cyan)}
   .bracket-scroll{overflow-x:auto;overflow-y:hidden;-webkit-overflow-scrolling:touch;padding:2px 2px 14px;
                   scrollbar-width:thin}
-  .bracket{display:flex;gap:24px;min-width:856px}
+  .bracket{display:flex;gap:24px;min-width:856px;--slot:72px}
   .col{display:flex;flex-direction:column;flex:0 0 152px}
   .chead{height:30px;flex:0 0 30px;display:flex;align-items:center;justify-content:center;margin-bottom:8px;
          font-family:Inter,sans-serif;font-size:11px;letter-spacing:1px;color:var(--cyan);
@@ -203,6 +203,12 @@
      Todas as colunas ficam com a mesma altura (stretch) -> conectores continuam alinhados. */
   .games{flex:1 1 auto;display:flex;flex-direction:column}
   .gw{flex:1 0 72px;display:flex;align-items:center;position:relative}
+  /* modo "fit" (rondas que dividem 16/8/4/2/1): cada jogo ocupa --span slots de --slot px.
+     Ao arrastar para as rondas finais, o slot cai para metade por coluna que sai do ecrã
+     (ver bracketZoom) -> a distância vertical encurta e quartos/meias/final cabem à vista;
+     ao recuar, volta a crescer. Os conectores (% da altura do .gw) acompanham sozinhos. */
+  .bracket.fit .gw{flex:0 0 calc(var(--slot)*var(--span,1));min-height:0;transition:flex-basis .3s ease}
+  @media (prefers-reduced-motion:reduce){.bracket.fit .gw{transition:none}}
   .gw .ko{width:100%}
   /* conectores: cada par liga-se ao jogo seguinte (largura = metade do gap das colunas) */
   .col:not(:last-child) .gw:nth-child(odd)::after{
@@ -631,7 +637,7 @@
 <!-- Módulo live do 2026: Anexo C (emparelhamento dos 16-avos), quadro interativo,
      simulação Monte Carlo do percurso e live ESPN. (Caveat: o Anexo C herdado assume
      8 grupos; rever para os 12 grupos do formato de 48 num próximo torneio.) -->
-<script src="live2026.js?v=17"></script>
+<script src="live2026.js?v=18"></script>
 <script>
 "use strict";
 /* =====================================================================
@@ -1105,12 +1111,16 @@ function renderBracket(){
   reset.style.display="none";
   if(!ED.knockout){ box.innerHTML=`<div class="deferred">Sem dados do quadro para esta edição.</div>`; return; }
   const ko=ED.knockout, ord=bracketOrder(ko);
+  // modo "fit" só quando cada ronda tem metade dos jogos da anterior (16/8/4/2/1…):
+  // permite dar a cada jogo uma altura fixa em slots e ativar o zoom por scroll (bracketZoom)
+  const counts=ord.map(ids=>ids.filter(id=>ko.ties[id]).length);
+  const fit=counts.length>1 && counts.every((c,i)=> i===0 ? c>0 : counts[i-1]===c*2);
   let cols="", gameNo=0;
   ko.rounds.forEach((r,ri)=>{
     let games="";
     for(const id of ord[ri]){ const t=ko.ties[id]; if(t){ gameNo++;
       games+=`<div class="gw">${koCardClosed(Object.assign({id,round:r.short}, t), "Jogo "+gameNo)}</div>`; } }
-    cols+=`<div class="col"><div class="chead">${r.short}</div><div class="games">${games}</div></div>`;
+    cols+=`<div class="col"${fit?` style="--span:${counts[0]/counts[ri]}"`:""}><div class="chead">${r.short}</div><div class="games">${games}</div></div>`;
   });
   const champ=ED.champion
     ? `<div class="champ-banner"><span class="cup">🏆</span><span class="fl">${fl(ED.champion)}</span>
@@ -1120,8 +1130,29 @@ function renderBracket(){
     ? `<div class="thirdplace"><div class="tp-h">Disputa do 3.º / 4.º lugar</div>${koCardClosed(Object.assign({id:"TP",round:"3.º/4.º"}, ko.third), "3.º/4.º lugar")}</div>`
     : "";
   box.innerHTML=`<div class="bracket-hint"><span class="k">↔</span> Arrasta para o lado para veres o quadro todo</div>
-    <div class="bracket-scroll"><div class="bracket">${cols}</div></div>${champ}${tp}`;
+    <div class="bracket-scroll"><div class="bracket${fit?' fit':''}">${cols}</div></div>${champ}${tp}`;
 }
+
+/* zoom do quadro: por cada coluna que sai do ecrã ao arrastar para a direita, o slot vertical
+   cai para metade — a coluna que fica encostada à esquerda mantém os cartões sem sobreposição
+   (slot × span >= 72px) e as rondas seguintes aproximam-se; ao recuar, o slot volta a duplicar. */
+function bracketZoom(sc){
+  const br=sc.querySelector(".bracket.fit"); if(!br) return;
+  const col=br.querySelector(".col"); if(!col) return;
+  const step=col.offsetWidth+24;                                  // largura da coluna + gap
+  const n=br.querySelectorAll(".col").length;
+  const idx=Math.min(n-1, Math.max(0, Math.floor((sc.scrollLeft+2)/step)));
+  br.style.setProperty("--slot",(72/Math.pow(2,idx))+"px");
+}
+// o scroll não borbulha -> escuta em captura no contentor, sobrevive a re-renders (live e estático)
+(function(){
+  const box=document.getElementById("knockout"); if(!box) return;
+  let raf=0;
+  box.addEventListener("scroll",e=>{
+    const t=e.target; if(!t.classList||!t.classList.contains("bracket-scroll")) return;
+    if(!raf) raf=requestAnimationFrame(()=>{ raf=0; bracketZoom(t); });
+  },true);
+})();
 
 /* ===================== RENDER: LISTA DE JOGOS (só playoffs) ===================== */
 // uma linha de jogo (casa | resultado | fora); winner força o destaque (penáltis incluídos)
