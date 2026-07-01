@@ -837,21 +837,28 @@ function koCard(id){
 }
 function renderKnockout(){
   let cols="";
-  for(const c of COLS){
+  COLS.forEach((c,ci)=>{
     let games="";
     for(const id of c.ids) games+=`<div class="gw">${koCard(id)}</div>`;
-    cols+=`<div class="col"><div class="chead">${c.name}</div><div class="games">${games}</div></div>`;
-  }
+    // --span: nº de slots verticais por jogo (1,2,4,8,16) — usado pelo zoom do quadro (bracketZoom)
+    cols+=`<div class="col" style="--span:${Math.pow(2,ci)}"><div class="chead">${c.name}</div><div class="games">${games}</div></div>`;
+  });
   const champName=matchWinner("M104");
   const champ = champName
     ? `<div class="champ-banner"><span class="cup">🏆</span><span class="fl">${fl(champName)}</span>
          <span class="cwrap"><span class="cn ${champName===POR?'por':''}">${pt(champName)}</span><span class="ct">CAMPEÃO DO MUNDO</span></span></div>`
     : `<div class="champ-banner empty">🏆 Escolhe os vencedores até à final para coroar o campeão</div>`;
   const tp = `<div class="thirdplace"><div class="tp-h">Disputa do 3.º / 4.º lugar</div>${koCard("M103")}</div>`;
-  document.getElementById("knockout").innerHTML =
+  const box=document.getElementById("knockout");
+  // re-render (picks/live) não pode atirar o utilizador de volta ao início do quadro:
+  // guarda o scroll horizontal e repõe-no (com o zoom certo) antes do próximo paint
+  const prev=box.querySelector(".bracket-scroll"), sl=prev?prev.scrollLeft:0;
+  box.innerHTML =
     `<div class="bracket-hint"><span class="k">↔</span> Arrasta para o lado para veres o quadro todo</div>
-     <div class="bracket-scroll"><div class="bracket">${cols}</div></div>
+     <div class="bracket-scroll"><div class="bracket fit">${cols}</div></div>
      ${champ}${tp}`;
+  if(sl){ const sc=box.querySelector(".bracket-scroll"); sc.scrollLeft=sl;
+          if(typeof bracketZoom==="function") bracketZoom(sc); }
 }
 
 
