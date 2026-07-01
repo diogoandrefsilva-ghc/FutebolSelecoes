@@ -456,6 +456,10 @@
   .teamhero .finalclass.win{border-color:var(--gold);color:var(--gold)}
   .teamhero .finalclass.out{border-color:var(--red);color:var(--red)}
   .teamhero .finalclass.live{border-color:var(--cyan);color:var(--cyan)}
+  /* Histórico: destaque dourado para títulos + dot verde da linha do tempo */
+  .stage .reach.champ{color:var(--gold);border-color:var(--gold)}
+  #teamHistory .stage.done::before{background:var(--gold);border-color:var(--gold)}
+  #teamHistory .when .v.champ{color:var(--gold);font-weight:700}
   /* adversários: top 3 + expandir os restantes */
   .oppdetails{margin-top:5px}
   .oppdetails > summary{list-style:none;cursor:pointer;font-size:11.5px;font-weight:600;color:var(--cyan);
@@ -549,6 +553,7 @@
       <button class="tab active" data-tab="percurso">Percurso</button>
       <button class="tab" data-tab="grupos">Grupos</button>
       <button class="tab" data-tab="quadro">Playoffs</button>
+      <button class="tab" data-tab="historico">Histórico</button>
     </nav>
   </header>
 
@@ -581,6 +586,10 @@
 
       <div class="oddsfooter" id="oddsFooterQuadro"></div>
     </section>
+
+    <section class="panel" id="p-historico">
+      <div id="teamHistory"></div>
+    </section>
   </main>
 
   <footer id="footer"></footer>
@@ -588,7 +597,7 @@
 <!-- Módulo live do 2026: Anexo C (emparelhamento dos 16-avos), quadro interativo,
      simulação Monte Carlo do percurso e live ESPN. (Caveat: o Anexo C herdado assume
      8 grupos; rever para os 12 grupos do formato de 48 num próximo torneio.) -->
-<script src="live2026.js?v=12"></script>
+<script src="live2026.js?v=13"></script>
 <script>
 "use strict";
 /* =====================================================================
@@ -667,6 +676,7 @@ let SEL_TEAM = null;  // seleção escolhida no Percurso
 let PICKS = {};       // escolhas no quadro interativo (edições live) — reservado p/ módulo live
 // registo global de seleções (todas as que participaram em qualquer edição dos dados)
 let REGISTRY = { teams:{}, editions:{} };   // {teams:{nome:{pt,flag}}, editions:{nome:[edId,...]}}
+let EDITION_DATA = {};   // cache das fichas completas de cada edição (para o Histórico cruzar competições)
 
 /* ===================== HELPERS DE EQUIPA ===================== */
 const team = n => (ED && ED.teams && ED.teams[n]) || REGISTRY.teams[n] || null;
@@ -684,6 +694,7 @@ async function buildRegistry(){
   if(Object.keys(REGISTRY.teams).length) return;
   await Promise.all(EDITIONS.map(async e=>{
     try{ const r=await fetch(`data/${e.id}.json`,{cache:"force-cache"}); if(!r.ok) return; const d=await r.json();
+      EDITION_DATA[e.id]=d;   // guarda a ficha completa para o separador Histórico
       for(const n in d.teams){ if(!REGISTRY.teams[n]) REGISTRY.teams[n]=d.teams[n]; (REGISTRY.editions[n]=REGISTRY.editions[n]||[]).push(e.id); }
     }catch(_){}
   }));
@@ -811,7 +822,7 @@ function teamOptions(sel){
   const names = Object.keys(reg).sort((a,b)=>(reg[a].pt||a).localeCompare(reg[b].pt||b, "pt"));
   return names.map(n=>`<option value="${n}" ${n===sel?"selected":""}>${reg[n].pt||n}</option>`).join("");
 }
-function selectTeam(v){ SEL_TEAM=v; renderPercurso(); renderGroups(); renderMatchList(); }
+function selectTeam(v){ SEL_TEAM=v; renderPercurso(); renderGroups(); renderMatchList(); renderHistory(); }
 
 // apurou-se da fase de grupos? (1.º/2.º sempre; 3.º só nas edições de 12 grupos, se for dos 8 melhores)
 function advancedFromGroup(t, ts){
@@ -930,6 +941,77 @@ function renderPercurso(){
     h+=knockoutPathHTML(t, gstage);
   }
   box.innerHTML=h;
+}
+
+/* ===================== RENDER: HISTÓRICO (percurso da seleção em todas as edições) ===================== */
+// corre `fn` com `edObj` como edição ativa e repõe a edição original (síncrono -> seguro)
+function withEdition(edObj, fn){
+  const saved=ED; ED=edObj;
+  try{ return fn(); } finally{ ED=saved; }
+}
+// junta nomes em português: "A" · "A e B" · "A, B e C"
+function joinPt(arr){ if(arr.length<=1) return arr.join(""); return arr.slice(0,-1).join(", ")+" e "+arr[arr.length-1]; }
+// quem eliminou a seleção `t` na edição ATIVA (ED): [] se foi campeã ou ainda a decorrer
+function histEliminators(t){
+  if(ED.champion===t) return [];
+  const ties=allTies().filter(x=>x.home===t||x.away===t);
+  if(ties.length){                                   // saiu no mata-eliminatórias: adversário do último jogo perdido
+    for(let i=ties.length-1;i>=0;i--){ const tie=ties[i];
+      if(tieWinner(tie)!==t) return [tie.home===t?tie.away:tie.home]; }
+    return [];                                        // venceu todos os jogos que disputou (quadro incompleto nos dados)
+  }
+  const ts=teamStanding(t); if(!ts) return [];
+  if(advancedFromGroup(t,ts)) return [];              // apurou-se mas sem quadro (ex.: edição em curso) -> sem eliminador
+  const g=ts.group;
+  if(g.matches){                                      // fase de grupos: equipas a quem perdeu diretamente
+    const lost=[]; for(const m of g.matches){
+      if(m[0]===t && m[3]>m[2] && !lost.includes(m[1])) lost.push(m[1]);
+      else if(m[1]===t && m[2]>m[3] && !lost.includes(m[0])) lost.push(m[0]); }
+    if(lost.length) return lost;
+  }
+  const pos=ts.pos-1;                                 // sem derrotas diretas: as equipas que ficaram à frente no grupo
+  return pos>0 ? ts.table.slice(0,pos).map(r=>r.team) : [];
+}
+function renderHistory(){
+  const box=document.getElementById("teamHistory"); if(!box) return;
+  const t=SEL_TEAM;
+  setHeaderFlag(t);
+  if(!t){ box.innerHTML=`<div class="pickhint">Escolhe uma seleção para veres o histórico.</div>`; return; }
+  const favc=t===FAV;
+  const ids=(REGISTRY.editions[t]||[]).filter(id=>EDITION_DATA[id]);
+  ids.sort((a,b)=> EDITION_DATA[a].year - EDITION_DATA[b].year);   // linha do tempo (mais antigo -> mais recente)
+  const hero=`<div class="teamhero"><span class="bigfl">${fl(t)}</span>
+    <div class="meta"><div class="nm ${favc?'por':''}">${pt(t)}</div>
+      <div class="gl">Histórico em <b>${ids.length}</b> ${ids.length===1?'edição':'edições'} · Europeus e Mundiais</div></div>
+    <select class="heroSel" aria-label="Trocar de seleção" onchange="selectTeam(this.value)">${teamOptions(t)}</select>
+    <span class="heroChev" aria-hidden="true">⇄ Trocar</span></div>`;
+  if(!ids.length){ box.innerHTML=hero+`<div class="livenote"><span class="ic">📭</span><div class="tx"><b>${pt(t)}</b> não consta nos dados de nenhuma edição.</div></div>`; return; }
+  let rows="", titles=0;
+  for(const id of ids){
+    const edObj=EDITION_DATA[id], meta=EDITIONS.find(e=>e.id===id)||{};
+    const isEuroEd=(edObj.competition==="euro"||meta.comp==="euro");
+    const compTxt=isEuroEd?"Euro":"Mundial";
+    const res=withEdition(edObj,()=>{ const ts=teamStanding(t); if(!ts) return null;
+      return { fc:finalClassification(t,ts), elim:histEliminators(t) }; });
+    if(!res||!res.fc) continue;
+    const {fc,elim}=res;
+    const champ=fc.cls==="win" && /Vencedor/.test(fc.label);
+    if(champ) titles++;
+    const dot=fc.cls==="win"?"done":(fc.cls==="out"?"gone":"reachable");
+    const badge=champ?"champ":(fc.cls==="out"?"gone":(fc.cls==="win"?"done":""));
+    const note = champ
+      ? `🏆 ${isEuroEd?"campeão da Europa":"campeão do mundo"}`
+      : (elim.length ? `eliminada por ${joinPt(elim.map(x=>pt(x)))}` : "");
+    rows+=`<div class="stage ${dot}">
+      <div class="sh"><span class="sr">${compTxt} ${edObj.year}</span>
+        <span class="reach ${badge}">${fc.label}</span></div>
+      ${note?`<div class="when"><span class="v ${champ?'champ':''}">${note}</span></div>`:""}
+    </div>`;
+  }
+  const titleLine = titles>0
+    ? `<div class="livenote" style="margin:0 0 14px"><span class="ic">🏆</span><div class="tx"><b>${pt(t)}</b> — <b>${titles}</b> ${titles===1?'título':'títulos'} nestes dados.</div></div>`
+    : "";
+  box.innerHTML=hero+titleLine+`<div class="stagewrap" style="margin-top:14px">${rows}</div>`;
 }
 
 /* ===================== RENDER: QUADRO ===================== */
@@ -1094,7 +1176,7 @@ async function loadEdition(id, isInitial){
   if(!SEL_TEAM) SEL_TEAM=defaultTeamFor();
   PICKS={};
   applyEditionChrome();
-  renderGroups(); renderPercurso(); renderBracket(); renderMatchList();
+  renderGroups(); renderPercurso(); renderBracket(); renderMatchList(); renderHistory();
   if(isInitial) requestAnimationFrame(()=>setTimeout(hideSplash,150));
   else hideSwitchDim();
 }
