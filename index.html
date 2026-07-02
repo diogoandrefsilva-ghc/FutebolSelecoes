@@ -54,7 +54,7 @@
   /* ---- TABS ---- */
   /* controlo segmentado: calha única rebaixada; o separador ativo é uma "tecla" branca elevada */
   .tabs{display:flex;gap:4px;margin:9px 0 10px;padding:4px;
-        background:var(--raise);border:1px solid var(--line);border-radius:14px}
+        background:rgba(26,34,56,.05);border:1px solid rgba(26,34,56,.05);border-radius:14px}
   .tab{flex:1;appearance:none;border:0;background:transparent;color:var(--mut);
        font-family:Inter,sans-serif;font-weight:700;font-size:12.5px;line-height:1.08;padding:8px 4px;border-radius:10px;
        cursor:pointer;min-height:38px;display:flex;align-items:center;justify-content:center;text-align:center;
@@ -365,13 +365,16 @@
   .teamhero .seedtag{font-family:Inter,sans-serif;font-size:10px;font-weight:700;letter-spacing:.5px;
     border:1px solid var(--cyan);color:var(--cyan);border-radius:20px;padding:3px 9px;flex:none}
   .teamhero.out .seedtag{border-color:var(--red);color:var(--red)}
-  /* banner = seletor de seleção (combo nativa por cima, invisível) */
-  .teamhero{position:relative;cursor:pointer}
-  .teamhero .heroChev{position:absolute;right:13px;bottom:11px;color:var(--mut);font-size:13px;line-height:1;flex:none}
+  /* troca de seleção: a PRÓPRIA BANDEIRA é o botão (combo nativa invisível por cima do azulejo);
+     o mini-ícone ⇄ no canto inferior esquerdo sinaliza que é tocável */
+  .teamhero{position:relative}
+  .teamhero .bigfl{position:relative;cursor:pointer}
   .teamhero .heroSel{position:absolute;inset:0;width:100%;height:100%;opacity:0;border:0;margin:0;padding:0;
     font-size:16px;cursor:pointer;-webkit-appearance:none;appearance:none;background:transparent}
-  .teamhero .heroSel:focus-visible + .heroChev{color:var(--cyan)}
-  .teamhero:focus-within{outline:3px solid var(--cyan);outline-offset:2px;border-radius:14px}
+  .teamhero .swapdot{position:absolute;left:-6px;bottom:-6px;width:20px;height:20px;display:grid;place-items:center;
+    background:var(--lime);color:var(--on-accent);font-size:11px;font-weight:700;line-height:1;border-radius:50%;
+    border:2px solid var(--panel);box-shadow:0 2px 6px rgba(91,140,0,.35);pointer-events:none}
+  .teamhero .bigfl:focus-within{outline:3px solid var(--cyan);outline-offset:2px}
 
   /* jogos / classificação da fase de grupos no Percurso */
   .gp-h{font-family:Inter,sans-serif;font-size:11px;color:var(--mut);letter-spacing:1px;
@@ -445,17 +448,19 @@
     filter:blur(26px) saturate(1.15);opacity:0;transition:opacity .45s ease}
   .edwrap.hasflag::before{opacity:.28}
   .edwrap::after{content:"";position:absolute;inset:0;z-index:0;background:linear-gradient(180deg,rgba(244,246,251,.60),rgba(244,246,251,.28) 45%,rgba(244,246,251,.50))}
-  .edrow{position:relative;z-index:1;display:flex;gap:9px;overflow-x:auto;-webkit-overflow-scrolling:touch;padding:0 14px;scrollbar-width:none;
+  /* carrossel: a edição escolhida vive ao CENTRO; arrastar traz a vizinha para o centro e
+     seleciona-a ao assentar (scroll-snap + settle em JS); as outras desvanecem com a distância */
+  .edrow{position:relative;z-index:1;display:flex;gap:9px;overflow-x:auto;-webkit-overflow-scrolling:touch;
+    padding:0 calc(50% - 58px);scroll-snap-type:x mandatory;scrollbar-width:none;
     touch-action:pan-x;overscroll-behavior-x:contain;
-    -webkit-mask-image:linear-gradient(90deg,transparent 0,#000 14px,#000 calc(100% - 22px),transparent);
-            mask-image:linear-gradient(90deg,transparent 0,#000 14px,#000 calc(100% - 22px),transparent)}
+    -webkit-mask-image:linear-gradient(90deg,transparent 0,#000 44px,#000 calc(100% - 44px),transparent);
+            mask-image:linear-gradient(90deg,transparent 0,#000 44px,#000 calc(100% - 44px),transparent)}
   .edrow::-webkit-scrollbar{display:none}
   .edchip{flex:0 0 auto;display:flex;flex-direction:column;align-items:flex-start;gap:1px;border:1px solid var(--line2);
     background:linear-gradient(180deg,rgba(255,255,255,.86),rgba(238,241,248,.82));color:var(--txt);border-radius:14px;
     padding:6px 13px 7px;cursor:pointer;min-height:56px;min-width:90px;text-align:left;
-    box-shadow:0 1px 2px rgba(26,34,56,.06);
-    transition:transform .12s ease,border-color .12s ease,background .12s ease}
-  .edchip:active{transform:translateY(1px)}
+    box-shadow:0 1px 2px rgba(26,34,56,.06);scroll-snap-align:center;
+    transition:border-color .12s ease,background .12s ease}
   .edchip .edcomp{font-size:8.5px;font-weight:800;letter-spacing:1.1px;text-transform:uppercase;color:var(--dim);line-height:1.1}
   .edchip .edcomp.euro{color:var(--cyan)}
   .edchip .edcomp.wc{color:var(--lime)}
@@ -467,12 +472,8 @@
   .edchip.active .edyear{color:var(--lime)}
   .edchip:focus-visible{outline:3px solid var(--cyan);outline-offset:2px}
 
-  /* --- pílula "trocar seleção" no banner --- */
   .teamhero{transition:border-color .14s ease}
   .teamhero:focus-within{border-color:var(--cyan)}
-  .teamhero .heroChev{position:absolute;right:12px;bottom:11px;display:inline-flex;align-items:center;gap:5px;
-    background:var(--lime);color:var(--on-accent);font-size:11px;font-weight:800;letter-spacing:.2px;line-height:1;
-    padding:6px 11px;border-radius:20px;flex:none;box-shadow:0 4px 14px rgba(91,140,0,.22)}
 
   /* --- callout "em curso" (substitui o texto em mono do print) --- */
   .livenote{display:flex;gap:12px;align-items:flex-start;border:1px solid rgba(14,156,138,.32);border-radius:14px;
@@ -500,18 +501,18 @@
   .koteam.kowin .kosc{color:var(--lime)}
   .koteam.kowin:not(.pick) .nm{color:var(--lime)}
 
-  /* --- banner: mais baixo; estado no canto sup. direito, pílula trocar no inf. direito --- */
-  .teamhero{padding:11px 128px 11px 12px;align-items:center;min-height:76px;gap:11px}
-  /* bandeira num "azulejo" branco arredondado (em vez de emoji solto) */
+  /* --- banner: mais baixo; Histórico no canto sup. direito --- */
+  .teamhero{padding:11px 104px 11px 12px;align-items:center;min-height:76px;gap:11px}
+  /* bandeira num "azulejo" arredondado; com imagem, enche-o todo (cortada nas pontas) */
   .teamhero .bigfl{font-size:27px;width:50px;height:50px;display:grid;place-items:center;
     background:var(--panel);border:1px solid rgba(200,144,26,.35);border-radius:14px;
     box-shadow:0 2px 8px rgba(200,144,26,.14)}
+  .teamhero .bigfl.img{background-size:cover;background-position:center;background-repeat:no-repeat}
   .teamhero.out .bigfl{border-color:var(--line2);box-shadow:0 1px 3px rgba(26,34,56,.06)}
   .teamhero .nm{font-size:21px}
   .teamhero .meta{min-width:0}
   .teamhero .nm{white-space:normal;overflow-wrap:anywhere}
   .teamhero .seedtag{position:absolute;top:10px;right:12px;margin:0}
-  .teamhero .heroChev{top:auto;bottom:10px}
   /* badge da classificação final, por baixo do nome da seleção */
   .teamhero .finalclass{display:inline-block;margin-top:6px;font-family:Inter,sans-serif;font-size:10.5px;font-weight:800;
     letter-spacing:.4px;text-transform:uppercase;border:1px solid var(--line2);color:var(--mut);border-radius:20px;padding:4px 10px;line-height:1;
@@ -528,7 +529,6 @@
     border:1px solid var(--line2);background:rgba(255,255,255,.9);color:var(--txt);border-radius:20px;padding:6px 11px;line-height:1;
     box-shadow:0 1px 2px rgba(26,34,56,.06)}
   .teamhero .heroHist:hover{border-color:var(--gold);color:var(--gold)}
-  .teamhero .heroChev{bottom:11px}
   .histmodal{position:fixed;inset:0;z-index:100;display:flex;align-items:center;justify-content:center;padding:16px}
   .histmodal[hidden]{display:none}
   .histmodal-backdrop{position:absolute;inset:0;background:rgba(0,0,0,.62)}
@@ -735,10 +735,10 @@ function flagImg(key){
   const t=team(key), emoji=t&&t.flag;
   if(emoji){
     try{
-      const w=96, h=72;
+      const w=192, h=144;
       const c=document.createElement("canvas"); c.width=w; c.height=h;
       const x=c.getContext("2d");
-      x.font="64px 'Apple Color Emoji','Segoe UI Emoji','Noto Color Emoji',sans-serif";
+      x.font="128px 'Apple Color Emoji','Segoe UI Emoji','Noto Color Emoji',sans-serif";
       x.textAlign="center"; x.textBaseline="middle";
       x.fillText(emoji, w/2, h/2);
       // recorta aos limites reais da bandeira (tira as margens transparentes)
@@ -747,11 +747,16 @@ function flagImg(key){
       for(let yy=0;yy<h;yy++) for(let xx=0;xx<w;xx++){
         if(d[(yy*w+xx)*4+3]>40){ n++; if(xx<minX)minX=xx; if(xx>maxX)maxX=xx; if(yy<minY)minY=yy; if(yy>maxY)maxY=yy; }
       }
-      if(n>60 && maxX>=minX){
-        const cw=maxX-minX+1, ch=maxY-minY+1;
-        const c2=document.createElement("canvas"); c2.width=cw; c2.height=ch;
-        c2.getContext("2d").drawImage(c, minX,minY,cw,ch, 0,0,cw,ch);
-        url=c2.toDataURL("image/png");
+      if(n>240 && maxX>=minX){
+        let cw=maxX-minX+1, ch=maxY-minY+1;
+        // encolhe o recorte p/ dentro: corta a ondulação do emoji -> retângulo de cor cheio
+        const ix=Math.round(cw*.08), iy=Math.round(ch*.12);
+        const sx=minX+ix, sy=minY+iy; cw-=ix*2; ch-=iy*2;
+        if(cw>4 && ch>4){
+          const c2=document.createElement("canvas"); c2.width=cw; c2.height=ch;
+          c2.getContext("2d").drawImage(c, sx,sy,cw,ch, 0,0,cw,ch);
+          url=c2.toDataURL("image/png");
+        }
       }
     }catch(_){}
   }
@@ -1018,12 +1023,16 @@ function renderPercurso(){
   if(!t||!ED){ box.innerHTML=`<div class="pickhint">Escolhe uma seleção para veres o percurso.</div>`; return; }
   const ts=teamStanding(t), favc=t===FAV, plays=!!ts;
   const fc=plays?finalClassification(t,ts):null;
-  let h=`<div class="teamhero ${plays?'':'out'}"><span class="bigfl">${fl(t)}</span>
+  // bandeira a encher o azulejo (recorte do emoji em canvas); tocar nela abre a troca de seleção
+  const fimg=flagImg(t);
+  let h=`<div class="teamhero ${plays?'':'out'}">
+    <span class="bigfl${fimg?' img':''}"${fimg?` style="background-image:url('${fimg}')"`:""}>${fimg?"":fl(t)}
+      <select class="heroSel" aria-label="Trocar de seleção" onchange="selectTeam(this.value)">${teamOptions(t)}</select>
+      <span class="swapdot" aria-hidden="true">⇄</span>
+    </span>
     <div class="meta"><div class="nm ${favc?'por':''}">${pt(t)}</div>
       ${fc?`<div class="finalclass ${fc.cls}">${fc.label}</div>`:`<div class="gl"><b>não participou</b></div>`}</div>
-    <select class="heroSel" aria-label="Trocar de seleção" onchange="selectTeam(this.value)">${teamOptions(t)}</select>
-    <button type="button" class="heroHist" onclick="event.stopPropagation();openHistory()">🏆 Histórico</button>
-    <span class="heroChev" aria-hidden="true">⇄ Trocar</span></div>`;
+    <button type="button" class="heroHist" onclick="event.stopPropagation();openHistory()">🏆 Histórico</button></div>`;
   if(!plays){   // seleção do registo global que não jogou esta edição
     const eds=(REGISTRY.editions[t]||[]).filter(id=>id!==ED.id)
       .map(id=>{ const m=EDITIONS.find(e=>e.id===id); return m?m.year:id; });
@@ -1321,12 +1330,18 @@ function applyEditionChrome(){
 }
 function renderEditionRow(){
   const row=document.getElementById("editionRow");
-  row.innerHTML=EDITIONS.map(e=>`<button class="edchip ${ED&&e.id===ED.id?'active':''}" data-ed="${e.id}" role="tab" aria-selected="${ED&&e.id===ED.id}">
+  // constrói os chips uma só vez; depois só troca o ativo — assim o scroll do carrossel não salta
+  const fresh=!row.children.length;
+  if(fresh) row.innerHTML=EDITIONS.map(e=>`<button class="edchip" data-ed="${e.id}" role="tab">
     <span class="edcomp ${e.comp}">${e.comp==="euro"?"Euro":"Mundial"}</span>
     <span class="edyear">${e.year}</span>
     <span class="edhost">${e.host}</span>
   </button>`).join("");
-  const act=row.querySelector(".edchip.active"); if(act) act.scrollIntoView({inline:"center",block:"nearest"});
+  let act=null;
+  for(const b of row.children){ const on=!!(ED&&b.dataset.ed===ED.id);
+    b.classList.toggle("active",on); b.setAttribute("aria-selected",on); if(on) act=b; }
+  if(act) act.scrollIntoView({inline:"center",block:"nearest",behavior:fresh?"auto":"smooth"});
+  if(window._edPaint) window._edPaint();
 }
 
 /* ===================== ARRANQUE / TROCA DE EDIÇÃO ===================== */
@@ -1335,8 +1350,9 @@ function hideSplash(){ const s=document.getElementById("splash"); if(!s) return;
 function showSwitchDim(){ document.getElementById("switchDim").classList.add("show"); }
 function hideSwitchDim(){ document.getElementById("switchDim").classList.remove("show"); }
 
-async function loadEdition(id, isInitial){
-  if(isInitial) showSplash(); else showSwitchDim();
+async function loadEdition(id, isInitial, quiet){
+  // quiet: troca vinda do carrossel (arrastar) — sem escurecer o ecrã, a mudança é imediata
+  if(isInitial) showSplash(); else if(!quiet) showSwitchDim();
   try{
     const r=await fetch(`data/${id}.json`,{cache:"no-store"});
     if(!r.ok) throw new Error("HTTP "+r.status);
@@ -1389,11 +1405,41 @@ document.getElementById("poModes").addEventListener("click",e=>{
 document.getElementById("histModal").addEventListener("click",e=>{ if(e.target.closest("[data-hist-close]")) closeHistory(); });
 document.addEventListener("keydown",e=>{ if(e.key==="Escape") closeHistory(); });
 
-/* seletor de edição (régua de chips) */
+/* seletor de edição (carrossel de chips) */
 document.getElementById("editionRow").addEventListener("click",e=>{
   const b=e.target.closest(".edchip"); if(!b) return;
   if(b.dataset.ed!==(ED&&ED.id)) loadEdition(b.dataset.ed);
 });
+/* carrossel: desvanecer/encolher com a distância ao centro; ao assentar o scroll,
+   a edição que ficou ao centro é selecionada (snap mandatório garante que há sempre uma) */
+(function(){
+  const row=document.getElementById("editionRow"); if(!row) return;
+  let timer=null, raf=0;
+  function paint(){
+    raf=0;
+    const c=row.scrollLeft+row.clientWidth/2;
+    for(const ch of row.children){
+      const k=Math.min(Math.abs(ch.offsetLeft+ch.offsetWidth/2-c)/(row.clientWidth*.55),1);
+      ch.style.opacity=(1-.55*k).toFixed(3);
+      ch.style.transform=`scale(${(1-.07*k).toFixed(3)})`;
+    }
+  }
+  function settle(){
+    const c=row.scrollLeft+row.clientWidth/2;
+    let best=null, bd=Infinity;
+    for(const ch of row.children){
+      const d=Math.abs(ch.offsetLeft+ch.offsetWidth/2-c);
+      if(d<bd){ bd=d; best=ch; }
+    }
+    if(best && ED && best.dataset.ed!==ED.id) loadEdition(best.dataset.ed, false, true);
+  }
+  row.addEventListener("scroll",()=>{
+    if(!raf) raf=requestAnimationFrame(paint);
+    clearTimeout(timer); timer=setTimeout(settle,150);   // 150ms sem scroll = assentou
+  },{passive:true});
+  window.addEventListener("resize",()=>{ if(!raf) raf=requestAnimationFrame(paint); });
+  window._edPaint=paint;
+})();
 
 /* bloquear gestos de zoom (pinça) no iOS */
 ["gesturestart","gesturechange","gestureend"].forEach(ev=>document.addEventListener(ev,e=>e.preventDefault(),{passive:false}));
