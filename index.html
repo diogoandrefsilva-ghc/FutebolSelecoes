@@ -553,6 +553,18 @@
   .histmodal-body{padding:15px;overflow-y:auto;-webkit-overflow-scrolling:touch}
   .histsub{font-family:Inter,sans-serif;font-size:12px;color:var(--mut);line-height:1.5}
   .histsub b{color:var(--txt)}
+  /* Palmarés: contadores no topo do pop-up (títulos · finais · pódios) */
+  .palm{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px}
+  .palm .ptile{background:linear-gradient(180deg,var(--panel),var(--panel2));border:1px solid var(--line);
+    border-radius:12px;padding:10px 6px 9px;text-align:center;min-width:0}
+  .palm .ptile .pico{font-size:17px;line-height:1}
+  .palm .ptile .pnum{font-family:Anton,sans-serif;font-size:24px;line-height:1.1;margin-top:3px}
+  .palm .ptile .plab{font-family:Inter,sans-serif;font-size:9.5px;font-weight:800;letter-spacing:.5px;
+    text-transform:uppercase;color:var(--mut);margin-top:1px}
+  .palm .ptile .pyrs{font-size:10px;color:var(--mut);line-height:1.55;margin-top:5px;white-space:nowrap}
+  .palm .ptile.zero{opacity:.45}
+  .palm .ptile.tit{border-color:rgba(200,144,26,.5);background:linear-gradient(180deg,var(--panel),rgba(200,144,26,.08))}
+  .palm .ptile.tit .pnum{color:var(--gold)}
   /* adversários: top 3 + expandir os restantes */
   .oppdetails{margin-top:5px}
   .oppdetails > summary{list-style:none;cursor:pointer;font-size:11.5px;font-weight:600;color:var(--cyan);
@@ -1142,7 +1154,9 @@ function historyContentHTML(t){
   const ids=(REGISTRY.editions[t]||[]).filter(id=>EDITION_DATA[id]);
   ids.sort((a,b)=> EDITION_DATA[a].year - EDITION_DATA[b].year);   // linha do tempo (mais antigo -> mais recente)
   if(!ids.length) return `<div class="livenote"><span class="ic">📭</span><div class="tx"><b>${pt(t)}</b> não consta nos dados de nenhuma edição.</div></div>`;
-  let rows="", titles=0;
+  let rows="";
+  // palmarés: títulos, finais disputadas e pódios (1.º–3.º; no Euro as meias contam — não há jogo do 3.º/4.º)
+  const palm={tit:[],fin:[],pod:[]}; let euroSemis=false;
   for(const id of ids){
     const edObj=EDITION_DATA[id], meta=EDITIONS.find(e=>e.id===id)||{};
     const isEuroEd=(edObj.competition==="euro"||meta.comp==="euro");
@@ -1152,7 +1166,15 @@ function historyContentHTML(t){
     if(!res||!res.fc) continue;
     const {fc,elim}=res;
     const champ=fc.cls==="win" && /Vencedor/.test(fc.label);
-    if(champ) titles++;
+    if(edObj.status!=="live"){   // só edições terminadas contam para o palmarés
+      const edLbl=`${isEuroEd?"🇪🇺":"🌍"} ${edObj.year}`;
+      const finalist=fc.label==="Finalista", third=fc.label==="3.º Lugar";
+      const semisEuro=isEuroEd && /meias/i.test(fc.label);
+      if(semisEuro) euroSemis=true;
+      if(champ) palm.tit.push(edLbl);
+      if(champ||finalist) palm.fin.push(edLbl);
+      if(champ||finalist||third||semisEuro) palm.pod.push(edLbl);
+    }
     const dot=fc.cls==="win"?"done":(fc.cls==="out"?"gone":"reachable");
     const badge=champ?"champ":(fc.cls==="out"?"gone":(fc.cls==="win"?"done":""));
     const note = champ
@@ -1164,9 +1186,16 @@ function historyContentHTML(t){
       ${note?`<div class="when"><span class="v ${champ?'champ':''}">${note}</span></div>`:""}
     </div>`;
   }
+  const ptile=(arr,ico,lab,extra)=>`<div class="ptile${extra||""}${arr.length?"":" zero"}">
+      <div class="pico">${ico}</div><div class="pnum">${arr.length}</div><div class="plab">${lab}</div>
+      ${arr.length?`<div class="pyrs">${arr.join("<br>")}</div>`:""}</div>`;
+  const palmHTML = palm.pod.length
+    ? `<div class="palm">${ptile(palm.tit,"🏆","Títulos"," tit")}${ptile(palm.fin,"🥈","Finais")}${ptile(palm.pod,"🥉","Pódios")}</div>`
+    : "";
   const sub = `Percurso em <b>${ids.length}</b> ${ids.length===1?'edição':'edições'} · Europeus e Mundiais`
-    + (titles>0 ? ` · <b>${titles}</b> ${titles===1?'título':'títulos'} 🏆` : "");
-  return `<div class="histsub">${sub}</div><div class="stagewrap" style="margin-top:14px">${rows}</div>`;
+    + (palmHTML ? ` · finais = <b>disputadas</b>` : "")
+    + (euroSemis ? ` · as meias-finais do Euro contam como pódio (não há jogo do 3.º lugar)` : "");
+  return `${palmHTML}<div class="histsub">${sub}</div><div class="stagewrap" style="margin-top:14px">${rows}</div>`;
 }
 // abre / fecha o pop-up do histórico da seleção escolhida
 function openHistory(){
