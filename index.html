@@ -52,9 +52,13 @@
   .sub b{color:var(--txt);font-weight:600}
 
   /* ---- TABS ---- */
-  /* controlo segmentado: calha única rebaixada; o separador ativo é uma "tecla" branca elevada */
+  /* controlo segmentado: calha única rebaixada; o separador ativo é uma "tecla" branca elevada.
+     A calha tinge-se com as 2 cores dominantes da bandeira escolhida (--tc1/--tc2, na ordem
+     esquerda->direita da própria bandeira), definidas em renderTeamBar */
   .tabs{display:flex;gap:4px;margin:9px 0 10px;padding:4px;
-        background:rgba(26,34,56,.05);border:1px solid rgba(26,34,56,.05);border-radius:14px}
+        background:linear-gradient(90deg,rgba(var(--tc1,26,34,56),.09),rgba(var(--tc2,26,34,56),.09));
+        border:1px solid rgba(26,34,56,.05);border-radius:14px;
+        transition:background .45s ease}
   .tab{flex:1;appearance:none;border:0;background:transparent;color:var(--mut);
        font-family:Inter,sans-serif;font-weight:700;font-size:12.5px;line-height:1.08;padding:8px 4px;border-radius:10px;
        cursor:pointer;min-height:38px;display:flex;align-items:center;justify-content:center;text-align:center;
@@ -348,31 +352,8 @@
     background-position:calc(100% - 18px) 50%,calc(100% - 13px) 50%;background-size:5px 5px,5px 5px;background-repeat:no-repeat}
   .teampick select:focus-visible{outline:3px solid var(--cyan);outline-offset:2px}
 
-  .teamhero{display:flex;align-items:center;gap:13px;padding:14px;border:1px solid rgba(200,144,26,.75);border-radius:16px;
-    background:linear-gradient(180deg,rgba(200,144,26,.10),rgba(200,144,26,.02) 70%,rgba(255,255,255,.5));
-    box-shadow:0 6px 22px rgba(200,144,26,.10);margin:14px 0}
-  /* seleção eliminada: banner neutro (sem o dourado de destaque) */
-  .teamhero.out{border-color:var(--line2);background:linear-gradient(180deg,var(--panel),var(--panel2));box-shadow:none}
-  .teamhero .bigfl{font-size:38px;line-height:1;flex:none}
-  .teamhero .meta{flex:1;min-width:0}
-  .teamhero .nm{font-family:Anton,sans-serif;font-size:24px;text-transform:uppercase;letter-spacing:.5px;line-height:1}
-  .teamhero .nm.por{color:var(--gold)}
-  .teamhero .gl{font-family:Inter,sans-serif;font-size:11.5px;color:var(--mut);margin-top:3px}
-  .teamhero .gl b{color:var(--txt)}
-  .teamhero.out .nm{color:var(--mut)}
-  .teamhero .seedtag{font-family:Inter,sans-serif;font-size:10px;font-weight:700;letter-spacing:.5px;
-    border:1px solid var(--cyan);color:var(--cyan);border-radius:20px;padding:3px 9px;flex:none}
-  .teamhero.out .seedtag{border-color:var(--red);color:var(--red)}
-  /* troca de seleção: a PRÓPRIA BANDEIRA é o botão (combo nativa invisível por cima do azulejo);
-     o mini-ícone ⇄ no canto inferior esquerdo sinaliza que é tocável */
-  .teamhero{position:relative}
-  .teamhero .bigfl{position:relative;cursor:pointer}
-  .teamhero .heroSel{position:absolute;inset:0;width:100%;height:100%;opacity:0;border:0;margin:0;padding:0;
-    font-size:16px;cursor:pointer;-webkit-appearance:none;appearance:none;background:transparent}
-  .teamhero .swapdot{position:absolute;left:-6px;bottom:-6px;width:20px;height:20px;display:grid;place-items:center;
-    background:var(--lime);color:var(--on-accent);font-size:11px;font-weight:700;line-height:1;border-radius:50%;
-    border:2px solid var(--panel);box-shadow:0 2px 6px rgba(91,140,0,.35);pointer-events:none}
-  .teamhero .bigfl:focus-within{outline:3px solid var(--cyan);outline-offset:2px}
+  /* (o antigo banner .teamhero do Percurso foi promovido a barra da seleção no cabeçalho: .teambar) */
+  #teamPath > :first-child{margin-top:16px}
 
   /* jogos / classificação da fase de grupos no Percurso */
   .gp-h{font-family:Inter,sans-serif;font-size:11px;color:var(--mut);letter-spacing:1px;
@@ -440,12 +421,61 @@
   .sub,.panel-d,.livenote .tx,.deferred,.oppmore{font-variant-numeric:normal;font-feature-settings:normal}
 
   /* --- seletor de edição: régua de chips --- */
-  .edwrap{position:relative;margin:0 -14px;padding:10px 0 9px;overflow:hidden;background:var(--panel2)}
-  .edwrap::before{content:"";position:absolute;inset:-24px;z-index:0;background-image:var(--flagimg,none);
+  /* faixa do cabeçalho: SELEÇÃO no topo (pico da hierarquia) + carrossel de edições,
+     ambos sobre a bandeira desfocada da seleção escolhida */
+  .hwash{position:relative;margin:0 -14px;padding:9px 0;overflow:hidden;background:var(--panel2)}
+  .hwash::before{content:"";position:absolute;inset:-24px;z-index:0;background-image:var(--flagimg,none);
     background-size:100% 100%;background-position:center;background-repeat:no-repeat;
     filter:blur(26px) saturate(1.15);opacity:0;transition:opacity .45s ease}
-  .edwrap.hasflag::before{opacity:.28}
-  .edwrap::after{content:"";position:absolute;inset:0;z-index:0;background:linear-gradient(180deg,rgba(244,246,251,.60),rgba(244,246,251,.28) 45%,rgba(244,246,251,.50))}
+  .hwash.hasflag::before{opacity:.28}
+  .hwash::after{content:"";position:absolute;inset:0;z-index:0;background:linear-gradient(180deg,rgba(244,246,251,.60),rgba(244,246,251,.28) 45%,rgba(244,246,251,.50))}
+
+  /* --- barra da seleção (topo do cabeçalho) --- */
+  .teambar{position:relative;z-index:1;display:flex;align-items:center;gap:10px;padding:1px 14px 10px;min-height:44px;
+    transition:margin .28s ease,opacity .2s ease}
+  /* ao rolar, a barra da seleção recolhe (o cabeçalho fixo fica só com edições+menu) */
+  header.mini .teambar{margin-top:-55px;opacity:0;pointer-events:none}
+  .teambar .tbflag{position:relative;flex:none;width:44px;height:44px;padding:0;cursor:pointer;
+    display:grid;place-items:center;font-size:23px;line-height:1;
+    background:var(--panel);border:1px solid var(--line2);border-radius:13px;
+    box-shadow:0 2px 8px rgba(26,34,56,.12)}
+  .teambar .tbflag.img{background-size:cover;background-position:center;background-repeat:no-repeat}
+  .teambar .tbflag:focus-visible{outline:3px solid var(--cyan);outline-offset:2px}
+  .teambar .tbmain{flex:1;min-width:0;display:flex;align-items:center;gap:8px;
+    appearance:none;background:none;border:0;padding:0;cursor:pointer;text-align:left;color:var(--txt)}
+  .teambar .tbname{font-family:Anton,sans-serif;font-size:clamp(18px,5.6vw,23px);font-weight:400;text-transform:uppercase;
+    letter-spacing:.5px;line-height:1.05;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+  .teambar .tbname.por{color:var(--gold)}
+  .teambar .tbchev{flex:none;font-size:11px;color:var(--mut)}
+  .teambar .tbmain:focus-visible{outline:3px solid var(--cyan);outline-offset:2px;border-radius:8px}
+  /* o badge cede primeiro (encolhe com reticências) para o nome da seleção nunca desaparecer */
+  .teambar .finalclass{flex:0 1 auto;margin:0;min-width:56px;max-width:38vw;overflow:hidden;text-overflow:ellipsis}
+  .teambar .tbhist{flex:none;width:34px;height:34px;padding:0;cursor:pointer;display:grid;place-items:center;
+    font-size:15px;line-height:1;border:1px solid var(--line2);border-radius:50%;
+    background:rgba(255,255,255,.9);box-shadow:0 1px 2px rgba(26,34,56,.06)}
+  .teambar .tbhist:hover{border-color:var(--gold)}
+  .swapdot{position:absolute;left:-6px;bottom:-6px;width:20px;height:20px;display:grid;place-items:center;
+    background:var(--lime);color:var(--on-accent);font-size:11px;font-weight:700;line-height:1;border-radius:50%;
+    border:2px solid var(--panel);box-shadow:0 2px 6px rgba(91,140,0,.35);pointer-events:none}
+
+  /* --- pop-up de escolha da seleção: pesquisa + grelha compacta com bandeiras --- */
+  .tmsearch{flex:1;min-width:0;appearance:none;-webkit-appearance:none;border:1px solid var(--line2);
+    background:var(--panel2);color:var(--txt);border-radius:11px;padding:9px 12px;
+    font-family:Inter,sans-serif;font-size:16px;font-weight:500}
+  .tmsearch::placeholder{color:var(--dim)}
+  .tmsearch:focus-visible{outline:3px solid var(--cyan);outline-offset:1px}
+  .tgrid{display:grid;grid-template-columns:repeat(2,1fr);gap:6px}
+  .tchip{display:flex;align-items:center;gap:7px;min-width:0;padding:7px 9px;cursor:pointer;text-align:left;
+    appearance:none;border:1px solid var(--line);border-radius:10px;background:var(--panel2);color:var(--txt)}
+  .tchip .fl{flex:none;font-size:16px;line-height:1}
+  .tchip .nm{font-family:Inter,sans-serif;font-size:12.5px;font-weight:600;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .tchip.on{border-color:var(--lime);background:linear-gradient(180deg,rgba(91,140,0,.13),var(--panel2))}
+  .tchip.on .nm{color:var(--lime-d)}
+  .tchip:focus-visible{outline:2px solid var(--cyan);outline-offset:1px}
+  .tgrid-h{font-family:Inter,sans-serif;font-size:11px;color:var(--mut);letter-spacing:1px;
+    text-transform:uppercase;margin:0 0 8px}
+  .tgrid-h:not(:first-child){margin-top:16px}
   /* carrossel: a edição escolhida vive ao CENTRO; arrastar traz a vizinha para o centro e
      seleciona-a ao assentar (scroll-snap + settle em JS); as outras desvanecem com a distância */
   .edrow{position:relative;z-index:1;display:flex;gap:9px;overflow-x:auto;-webkit-overflow-scrolling:touch;
@@ -469,9 +499,6 @@
     box-shadow:0 0 0 1px rgba(91,140,0,.28),0 3px 10px rgba(91,140,0,.16)}
   .edchip.active .edyear{color:var(--lime)}
   .edchip:focus-visible{outline:3px solid var(--cyan);outline-offset:2px}
-
-  .teamhero{transition:border-color .14s ease}
-  .teamhero:focus-within{border-color:var(--cyan)}
 
   /* --- callout "em curso" (substitui o texto em mono do print) --- */
   .livenote{display:flex;gap:12px;align-items:flex-start;border:1px solid rgba(14,156,138,.32);border-radius:14px;
@@ -499,34 +526,17 @@
   .koteam.kowin .kosc{color:var(--lime)}
   .koteam.kowin:not(.pick) .nm{color:var(--lime)}
 
-  /* --- banner: mais baixo; Histórico no canto sup. direito --- */
-  .teamhero{padding:11px 104px 11px 12px;align-items:center;min-height:76px;gap:11px}
-  /* bandeira num "azulejo" arredondado; com imagem, enche-o todo (cortada nas pontas) */
-  .teamhero .bigfl{font-size:27px;width:50px;height:50px;display:grid;place-items:center;
-    background:var(--panel);border:1px solid rgba(200,144,26,.35);border-radius:14px;
-    box-shadow:0 2px 8px rgba(200,144,26,.14)}
-  .teamhero .bigfl.img{background-size:cover;background-position:center;background-repeat:no-repeat}
-  .teamhero.out .bigfl{border-color:var(--line2);box-shadow:0 1px 3px rgba(26,34,56,.06)}
-  .teamhero .nm{font-size:21px}
-  .teamhero .meta{min-width:0}
-  .teamhero .nm{white-space:normal;overflow-wrap:anywhere}
-  .teamhero .seedtag{position:absolute;top:10px;right:12px;margin:0}
-  /* badge da classificação final, por baixo do nome da seleção */
-  .teamhero .finalclass{display:inline-block;margin-top:6px;font-family:Inter,sans-serif;font-size:10.5px;font-weight:800;
+  /* badge da fase/classificação da seleção (usado na barra do cabeçalho) */
+  .finalclass{display:inline-block;font-family:Inter,sans-serif;font-size:10.5px;font-weight:800;
     letter-spacing:.4px;text-transform:uppercase;border:1px solid var(--line2);color:var(--mut);border-radius:20px;padding:4px 10px;line-height:1;
-    background:rgba(255,255,255,.6)}
-  .teamhero .finalclass.win{border-color:rgba(200,144,26,.5);color:var(--gold);background:rgba(200,144,26,.08)}
-  .teamhero .finalclass.out{border-color:rgba(224,49,80,.4);color:var(--red);background:rgba(224,49,80,.06)}
-  .teamhero .finalclass.live{border-color:rgba(14,156,138,.45);color:var(--cyan);background:rgba(14,156,138,.08)}
-  /* Histórico: botão no banner + pop-up */
+    background:rgba(255,255,255,.6);white-space:nowrap}
+  .finalclass.win{border-color:rgba(200,144,26,.5);color:var(--gold);background:rgba(200,144,26,.08)}
+  .finalclass.out{border-color:rgba(224,49,80,.4);color:var(--red);background:rgba(224,49,80,.06)}
+  .finalclass.live{border-color:rgba(14,156,138,.45);color:var(--cyan);background:rgba(14,156,138,.08)}
+  /* Histórico: pop-up */
   .stage .reach.champ{color:var(--gold);border-color:var(--gold)}
   #histBody .stage.done::before{background:var(--gold);border-color:var(--gold)}
   #histBody .when .v.champ{color:var(--gold);font-weight:700}
-  .teamhero .heroHist{position:absolute;top:10px;right:12px;z-index:3;cursor:pointer;
-    font-family:Inter,sans-serif;font-size:11px;font-weight:700;letter-spacing:.3px;
-    border:1px solid var(--line2);background:rgba(255,255,255,.9);color:var(--txt);border-radius:20px;padding:6px 11px;line-height:1;
-    box-shadow:0 1px 2px rgba(26,34,56,.06)}
-  .teamhero .heroHist:hover{border-color:var(--gold);color:var(--gold)}
   .histmodal{position:fixed;inset:0;z-index:100;display:flex;align-items:center;justify-content:center;padding:16px}
   .histmodal[hidden]{display:none}
   .histmodal-backdrop{position:absolute;inset:0;background:rgba(0,0,0,.62)}
@@ -631,7 +641,8 @@
 <div class="wrap">
   <header>
     <div class="topbar"></div>
-    <div class="edwrap">
+    <div class="hwash">
+      <div class="teambar" id="teamBar"></div>
       <div class="edrow" id="editionRow" role="tablist" aria-label="Escolher edição"></div>
     </div>
     <div class="midbar"></div>
@@ -687,6 +698,18 @@
     <div class="histmodal-body" id="histBody"></div>
   </div>
 </div>
+<!-- Pop-up de escolha da seleção (aberto pela bandeira/nome no topo do cabeçalho) -->
+<div id="teamModal" class="histmodal" hidden>
+  <div class="histmodal-backdrop" data-team-close></div>
+  <div class="histmodal-card" role="dialog" aria-modal="true" aria-label="Escolher seleção">
+    <div class="histmodal-head">
+      <input id="teamSearch" class="tmsearch" type="search" placeholder="🔎 Procurar seleção…"
+             autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+      <button class="histmodal-x" type="button" aria-label="Fechar" data-team-close>×</button>
+    </div>
+    <div class="histmodal-body" id="teamGrid"></div>
+  </div>
+</div>
 <!-- Módulo live do 2026: Anexo C (emparelhamento dos 16-avos), quadro interativo,
      simulação Monte Carlo do percurso e live ESPN. (Caveat: o Anexo C herdado assume
      8 grupos; rever para os 12 grupos do formato de 48 num próximo torneio.) -->
@@ -726,10 +749,10 @@ const FAV = "Portugal";          // seleção destacada (a da casa do utilizador
 /* ===================== FUNDO DO CABEÇALHO COM A BANDEIRA ===================== */
 // desenha o emoji da bandeira num canvas e usa-o (desfocado/desvanecido por CSS)
 // como fundo da régua de competições — cobre qualquer seleção, sem mapa de cores.
-const _flagImgCache = {};
-function flagImg(key){
+const _flagImgCache = {};   // key -> {url, cols:[[r,g,b],[r,g,b]]|null}
+function _flagData(key){
   if(key in _flagImgCache) return _flagImgCache[key];
-  let url="";
+  let url="", cols=null;
   const t=team(key), emoji=t&&t.flag;
   if(emoji){
     try{
@@ -752,17 +775,39 @@ function flagImg(key){
         const sx=minX+ix, sy=minY+iy; cw-=ix*2; ch-=iy*2;
         if(cw>4 && ch>4){
           const c2=document.createElement("canvas"); c2.width=cw; c2.height=ch;
-          c2.getContext("2d").drawImage(c, sx,sy,cw,ch, 0,0,cw,ch);
+          const x2=c2.getContext("2d"); x2.drawImage(c, sx,sy,cw,ch, 0,0,cw,ch);
           url=c2.toDataURL("image/png");
+          // 2 cores dominantes (p/ tingir a calha dos separadores): quantiza os píxeis em
+          // baldes RGB, ignora o branco (não tinge) e ordena as 2 mais comuns pela posição
+          // horizontal média — o gradiente fica na ordem esquerda->direita da bandeira
+          const dd=x2.getImageData(0,0,cw,ch).data, buckets={};
+          for(let i=0;i<dd.length;i+=4){
+            const r=dd[i], g=dd[i+1], b=dd[i+2];
+            if(dd[i+3]<200 || (r>230&&g>230&&b>230)) continue;
+            const bk=buckets[(r>>5)+"·"+(g>>5)+"·"+(b>>5)] ||
+                     (buckets[(r>>5)+"·"+(g>>5)+"·"+(b>>5)]={n:0,r:0,g:0,b:0,x:0});
+            bk.n++; bk.r+=r; bk.g+=g; bk.b+=b; bk.x+=(i/4)%cw;
+          }
+          const arr=Object.values(buckets)
+            .map(b=>({n:b.n, r:Math.round(b.r/b.n), g:Math.round(b.g/b.n), b:Math.round(b.b/b.n), x:b.x/b.n}))
+            .sort((a,b)=>b.n-a.n);
+          if(arr.length){
+            const c1=arr[0];
+            const c2b=arr.find(v=>((v.r-c1.r)**2+(v.g-c1.g)**2+(v.b-c1.b)**2)>90*90) || c1;
+            const pair=[c1,c2b].sort((a,b)=>a.x-b.x);
+            cols=pair.map(v=>[v.r,v.g,v.b]);
+          }
         }
       }
     }catch(_){}
   }
-  _flagImgCache[key]=url;
-  return url;
+  _flagImgCache[key]={url,cols};
+  return _flagImgCache[key];
 }
+function flagImg(key){ return _flagData(key).url; }
+function flagColors(key){ return _flagData(key).cols; }
 function setHeaderFlag(key){
-  const ew=document.querySelector(".edwrap"); if(!ew) return;
+  const ew=document.querySelector(".hwash"); if(!ew) return;
   const url=flagImg(key);
   ew.style.setProperty("--flagimg", url?`url("${url}")`:"none");
   ew.classList.toggle("hasflag", !!url);
@@ -1014,27 +1059,43 @@ function knockoutPathHTML(t, prefix){
   return h;
 }
 
+// barra da seleção no TOPO do cabeçalho (pico da hierarquia): bandeira-botão + nome + fase + histórico
+function renderTeamBar(t, fc, plays){
+  const bar=document.getElementById("teamBar"); if(!bar) return;
+  if(!t){
+    bar.innerHTML=`<button type="button" class="tbmain" onclick="openTeamPicker()">
+      <span class="tbname">Escolher seleção</span><span class="tbchev" aria-hidden="true">▾</span></button>`;
+    return;
+  }
+  const fimg=flagImg(t);
+  bar.innerHTML=`
+    <button type="button" class="tbflag${fimg?' img':''}"${fimg?` style="background-image:url('${fimg}')"`:""}
+      onclick="openTeamPicker()" aria-label="Trocar de seleção">${fimg?"":fl(t)}<span class="swapdot" aria-hidden="true">⇄</span></button>
+    <button type="button" class="tbmain" onclick="openTeamPicker()" aria-label="Trocar de seleção">
+      <span class="tbname ${t===FAV?'por':''}">${pt(t)}</span><span class="tbchev" aria-hidden="true">▾</span></button>
+    ${fc?`<span class="finalclass ${fc.cls}">${fc.label}</span>`:(plays?"":`<span class="finalclass out">não participou</span>`)}
+    <button type="button" class="tbhist" onclick="openHistory()" aria-label="Histórico da seleção" title="Histórico">🏆</button>`;
+  // cores dominantes da bandeira -> tinta da calha dos separadores
+  const head=document.querySelector("header"), cols=flagColors(t);
+  if(head){
+    if(cols){ head.style.setProperty("--tc1",cols[0].join(",")); head.style.setProperty("--tc2",cols[1].join(",")); }
+    else{ head.style.removeProperty("--tc1"); head.style.removeProperty("--tc2"); }
+  }
+}
+
 function renderPercurso(){
   const t=SEL_TEAM, box=document.getElementById("teamPath");
   renderOddsFooter();
   setHeaderFlag(t);
-  if(!t||!ED){ box.innerHTML=`<div class="pickhint">Escolhe uma seleção para veres o percurso.</div>`; return; }
-  const ts=teamStanding(t), favc=t===FAV, plays=!!ts;
+  if(!t||!ED){ renderTeamBar(null,null,false); box.innerHTML=`<div class="pickhint">Escolhe uma seleção para veres o percurso.</div>`; return; }
+  const ts=teamStanding(t), plays=!!ts;
   const fc=plays?finalClassification(t,ts):null;
-  // bandeira a encher o azulejo (recorte do emoji em canvas); tocar nela abre a troca de seleção
-  const fimg=flagImg(t);
-  let h=`<div class="teamhero ${plays?'':'out'}">
-    <span class="bigfl${fimg?' img':''}"${fimg?` style="background-image:url('${fimg}')"`:""}>${fimg?"":fl(t)}
-      <select class="heroSel" aria-label="Trocar de seleção" onchange="selectTeam(this.value)">${teamOptions(t)}</select>
-      <span class="swapdot" aria-hidden="true">⇄</span>
-    </span>
-    <div class="meta"><div class="nm ${favc?'por':''}">${pt(t)}</div>
-      ${fc?`<div class="finalclass ${fc.cls}">${fc.label}</div>`:`<div class="gl"><b>não participou</b></div>`}</div>
-    <button type="button" class="heroHist" onclick="event.stopPropagation();openHistory()">🏆 Histórico</button></div>`;
+  renderTeamBar(t, fc, plays);
+  let h="";
   if(!plays){   // seleção do registo global que não jogou esta edição
     const eds=(REGISTRY.editions[t]||[]).filter(id=>id!==ED.id)
       .map(id=>{ const m=EDITIONS.find(e=>e.id===id); return m?m.year:id; });
-    h+=`<div class="livenote"><span class="ic">🚫</span><div class="tx"><b>${pt(t)}</b> não participou no <b>${ED.title}</b>.${eds.length?` Está nos dados de: <b>${eds.join(", ")}</b> — escolhe essa edição nos chips acima.`:""}</div></div>`;
+    h+=`<div class="livenote" style="margin-top:16px"><span class="ic">🚫</span><div class="tx"><b>${pt(t)}</b> não participou no <b>${ED.title}</b>.${eds.length?` Está nos dados de: <b>${eds.join(", ")}</b> — escolhe essa edição nos chips acima.`:""}</div></div>`;
     box.innerHTML=h; return;
   }
   const gstage=groupStageHTML(t, ts);   // fase de grupos = 1.ª etapa do timeline
@@ -1117,6 +1178,34 @@ function openHistory(){
 }
 function closeHistory(){
   const modal=document.getElementById("histModal"); if(modal) modal.hidden=true;
+  document.body.style.overflow="";
+}
+
+/* ===================== ESCOLHA DA SELEÇÃO (pop-up compacto com pesquisa) ===================== */
+const _norm = s => (s||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase();
+function teamGridHTML(q){
+  const reg=Object.keys(REGISTRY.teams).length ? REGISTRY.teams : (ED?ED.teams:{});
+  const names=Object.keys(reg).sort((a,b)=>(reg[a].pt||a).localeCompare(reg[b].pt||b,"pt"))
+    .filter(n=>!q || _norm(reg[n].pt||n).includes(_norm(q)));
+  const chip=n=>`<button type="button" class="tchip ${n===SEL_TEAM?'on':''}" data-team="${n}">
+    <span class="fl">${reg[n].flag||"🏳️"}</span><span class="nm">${reg[n].pt||n}</span></button>`;
+  const inEd=n=>!!(ED&&ED.teams&&ED.teams[n]);
+  const cur=names.filter(inEd), oth=names.filter(n=>!inEd(n));
+  let h="";
+  if(cur.length) h+=`<div class="tgrid-h">${ED?ED.title:"Nesta edição"}</div><div class="tgrid">${cur.map(chip).join("")}</div>`;
+  if(oth.length) h+=`<div class="tgrid-h">Outras seleções</div><div class="tgrid">${oth.map(chip).join("")}</div>`;
+  return h || `<div class="pickhint">Nenhuma seleção encontrada para «${q}».</div>`;
+}
+function openTeamPicker(){
+  const modal=document.getElementById("teamModal"); if(!modal) return;
+  const inp=document.getElementById("teamSearch"); inp.value="";
+  document.getElementById("teamGrid").innerHTML=teamGridHTML("");
+  modal.hidden=false; document.body.style.overflow="hidden";
+  // no telemóvel o teclado só abre se o utilizador tocar na pesquisa (autofocus seria intrusivo)
+  if(matchMedia("(hover:hover)").matches) inp.focus();
+}
+function closeTeamPicker(){
+  const modal=document.getElementById("teamModal"); if(modal) modal.hidden=true;
   document.body.style.overflow="";
 }
 
@@ -1411,7 +1500,17 @@ document.getElementById("poModes").addEventListener("click",e=>{
 
 /* pop-up do histórico: fechar no × / no fundo / com Escape */
 document.getElementById("histModal").addEventListener("click",e=>{ if(e.target.closest("[data-hist-close]")) closeHistory(); });
-document.addEventListener("keydown",e=>{ if(e.key==="Escape") closeHistory(); });
+document.addEventListener("keydown",e=>{ if(e.key==="Escape"){ closeHistory(); closeTeamPicker(); } });
+
+/* pop-up de escolha da seleção: pesquisa ao escrever, toque num chip escolhe e fecha */
+document.getElementById("teamModal").addEventListener("click",e=>{
+  if(e.target.closest("[data-team-close]")){ closeTeamPicker(); return; }
+  const b=e.target.closest(".tchip"); if(!b) return;
+  closeTeamPicker(); selectTeam(b.dataset.team);
+});
+document.getElementById("teamSearch").addEventListener("input",e=>{
+  document.getElementById("teamGrid").innerHTML=teamGridHTML(e.target.value.trim());
+});
 
 /* seletor de edição (carrossel de chips) */
 document.getElementById("editionRow").addEventListener("click",e=>{
@@ -1448,6 +1547,18 @@ document.getElementById("editionRow").addEventListener("click",e=>{
   },{passive:true});
   window.addEventListener("resize",()=>{ if(!raf) raf=requestAnimationFrame(paint); });
   window._edPaint=paint;
+})();
+
+/* cabeçalho: ao rolar para baixo a barra da seleção recolhe; perto do topo reaparece
+   (histerese larga -> nunca oscila no limiar) */
+(function(){
+  const head=document.querySelector("header"); if(!head) return;
+  let mini=false;
+  addEventListener("scroll",()=>{
+    const y=scrollY;
+    if(!mini && y>150){ mini=true; head.classList.add("mini"); }
+    else if(mini && y<40){ mini=false; head.classList.remove("mini"); }
+  },{passive:true});
 })();
 
 /* bloquear gestos de zoom (pinça) no iOS */
