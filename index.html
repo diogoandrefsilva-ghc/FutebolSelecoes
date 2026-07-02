@@ -1420,8 +1420,9 @@ document.getElementById("editionRow").addEventListener("click",e=>{
     const c=row.scrollLeft+row.clientWidth/2;
     for(const ch of row.children){
       const k=Math.min(Math.abs(ch.offsetLeft+ch.offsetWidth/2-c)/(row.clientWidth*.55),1);
-      ch.style.opacity=(1-.55*k).toFixed(3);
-      ch.style.transform=`scale(${(1-.07*k).toFixed(3)})`;
+      const e=k*(2-k);   // cai depressa junto ao centro: só a selecionada fica a 100%
+      ch.style.opacity=(1-.58*e).toFixed(3);
+      ch.style.transform=`scale(${(1-.16*e).toFixed(3)})`;
     }
   }
   function settle(){
