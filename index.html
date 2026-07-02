@@ -198,6 +198,7 @@
   .brnav{display:flex;gap:5px;margin:2px 0 10px;touch-action:pan-y;user-select:none;-webkit-user-select:none}
   .brnav button{flex:1;appearance:none;border:1px solid var(--line2);background:var(--panel2);color:var(--mut);
     font-family:Inter,sans-serif;font-weight:600;font-size:11px;padding:6px 2px;border-radius:9px;cursor:pointer;min-height:32px}
+  .brnav button.all{flex:0 0 auto;padding:6px 9px}   /* quadro completo (só bandeiras) num toque */
   /* janela: a ronda principal (mais à esquerda) fica verde cheio; as restantes, verde suave */
   .brnav button.active{background:rgba(91,140,0,.13);color:var(--txt);border-color:rgba(91,140,0,.5)}
   .brnav button.lead{background:var(--lime);color:var(--on-accent);border-color:var(--lime)}
@@ -692,7 +693,7 @@
 <!-- Módulo live do 2026: Anexo C (emparelhamento dos 16-avos), quadro interativo,
      simulação Monte Carlo do percurso e live ESPN. (Caveat: o Anexo C herdado assume
      8 grupos; rever para os 12 grupos do formato de 48 num próximo torneio.) -->
-<script src="live2026.js?v=23"></script>
+<script src="live2026.js?v=27"></script>
 <script>
 "use strict";
 /* =====================================================================
@@ -1202,7 +1203,7 @@ function renderBracket(){
 /* seletor de rondas por cima do quadro: os chips acesos são a janela de rondas em ecrã */
 function bracketNavHTML(names){
   return `<div class="brnav" role="tablist" aria-label="Rondas do quadro em ecrã">${names.map((nm,i)=>
-    `<button data-bri="${i}" role="tab" aria-selected="${i<3}" class="${i===0?'active lead':(i<3?'active':'')}">${nm}</button>`).join("")}</div>
+    `<button data-bri="${i}" role="tab" aria-selected="${i<3}" class="${i===0?'active lead':(i<3?'active':'')}">${nm}</button>`).join("")}<button class="all" role="tab" aria-selected="false">Tudo</button></div>
     <div class="bracket-hint"><span class="k">↔</span> Toca numa ronda, ou arrasta para veres várias</div>`;
 }
 /* aplica a janela [a,b] guardada em #knockout (sobrevive a re-renders): só essas rondas ficam
@@ -1227,8 +1228,10 @@ function bracketApplyWindow(animate){
   br.style.setProperty("--slot",((card||66)+6)/Math.pow(2,a)+"px");
   if(!animate){ void br.offsetWidth; br.classList.remove("notrans"); }   // consome o reflow antes de reativar transições
   const nav=box.querySelector(".brnav");
-  if(nav) [...nav.children].forEach((btn,i)=>{ const on=i>=a&&i<=b;
-    btn.classList.toggle("active",on); btn.classList.toggle("lead",i===a);
+  if(nav) [...nav.children].forEach(btn=>{
+    const all=btn.classList.contains("all"), i=+btn.dataset.bri;
+    const on= all ? (a===0&&b===n-1) : (i>=a&&i<=b);
+    btn.classList.toggle("active",on); btn.classList.toggle("lead",!all&&i===a);
     btn.setAttribute("aria-selected",on); });
 }
 // chips: toque = essa ronda + a seguinte; arrastar pelos chips = janela com as rondas varridas
@@ -1236,12 +1239,18 @@ function bracketApplyWindow(animate){
   const box=document.getElementById("knockout"); if(!box) return;
   let from=null, to=null, x0=0;
   const chipAt=e=>{ const el=document.elementFromPoint(e.clientX,e.clientY);
-    const btn=el&&el.closest&&el.closest(".brnav button"); return btn?+btn.dataset.bri:null; };
+    const btn=el&&el.closest&&el.closest(".brnav button");
+    return btn&&btn.dataset.bri!==undefined ? +btn.dataset.bri : null; };
   const paint=(a,b)=>{ const nav=box.querySelector(".brnav"); if(!nav) return;
     [...nav.children].forEach((btn,i)=>{ btn.classList.toggle("active",i>=a&&i<=b);
       btn.classList.toggle("lead",i===a); }); };
   box.addEventListener("pointerdown",e=>{
     const btn=e.target.closest(".brnav button"); if(!btn) return;
+    if(btn.classList.contains("all")){                       // quadro completo num toque
+      const br=box.querySelector(".bracket.fit"); if(!br) return;
+      box.dataset.brwin="0,"+(br.querySelectorAll(".col").length-1);
+      bracketApplyWindow(true); return;
+    }
     from=to=+btn.dataset.bri; x0=e.clientX; paint(from,to);
   });
   box.addEventListener("pointermove",e=>{
