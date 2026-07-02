@@ -808,7 +808,7 @@ function predictSrc(src){
   if(!A||!B) return null;
   return (k==="win")===(pWin(A,B)>=0.5) ? A : B;
 }
-function koSide(id, side, S, both, pick, score, isWin, locked, hasScore, pen, prob, ghost, gwin){
+function koSide(id, side, S, both, pick, score, isWin, locked, hasScore, pen, prob, ghost, gwin, mnt){
   const isPick=pick===side, isDim=pick&&pick!==side, por=S.name===POR;
   const cls=["koteam"];
   if(!S.name) cls.push("tbd");
@@ -825,22 +825,21 @@ function koSide(id, side, S, both, pick, score, isWin, locked, hasScore, pen, pr
   const tag= (S.name&&S.tag&&!hasScore&&!hasProb)? `<span class="src">${S.tag}</span>` : "";
   const scEl= Number.isFinite(score)? `<span class="kosc">${Number.isFinite(pen)?`<span class="pen">(${pen}) </span>`:""}${score}</span>` : "";   // penáltis à esquerda -> placar principal sempre à direita
   const prEl= hasProb? `<span class="koprob">${prob<0.005?"<1":Math.round(prob*100)}%</span>` : "";
+  const mnEl= mnt? `<span class="komin">${mnt}</span>` : "";   // minuto ao vivo (só na 1.ª linha do cartão)
   return `<button class="${cls.join(' ')}" data-id="${id}" data-side="${side}" ${both&&!locked?'':'disabled'}>
-    <span class="fl">${flg}</span><span class="nm">${nm}</span>${tag}${scEl}${prEl}</button>`;
+    <span class="fl">${flg}</span><span class="nm">${nm}</span>${tag}${mnEl}${scEl}${prEl}</button>`;
 }
 function koCard(id){
   const def=ALLDEF[id];
   const A=resolveSrc(def[0]), B=resolveSrc(def[1]);
   const both=!!A.name && !!B.name, pick=PICKS[id];
   const haspor=A.name===POR||B.name===POR, champ=id==="M104";
-  const num=id.slice(1);
   // placar/estado ao vivo: o resultado trancado tem prioridade; senão o snapshot do fetch atual
   const fin=KO_FINAL[id], lv=KO_LIVE[id];
   const sc = fin ? {hg:fin.hg, ag:fin.ag, pens:fin.pens||null} : (lv ? {hg:lv.hg, ag:lv.ag, pens:null} : null);
   const state = fin ? "post" : (lv ? lv.state : null);
   const winner = fin ? fin.winner : null;
-  const chip = state==="in" ? `<span class="kostate live">${lv&&lv.minute?lv.minute+"'":"a jogar"}</span>` : "";   // só "live"; jogos terminados não levam chip (como nas edições anteriores)
-  const corner = champ?'<span>🏆</span>':(id==='M103'?'<span>3.º/4.º</span>':'');
+  const mnt = state==="in" ? (lv&&lv.minute? lv.minute+"'" : "live") : null;   // minuto na 1.ª linha (a label do jogo saiu)
   const cls=["ko"]; if(haspor)cls.push("haspor"); if(champ)cls.push("champ");
   if(state==="in")cls.push("inplay"); if(fin)cls.push("locked");
   const adv = both ? koAdvanceProb(id) : null;            // % de avançar (jogos por disputar)
@@ -849,15 +848,14 @@ function koCard(id){
   // na final e no 3.º/4.º não há ronda seguinte a revelar quem passa -> marca o vencedor previsto
   const pw = (champ||id==="M103")&&(gA||gB) ? predictSrc("win:"+id) : null;
   return `<div class="${cls.join(' ')}">
-    <div class="jno"><span>JOGO ${num}</span>${chip}${corner}</div>
-    <div class="teams">${koSide(id,'a',A,both,pick,sc?sc.hg:null,winner&&winner===A.name,!!fin,!!sc, sc&&sc.pens?sc.pens[0]:null, adv?adv.a:null, gA, pw)}${koSide(id,'b',B,both,pick,sc?sc.ag:null,winner&&winner===B.name,!!fin,!!sc, sc&&sc.pens?sc.pens[1]:null, adv?adv.b:null, gB, pw)}</div></div>`;
+    <div class="teams">${koSide(id,'a',A,both,pick,sc?sc.hg:null,winner&&winner===A.name,!!fin,!!sc, sc&&sc.pens?sc.pens[0]:null, adv?adv.a:null, gA, pw, mnt)}${koSide(id,'b',B,both,pick,sc?sc.ag:null,winner&&winner===B.name,!!fin,!!sc, sc&&sc.pens?sc.pens[1]:null, adv?adv.b:null, gB, pw)}</div></div>`;
 }
 function renderKnockout(){
   let cols="";
   COLS.forEach((c,ci)=>{
     let games="";
     for(const id of c.ids) games+=`<div class="gw">${koCard(id)}</div>`;
-    // --span: nº de slots verticais por jogo (1,2,4,8,16) — usado pelo zoom do quadro (bracketZoom)
+    // --span: nº de slots verticais por jogo (1,2,4,8,16) — usado pela janela de rondas (bracketApplyWindow)
     cols+=`<div class="col" style="--span:${Math.pow(2,ci)}"><div class="chead">${c.name}</div><div class="games">${games}</div></div>`;
   });
   const champName=matchWinner("M104");

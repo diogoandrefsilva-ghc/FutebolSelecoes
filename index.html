@@ -217,7 +217,6 @@
   /* 3 rondas à vista: tipografia e caixas compactas */
   .bracket.tight{gap:16px}
   .bracket.tight .chead{font-size:10px;letter-spacing:.6px}
-  .bracket.tight .ko .jno{font-size:7.5px;padding:2px 5px 0}
   .bracket.tight .koteam{font-size:10px;padding:2.5px 4px;gap:4px}
   .bracket.tight .koteam .fl{font-size:11px;width:12px}
   .bracket.tight .koteam .src{display:none}
@@ -260,8 +259,6 @@
     content:"";position:absolute;left:-12px;top:50%;width:12px;height:2px;background:var(--line2)}
 
   .ko{background:var(--panel2);border:1px solid var(--line);border-radius:8px;overflow:hidden}
-  .ko .jno{font-family:Inter,sans-serif;font-size:8px;letter-spacing:.4px;color:var(--dim);
-           padding:2px 6px 0;display:flex;justify-content:space-between}
   .koteam{display:flex;align-items:center;gap:4px;padding:3.5px 5px;border:0;background:transparent;color:var(--txt);
           font-family:Inter,sans-serif;font-size:11px;text-align:left;width:100%;cursor:pointer;border-top:1px solid var(--line)}
   .koteam:first-child{border-top:0}
@@ -491,12 +488,12 @@
     font-weight:700;font-size:13px;color:var(--mut);flex:none;white-space:nowrap;padding-right:4px;font-variant-numeric:tabular-nums;font-feature-settings:"tnum" 1}
   .koteam.pick .kosc{color:var(--lime)}
   .koteam .pen{color:var(--dim);font-size:9px;font-weight:600}
-  /* placar/estado ao vivo do mata-eliminatórias */
-  .ko .jno .kostate{font-weight:800;letter-spacing:.4px}
-  .ko .jno .kostate.live{color:var(--cyan);display:inline-flex;align-items:center;gap:4px}
-  .ko .jno .kostate.live::before{content:"";width:5px;height:5px;border-radius:50%;background:var(--cyan);
-    box-shadow:0 0 7px var(--cyan);animation:pulse 1.6s ease-in-out infinite}
-  .ko .jno .kostate.done{color:var(--lime)}
+  /* minuto de jogo ao vivo, inline na primeira linha do cartão (a label do jogo foi removida) */
+  .koteam .komin{margin-left:auto;font-family:Inter,sans-serif;font-size:8.5px;font-weight:800;color:var(--cyan);
+    flex:none;display:inline-flex;align-items:center;gap:3px;letter-spacing:.3px}
+  .koteam .komin::before{content:"";width:4px;height:4px;border-radius:50%;background:var(--cyan);
+    box-shadow:0 0 6px var(--cyan);animation:pulse 1.6s ease-in-out infinite}
+  .koteam .komin~.kosc{margin-left:6px}
   .ko.inplay{border-color:var(--cyan)}
   .ko.locked{border-color:rgba(91,140,0,.45)}
   .koteam.kowin .kosc{color:var(--lime)}
@@ -693,7 +690,7 @@
 <!-- Módulo live do 2026: Anexo C (emparelhamento dos 16-avos), quadro interativo,
      simulação Monte Carlo do percurso e live ESPN. (Caveat: o Anexo C herdado assume
      8 grupos; rever para os 12 grupos do formato de 48 num próximo torneio.) -->
-<script src="live2026.js?v=27"></script>
+<script src="live2026.js?v=28"></script>
 <script>
 "use strict";
 /* =====================================================================
@@ -1124,7 +1121,7 @@ function closeHistory(){
 }
 
 /* ===================== RENDER: QUADRO ===================== */
-function koCardClosed(tie, label){
+function koCardClosed(tie){
   const w=tieWinner(tie);
   const haspor=tie.home===FAV||tie.away===FAV;
   const p=tie.pens;
@@ -1134,7 +1131,6 @@ function koCardClosed(tie, label){
       <span class="kosc">${pen!=null?`<span class="pen">(${pen}) </span>`:""}${g}</span></div>`;
   };
   return `<div class="ko ${haspor?'haspor':''}">
-    <div class="jno"><span>${label||tie.round}</span></div>
     <div class="teams">${row(tie.home,tie.hg,p?p[0]:null)}${row(tie.away,tie.ag,p?p[1]:null)}</div></div>`;
 }
 // ordena os confrontos de cada ronda para o bracket "casar": cada jogo fica entre os
@@ -1177,14 +1173,14 @@ function renderBracket(){
   if(!ED.knockout){ box.innerHTML=`<div class="deferred">Sem dados do quadro para esta edição.</div>`; return; }
   const ko=ED.knockout, ord=bracketOrder(ko);
   // modo "fit" só quando cada ronda tem metade dos jogos da anterior (16/8/4/2/1…):
-  // permite dar a cada jogo uma altura fixa em slots e ativar o zoom por scroll (bracketZoom)
+  // permite dar a cada jogo uma altura fixa em slots e ativar a janela de rondas (bracketApplyWindow)
   const counts=ord.map(ids=>ids.filter(id=>ko.ties[id]).length);
   const fit=counts.length>1 && counts.every((c,i)=> i===0 ? c>0 : counts[i-1]===c*2);
-  let cols="", gameNo=0;
+  let cols="";
   ko.rounds.forEach((r,ri)=>{
     let games="";
-    for(const id of ord[ri]){ const t=ko.ties[id]; if(t){ gameNo++;
-      games+=`<div class="gw">${koCardClosed(Object.assign({id,round:r.short}, t), "Jogo "+gameNo)}</div>`; } }
+    for(const id of ord[ri]){ const t=ko.ties[id]; if(t)
+      games+=`<div class="gw">${koCardClosed(t)}</div>`; }
     cols+=`<div class="col"${fit?` style="--span:${counts[0]/counts[ri]}"`:""}><div class="chead">${r.short}</div><div class="games">${games}</div></div>`;
   });
   const champ=ED.champion
@@ -1192,7 +1188,7 @@ function renderBracket(){
          <span class="cwrap"><span class="cn ${ED.champion===FAV?'por':''}">${pt(ED.champion)}</span><span class="ct">${champTitleUC()} ${ED.year}</span></span></div>`
     : "";
   const tp=ko.third
-    ? `<div class="thirdplace"><div class="tp-h">Disputa do 3.º / 4.º lugar</div>${koCardClosed(Object.assign({id:"TP",round:"3.º/4.º"}, ko.third), "3.º/4.º lugar")}</div>`
+    ? `<div class="thirdplace"><div class="tp-h">Disputa do 3.º / 4.º lugar</div>${koCardClosed(ko.third)}</div>`
     : "";
   box.innerHTML=`${fit?bracketNavHTML(ko.rounds.map(r=>r.short))
       :`<div class="bracket-hint"><span class="k">↔</span> Arrasta para o lado para veres o quadro todo</div>`}
