@@ -1,0 +1,50 @@
+{
+  "id": "euro1984",
+  "year": 1984,
+  "competition": "euro",
+  "pointsForWin": 2,
+  "host": "França",
+  "title": "Euro 1984",
+  "status": "closed",
+  "champion": "France",
+  "source": "Resultados oficiais UEFA Euro 1984 (2 pontos por vitória; sem jogo do 3.º lugar).",
+  "teams": {
+    "Belgium": {"pt": "Bélgica", "flag": "🇧🇪", "rank": 4},
+    "Denmark": {"pt": "Dinamarca", "flag": "🇩🇰", "rank": 5},
+    "France": {"pt": "França", "flag": "🇫🇷", "rank": 1},
+    "Germany": {"pt": "Alemanha", "flag": "🇩🇪", "rank": 2},
+    "Portugal": {"pt": "Portugal", "flag": "🇵🇹", "rank": 6},
+    "Romania": {"pt": "Roménia", "flag": "🇷🇴", "rank": 8},
+    "Spain": {"pt": "Espanha", "flag": "🇪🇸", "rank": 3},
+    "Yugoslavia": {"pt": "Jugoslávia", "flag": "🇷🇸", "rank": 7}
+  },
+  "groups": [
+    {"name": "1", "teams": ["France", "Denmark", "Belgium", "Yugoslavia"], "matches": [
+      ["France", "Denmark", 1, 0],
+      ["Belgium", "Yugoslavia", 2, 0],
+      ["France", "Belgium", 5, 0],
+      ["Denmark", "Yugoslavia", 5, 0],
+      ["France", "Yugoslavia", 3, 2],
+      ["Denmark", "Belgium", 3, 2]
+    ]},
+    {"name": "2", "teams": ["Spain", "Portugal", "Germany", "Romania"], "matches": [
+      ["Germany", "Portugal", 0, 0],
+      ["Spain", "Romania", 1, 1],
+      ["Germany", "Romania", 2, 1],
+      ["Portugal", "Spain", 1, 1],
+      ["Germany", "Spain", 0, 1],
+      ["Portugal", "Romania", 1, 0]
+    ]}
+  ],
+  "knockout": {
+    "rounds": [
+      {"name": "Meias-finais", "short": "Meias", "ties": ["SF-1", "SF-2"]},
+      {"name": "Final", "short": "Final", "ties": ["FIN"]}
+    ],
+    "ties": {
+      "SF-1": {"round": "Meias", "home": "France", "away": "Portugal", "hg": 3, "ag": 2},
+      "SF-2": {"round": "Meias", "home": "Spain", "away": "Denmark", "hg": 1, "ag": 1, "pens": [5, 4]},
+      "FIN": {"round": "Final", "home": "France", "away": "Spain", "hg": 2, "ag": 0}
+    }
+  }
+}

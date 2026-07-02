@@ -561,7 +561,7 @@
   .palm .ptile .pnum{font-family:Anton,sans-serif;font-size:24px;line-height:1.1;margin-top:3px}
   .palm .ptile .plab{font-family:Inter,sans-serif;font-size:9.5px;font-weight:800;letter-spacing:.5px;
     text-transform:uppercase;color:var(--mut);margin-top:1px}
-  .palm .ptile .pyrs{font-size:10px;color:var(--mut);line-height:1.55;margin-top:5px;white-space:nowrap}
+  .palm .ptile .pyrs{font-size:10px;color:var(--mut);line-height:1.6;margin-top:5px}
   .palm .ptile.zero{opacity:.45}
   .palm .ptile.tit{border-color:rgba(200,144,26,.5);background:linear-gradient(180deg,var(--panel),rgba(200,144,26,.08))}
   .palm .ptile.tit .pnum{color:var(--gold)}
@@ -753,7 +753,15 @@ const EDITIONS = [
   { id:"2006",     year:2006, host:"Alemanha",              status:"closed", comp:"wc"   },
   { id:"euro2004", year:2004, host:"Portugal",              status:"closed", comp:"euro" },
   { id:"2002",     year:2002, host:"Coreia/Japão",          status:"closed", comp:"wc"   },
-  { id:"euro2000", year:2000, host:"Bélgica · Países Baixos",status:"closed",comp:"euro" }
+  { id:"euro2000", year:2000, host:"Bélgica · Países Baixos",status:"closed",comp:"euro" },
+  { id:"1998",     year:1998, host:"França",                status:"closed", comp:"wc"   },
+  { id:"euro1996", year:1996, host:"Inglaterra",            status:"closed", comp:"euro" },
+  { id:"1994",     year:1994, host:"EUA",                   status:"closed", comp:"wc"   },
+  { id:"euro1992", year:1992, host:"Suécia",                status:"closed", comp:"euro" },
+  { id:"1990",     year:1990, host:"Itália",                status:"closed", comp:"wc"   },
+  { id:"euro1988", year:1988, host:"Alemanha (RFA)",        status:"closed", comp:"euro" },
+  { id:"1986",     year:1986, host:"México",                status:"closed", comp:"wc"   },
+  { id:"euro1984", year:1984, host:"França",                status:"closed", comp:"euro" }
 ];
 const DEFAULT_EDITION = "2026";
 const FAV = "Portugal";          // seleção destacada (a da casa do utilizador)
@@ -857,12 +865,13 @@ async function buildRegistry(){
 
 /* ===================== MOTOR: classificação a partir dos jogos ===================== */
 function statsOf(names, matches){
+  const W=(ED&&ED.pointsForWin)||3;   // era dos 2 pontos por vitória (Mundiais até 1990, Euros até 1992)
   const s={}; names.forEach(n=>s[n]={pts:0,w:0,d:0,l:0,gf:0,ga:0,gd:0});
   for(const m of matches){ const h=m[0],a=m[1],hg=m[2],ag=m[3];
     if(hg==null||ag==null||!s[h]||!s[a]) continue;
     s[h].gf+=hg; s[h].ga+=ag; s[a].gf+=ag; s[a].ga+=hg;
-    if(hg>ag){s[h].pts+=3;s[h].w++;s[a].l++;}
-    else if(hg<ag){s[a].pts+=3;s[a].w++;s[h].l++;}
+    if(hg>ag){s[h].pts+=W;s[h].w++;s[a].l++;}
+    else if(hg<ag){s[a].pts+=W;s[a].w++;s[h].l++;}
     else {s[h].pts++;s[a].pts++;s[h].d++;s[a].d++;} }
   names.forEach(n=>s[n].gd=s[n].gf-s[n].ga);
   return s;
@@ -1149,14 +1158,57 @@ function histEliminators(t){
   const pos=ts.pos-1;                                 // sem derrotas diretas: as equipas que ficaram à frente no grupo
   return pos>0 ? ts.table.slice(0,pos).map(r=>r.team) : [];
 }
+/* Palmarés pré-1984 (sem ficha de edição): só os pódios contam.
+   p = [campeão, finalista, 3.º lugar]. A RFA figura como "Germany" (a DFB é a
+   mesma federação); URSS e Checoslováquia ficam como seleções próprias. */
+const PRE84 = [
+  {y:1930, c:"wc",   p:["Uruguay","Argentina","USA"]},
+  {y:1934, c:"wc",   p:["Italy","Czechoslovakia","Germany"]},
+  {y:1938, c:"wc",   p:["Italy","Hungary","Brazil"]},
+  {y:1950, c:"wc",   p:["Uruguay","Brazil","Sweden"]},
+  {y:1954, c:"wc",   p:["Germany","Hungary","Austria"]},
+  {y:1958, c:"wc",   p:["Brazil","Sweden","France"]},
+  {y:1960, c:"euro", p:["Soviet Union","Yugoslavia","Czechoslovakia"]},
+  {y:1962, c:"wc",   p:["Brazil","Czechoslovakia","Chile"]},
+  {y:1964, c:"euro", p:["Spain","Soviet Union","Hungary"]},
+  {y:1966, c:"wc",   p:["England","Germany","Portugal"]},
+  {y:1968, c:"euro", p:["Italy","Yugoslavia","England"]},
+  {y:1970, c:"wc",   p:["Brazil","Italy","Germany"]},
+  {y:1972, c:"euro", p:["Germany","Soviet Union","Belgium"]},
+  {y:1974, c:"wc",   p:["Germany","Netherlands","Poland"]},
+  {y:1976, c:"euro", p:["Czechoslovakia","Germany","Netherlands"]},
+  {y:1978, c:"wc",   p:["Argentina","Netherlands","Brazil"]},
+  {y:1980, c:"euro", p:["Germany","Belgium","Czechoslovakia"]},
+  {y:1982, c:"wc",   p:["Italy","Germany","Poland"]}
+];
+// uma etapa da linha do tempo do Histórico (partilhada pelas edições com ficha e pré-1984)
+function histRowHTML(compTxt, year, fc, champ, note){
+  const dot=fc.cls==="win"?"done":(fc.cls==="out"?"gone":"reachable");
+  const badge=champ?"champ":(fc.cls==="out"?"gone":(fc.cls==="win"?"done":""));
+  return `<div class="stage ${dot}">
+    <div class="sh"><span class="sr">${compTxt} ${year}</span>
+      <span class="reach ${badge}">${fc.label}</span></div>
+    ${note?`<div class="when"><span class="v ${champ?'champ':''}">${note}</span></div>`:""}
+  </div>`;
+}
 // conteúdo (timeline) do histórico de uma seleção; devolve o HTML interior do pop-up
 function historyContentHTML(t){
   const ids=(REGISTRY.editions[t]||[]).filter(id=>EDITION_DATA[id]);
   ids.sort((a,b)=> EDITION_DATA[a].year - EDITION_DATA[b].year);   // linha do tempo (mais antigo -> mais recente)
-  if(!ids.length) return `<div class="livenote"><span class="ic">📭</span><div class="tx"><b>${pt(t)}</b> não consta nos dados de nenhuma edição.</div></div>`;
+  const pre=PRE84.map(e=>Object.assign({pos:e.p.indexOf(t)},e)).filter(e=>e.pos>=0);
+  if(!ids.length && !pre.length) return `<div class="livenote"><span class="ic">📭</span><div class="tx"><b>${pt(t)}</b> não consta nos dados de nenhuma edição.</div></div>`;
   let rows="";
   // palmarés: títulos, finais disputadas e pódios (1.º–3.º; no Euro as meias contam — não há jogo do 3.º/4.º)
   const palm={tit:[],fin:[],pod:[]}; let euroSemis=false;
+  for(const e of pre){   // pódios pré-1984 (sem ficha): entram no palmarés e na linha do tempo
+    const isEuroEd=e.c==="euro", edLbl=`${isEuroEd?"🇪🇺":"🌍"} ${e.y}`, champ=e.pos===0;
+    if(champ){ palm.tit.push(edLbl); palm.fin.push(edLbl); }
+    else if(e.pos===1) palm.fin.push(edLbl);
+    palm.pod.push(edLbl);
+    const fc=champ?{label:"Vencedor",cls:"win"}:(e.pos===1?{label:"Finalista",cls:""}:{label:"3.º Lugar",cls:"win"});
+    const note=champ?`🏆 ${isEuroEd?"campeão da Europa":"campeão do mundo"}`:(e.pos===1?`eliminada por ${pt(e.p[0])}`:"");
+    rows+=histRowHTML(isEuroEd?"Euro":"Mundial", e.y, fc, champ, note);
+  }
   for(const id of ids){
     const edObj=EDITION_DATA[id], meta=EDITIONS.find(e=>e.id===id)||{};
     const isEuroEd=(edObj.competition==="euro"||meta.comp==="euro");
@@ -1175,24 +1227,19 @@ function historyContentHTML(t){
       if(champ||finalist) palm.fin.push(edLbl);
       if(champ||finalist||third||semisEuro) palm.pod.push(edLbl);
     }
-    const dot=fc.cls==="win"?"done":(fc.cls==="out"?"gone":"reachable");
-    const badge=champ?"champ":(fc.cls==="out"?"gone":(fc.cls==="win"?"done":""));
     const note = champ
       ? `🏆 ${isEuroEd?"campeão da Europa":"campeão do mundo"}`
       : (elim.length ? `eliminada por ${joinPt(elim.map(x=>pt(x)))}` : "");
-    rows+=`<div class="stage ${dot}">
-      <div class="sh"><span class="sr">${compTxt} ${edObj.year}</span>
-        <span class="reach ${badge}">${fc.label}</span></div>
-      ${note?`<div class="when"><span class="v ${champ?'champ':''}">${note}</span></div>`:""}
-    </div>`;
+    rows+=histRowHTML(compTxt, edObj.year, fc, champ, note);
   }
   const ptile=(arr,ico,lab,extra)=>`<div class="ptile${extra||""}${arr.length?"":" zero"}">
       <div class="pico">${ico}</div><div class="pnum">${arr.length}</div><div class="plab">${lab}</div>
-      ${arr.length?`<div class="pyrs">${arr.join("<br>")}</div>`:""}</div>`;
+      ${arr.length?`<div class="pyrs">${arr.join(" · ")}</div>`:""}</div>`;
   const palmHTML = palm.pod.length
     ? `<div class="palm">${ptile(palm.tit,"🏆","Títulos"," tit")}${ptile(palm.fin,"🥈","Finais")}${ptile(palm.pod,"🥉","Pódios")}</div>`
     : "";
   const sub = `Percurso em <b>${ids.length}</b> ${ids.length===1?'edição':'edições'} · Europeus e Mundiais`
+    + (pre.length ? ` · antes de 1984 contam só os pódios` : "")
     + (palmHTML ? ` · finais = <b>disputadas</b>` : "")
     + (euroSemis ? ` · as meias-finais do Euro contam como pódio (não há jogo do 3.º lugar)` : "");
   return `${palmHTML}<div class="histsub">${sub}</div><div class="stagewrap" style="margin-top:14px">${rows}</div>`;

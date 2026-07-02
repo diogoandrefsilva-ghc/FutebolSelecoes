@@ -1,0 +1,111 @@
+{
+  "id": "1994",
+  "year": 1994,
+  "host": "EUA",
+  "title": "Mundial 1994",
+  "status": "closed",
+  "champion": "Brazil",
+  "source": "Resultados oficiais FIFA World Cup 1994 (primeiro Mundial com 3 pontos por vitória).",
+  "teams": {
+    "Argentina": {"pt": "Argentina", "flag": "🇦🇷", "rank": 7},
+    "Belgium": {"pt": "Bélgica", "flag": "🇧🇪", "rank": 13},
+    "Bolivia": {"pt": "Bolívia", "flag": "🇧🇴", "rank": 22},
+    "Brazil": {"pt": "Brasil", "flag": "🇧🇷", "rank": 1},
+    "Bulgaria": {"pt": "Bulgária", "flag": "🇧🇬", "rank": 6},
+    "Cameroon": {"pt": "Camarões", "flag": "🇨🇲", "rank": 20},
+    "Colombia": {"pt": "Colômbia", "flag": "🇨🇴", "rank": 18},
+    "Germany": {"pt": "Alemanha", "flag": "🇩🇪", "rank": 2},
+    "Greece": {"pt": "Grécia", "flag": "🇬🇷", "rank": 24},
+    "Ireland": {"pt": "Irlanda", "flag": "🇮🇪", "rank": 4},
+    "Italy": {"pt": "Itália", "flag": "🇮🇹", "rank": 5},
+    "Mexico": {"pt": "México", "flag": "🇲🇽", "rank": 12},
+    "Morocco": {"pt": "Marrocos", "flag": "🇲🇦", "rank": 23},
+    "Netherlands": {"pt": "Países Baixos", "flag": "🇳🇱", "rank": 8},
+    "Nigeria": {"pt": "Nigéria", "flag": "🇳🇬", "rank": 11},
+    "Norway": {"pt": "Noruega", "flag": "🇳🇴", "rank": 16},
+    "Romania": {"pt": "Roménia", "flag": "🇷🇴", "rank": 10},
+    "Russia": {"pt": "Rússia", "flag": "🇷🇺", "rank": 17},
+    "Saudi Arabia": {"pt": "Arábia Saudita", "flag": "🇸🇦", "rank": 19},
+    "South Korea": {"pt": "Coreia do Sul", "flag": "🇰🇷", "rank": 21},
+    "Spain": {"pt": "Espanha", "flag": "🇪🇸", "rank": 9},
+    "Sweden": {"pt": "Suécia", "flag": "🇸🇪", "rank": 3},
+    "Switzerland": {"pt": "Suíça", "flag": "🇨🇭", "rank": 14},
+    "USA": {"pt": "Estados Unidos", "flag": "🇺🇸", "rank": 15}
+  },
+  "groups": [
+    {"name": "A", "teams": ["Romania", "Switzerland", "USA", "Colombia"], "matches": [
+      ["USA", "Switzerland", 1, 1],
+      ["Colombia", "Romania", 1, 3],
+      ["Romania", "Switzerland", 1, 4],
+      ["USA", "Colombia", 2, 1],
+      ["USA", "Romania", 0, 1],
+      ["Switzerland", "Colombia", 0, 2]
+    ]},
+    {"name": "B", "teams": ["Brazil", "Sweden", "Russia", "Cameroon"], "matches": [
+      ["Cameroon", "Sweden", 2, 2],
+      ["Brazil", "Russia", 2, 0],
+      ["Brazil", "Cameroon", 3, 0],
+      ["Sweden", "Russia", 3, 1],
+      ["Russia", "Cameroon", 6, 1],
+      ["Brazil", "Sweden", 1, 1]
+    ]},
+    {"name": "C", "teams": ["Germany", "Spain", "South Korea", "Bolivia"], "matches": [
+      ["Germany", "Bolivia", 1, 0],
+      ["Spain", "South Korea", 2, 2],
+      ["Germany", "Spain", 1, 1],
+      ["South Korea", "Bolivia", 0, 0],
+      ["Bolivia", "Spain", 1, 3],
+      ["Germany", "South Korea", 3, 2]
+    ]},
+    {"name": "D", "teams": ["Nigeria", "Bulgaria", "Argentina", "Greece"], "matches": [
+      ["Argentina", "Greece", 4, 0],
+      ["Nigeria", "Bulgaria", 3, 0],
+      ["Argentina", "Nigeria", 2, 1],
+      ["Bulgaria", "Greece", 4, 0],
+      ["Greece", "Nigeria", 0, 2],
+      ["Argentina", "Bulgaria", 0, 2]
+    ]},
+    {"name": "E", "teams": ["Mexico", "Ireland", "Italy", "Norway"], "matches": [
+      ["Ireland", "Italy", 1, 0],
+      ["Norway", "Mexico", 1, 0],
+      ["Italy", "Norway", 1, 0],
+      ["Mexico", "Ireland", 2, 1],
+      ["Italy", "Mexico", 1, 1],
+      ["Ireland", "Norway", 0, 0]
+    ]},
+    {"name": "F", "teams": ["Netherlands", "Saudi Arabia", "Belgium", "Morocco"], "matches": [
+      ["Belgium", "Morocco", 1, 0],
+      ["Netherlands", "Saudi Arabia", 2, 1],
+      ["Belgium", "Netherlands", 1, 0],
+      ["Saudi Arabia", "Morocco", 2, 1],
+      ["Morocco", "Netherlands", 1, 2],
+      ["Belgium", "Saudi Arabia", 0, 1]
+    ]}
+  ],
+  "knockout": {
+    "rounds": [
+      {"name": "Oitavos de final", "short": "Oitavos", "ties": ["R16-1", "R16-2", "R16-3", "R16-4", "R16-5", "R16-6", "R16-7", "R16-8"]},
+      {"name": "Quartos de final", "short": "Quartos", "ties": ["QF-1", "QF-2", "QF-3", "QF-4"]},
+      {"name": "Meias-finais", "short": "Meias", "ties": ["SF-1", "SF-2"]},
+      {"name": "Final", "short": "Final", "ties": ["FIN"]}
+    ],
+    "ties": {
+      "R16-1": {"round": "Oitavos", "home": "Italy", "away": "Nigeria", "hg": 2, "ag": 1},
+      "R16-2": {"round": "Oitavos", "home": "Spain", "away": "Switzerland", "hg": 3, "ag": 0},
+      "R16-3": {"round": "Oitavos", "home": "Bulgaria", "away": "Mexico", "hg": 1, "ag": 1, "pens": [3, 1]},
+      "R16-4": {"round": "Oitavos", "home": "Germany", "away": "Belgium", "hg": 3, "ag": 2},
+      "R16-5": {"round": "Oitavos", "home": "Brazil", "away": "USA", "hg": 1, "ag": 0},
+      "R16-6": {"round": "Oitavos", "home": "Netherlands", "away": "Ireland", "hg": 2, "ag": 0},
+      "R16-7": {"round": "Oitavos", "home": "Sweden", "away": "Saudi Arabia", "hg": 3, "ag": 1},
+      "R16-8": {"round": "Oitavos", "home": "Romania", "away": "Argentina", "hg": 3, "ag": 2},
+      "QF-1": {"round": "Quartos", "home": "Italy", "away": "Spain", "hg": 2, "ag": 1},
+      "QF-2": {"round": "Quartos", "home": "Bulgaria", "away": "Germany", "hg": 2, "ag": 1},
+      "QF-3": {"round": "Quartos", "home": "Brazil", "away": "Netherlands", "hg": 3, "ag": 2},
+      "QF-4": {"round": "Quartos", "home": "Sweden", "away": "Romania", "hg": 2, "ag": 2, "pens": [5, 4]},
+      "SF-1": {"round": "Meias", "home": "Italy", "away": "Bulgaria", "hg": 2, "ag": 1},
+      "SF-2": {"round": "Meias", "home": "Brazil", "away": "Sweden", "hg": 1, "ag": 0},
+      "FIN": {"round": "Final", "home": "Brazil", "away": "Italy", "hg": 0, "ag": 0, "pens": [3, 2]}
+    },
+    "third": {"id": "TP", "round": "3.º/4.º lugar", "home": "Sweden", "away": "Bulgaria", "hg": 4, "ag": 0}
+  }
+}

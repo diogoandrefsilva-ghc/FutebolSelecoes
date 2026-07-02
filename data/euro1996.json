@@ -1,0 +1,78 @@
+{
+  "id": "euro1996",
+  "year": 1996,
+  "competition": "euro",
+  "host": "Inglaterra",
+  "title": "Euro 1996",
+  "status": "closed",
+  "champion": "Germany",
+  "source": "Resultados oficiais UEFA Euro 1996 (final decidida com golo de ouro; sem jogo do 3.º lugar).",
+  "teams": {
+    "Bulgaria": {"pt": "Bulgária", "flag": "🇧🇬", "rank": 12},
+    "Croatia": {"pt": "Croácia", "flag": "🇭🇷", "rank": 9},
+    "Czech Republic": {"pt": "Chéquia", "flag": "🇨🇿", "rank": 8},
+    "Denmark": {"pt": "Dinamarca", "flag": "🇩🇰", "rank": 10},
+    "England": {"pt": "Inglaterra", "flag": "🏴󠁧󠁢󠁥󠁮󠁧󠁿", "rank": 3},
+    "France": {"pt": "França", "flag": "🇫🇷", "rank": 2},
+    "Germany": {"pt": "Alemanha", "flag": "🇩🇪", "rank": 1},
+    "Italy": {"pt": "Itália", "flag": "🇮🇹", "rank": 5},
+    "Netherlands": {"pt": "Países Baixos", "flag": "🇳🇱", "rank": 4},
+    "Portugal": {"pt": "Portugal", "flag": "🇵🇹", "rank": 7},
+    "Romania": {"pt": "Roménia", "flag": "🇷🇴", "rank": 13},
+    "Russia": {"pt": "Rússia", "flag": "🇷🇺", "rank": 11},
+    "Scotland": {"pt": "Escócia", "flag": "🏴󠁧󠁢󠁳󠁣󠁴󠁿", "rank": 14},
+    "Spain": {"pt": "Espanha", "flag": "🇪🇸", "rank": 6},
+    "Switzerland": {"pt": "Suíça", "flag": "🇨🇭", "rank": 15},
+    "Turkey": {"pt": "Turquia", "flag": "🇹🇷", "rank": 16}
+  },
+  "groups": [
+    {"name": "A", "teams": ["England", "Netherlands", "Scotland", "Switzerland"], "matches": [
+      ["England", "Switzerland", 1, 1],
+      ["Netherlands", "Scotland", 0, 0],
+      ["Netherlands", "Switzerland", 2, 0],
+      ["England", "Scotland", 2, 0],
+      ["England", "Netherlands", 4, 1],
+      ["Scotland", "Switzerland", 1, 0]
+    ]},
+    {"name": "B", "teams": ["France", "Spain", "Bulgaria", "Romania"], "matches": [
+      ["Spain", "Bulgaria", 1, 1],
+      ["France", "Romania", 1, 0],
+      ["Bulgaria", "Romania", 1, 0],
+      ["France", "Spain", 1, 1],
+      ["France", "Bulgaria", 3, 1],
+      ["Spain", "Romania", 2, 1]
+    ]},
+    {"name": "C", "teams": ["Germany", "Czech Republic", "Italy", "Russia"], "matches": [
+      ["Germany", "Czech Republic", 2, 0],
+      ["Italy", "Russia", 2, 1],
+      ["Czech Republic", "Italy", 2, 1],
+      ["Germany", "Russia", 3, 0],
+      ["Russia", "Czech Republic", 3, 3],
+      ["Italy", "Germany", 0, 0]
+    ]},
+    {"name": "D", "teams": ["Portugal", "Croatia", "Denmark", "Turkey"], "matches": [
+      ["Denmark", "Portugal", 1, 1],
+      ["Croatia", "Turkey", 1, 0],
+      ["Portugal", "Turkey", 1, 0],
+      ["Croatia", "Denmark", 3, 0],
+      ["Croatia", "Portugal", 0, 3],
+      ["Turkey", "Denmark", 0, 3]
+    ]}
+  ],
+  "knockout": {
+    "rounds": [
+      {"name": "Quartos de final", "short": "Quartos", "ties": ["QF-1", "QF-2", "QF-3", "QF-4"]},
+      {"name": "Meias-finais", "short": "Meias", "ties": ["SF-1", "SF-2"]},
+      {"name": "Final", "short": "Final", "ties": ["FIN"]}
+    ],
+    "ties": {
+      "QF-1": {"round": "Quartos", "home": "England", "away": "Spain", "hg": 0, "ag": 0, "pens": [4, 2]},
+      "QF-2": {"round": "Quartos", "home": "Germany", "away": "Croatia", "hg": 2, "ag": 1},
+      "QF-3": {"round": "Quartos", "home": "France", "away": "Netherlands", "hg": 0, "ag": 0, "pens": [5, 4]},
+      "QF-4": {"round": "Quartos", "home": "Czech Republic", "away": "Portugal", "hg": 1, "ag": 0},
+      "SF-1": {"round": "Meias", "home": "England", "away": "Germany", "hg": 1, "ag": 1, "pens": [5, 6]},
+      "SF-2": {"round": "Meias", "home": "France", "away": "Czech Republic", "hg": 0, "ag": 0, "pens": [5, 6]},
+      "FIN": {"round": "Final", "home": "Germany", "away": "Czech Republic", "hg": 2, "ag": 1}
+    }
+  }
+}

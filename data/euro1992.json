@@ -1,0 +1,50 @@
+{
+  "id": "euro1992",
+  "year": 1992,
+  "competition": "euro",
+  "pointsForWin": 2,
+  "host": "Suécia",
+  "title": "Euro 1992",
+  "status": "closed",
+  "champion": "Denmark",
+  "source": "Resultados oficiais UEFA Euro 1992 (2 pontos por vitória; a CEI sucedeu à URSS; sem jogo do 3.º lugar).",
+  "teams": {
+    "CIS": {"pt": "CEI", "flag": "🚩", "rank": 8},
+    "Denmark": {"pt": "Dinamarca", "flag": "🇩🇰", "rank": 5},
+    "England": {"pt": "Inglaterra", "flag": "🏴󠁧󠁢󠁥󠁮󠁧󠁿", "rank": 6},
+    "France": {"pt": "França", "flag": "🇫🇷", "rank": 3},
+    "Germany": {"pt": "Alemanha", "flag": "🇩🇪", "rank": 2},
+    "Netherlands": {"pt": "Países Baixos", "flag": "🇳🇱", "rank": 1},
+    "Scotland": {"pt": "Escócia", "flag": "🏴󠁧󠁢󠁳󠁣󠁴󠁿", "rank": 7},
+    "Sweden": {"pt": "Suécia", "flag": "🇸🇪", "rank": 4}
+  },
+  "groups": [
+    {"name": "1", "teams": ["Sweden", "Denmark", "France", "England"], "matches": [
+      ["Sweden", "France", 1, 1],
+      ["Denmark", "England", 0, 0],
+      ["France", "England", 0, 0],
+      ["Sweden", "Denmark", 1, 0],
+      ["Sweden", "England", 2, 1],
+      ["France", "Denmark", 1, 2]
+    ]},
+    {"name": "2", "teams": ["Netherlands", "Germany", "Scotland", "CIS"], "matches": [
+      ["Netherlands", "Scotland", 1, 0],
+      ["Germany", "CIS", 1, 1],
+      ["Scotland", "Germany", 0, 2],
+      ["Netherlands", "CIS", 0, 0],
+      ["Netherlands", "Germany", 3, 1],
+      ["Scotland", "CIS", 3, 0]
+    ]}
+  ],
+  "knockout": {
+    "rounds": [
+      {"name": "Meias-finais", "short": "Meias", "ties": ["SF-1", "SF-2"]},
+      {"name": "Final", "short": "Final", "ties": ["FIN"]}
+    ],
+    "ties": {
+      "SF-1": {"round": "Meias", "home": "Sweden", "away": "Germany", "hg": 2, "ag": 3},
+      "SF-2": {"round": "Meias", "home": "Netherlands", "away": "Denmark", "hg": 2, "ag": 2, "pens": [4, 5]},
+      "FIN": {"round": "Final", "home": "Denmark", "away": "Germany", "hg": 2, "ag": 0}
+    }
+  }
+}

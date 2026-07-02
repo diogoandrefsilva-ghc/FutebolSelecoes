@@ -1,0 +1,112 @@
+{
+  "id": "1986",
+  "year": 1986,
+  "pointsForWin": 2,
+  "host": "México",
+  "title": "Mundial 1986",
+  "status": "closed",
+  "champion": "Argentina",
+  "source": "Resultados oficiais FIFA World Cup 1986 (2 pontos por vitória; RFA figura como Alemanha).",
+  "teams": {
+    "Algeria": {"pt": "Argélia", "flag": "🇩🇿", "rank": 21},
+    "Argentina": {"pt": "Argentina", "flag": "🇦🇷", "rank": 2},
+    "Belgium": {"pt": "Bélgica", "flag": "🇧🇪", "rank": 11},
+    "Brazil": {"pt": "Brasil", "flag": "🇧🇷", "rank": 1},
+    "Bulgaria": {"pt": "Bulgária", "flag": "🇧🇬", "rank": 20},
+    "Canada": {"pt": "Canadá", "flag": "🇨🇦", "rank": 24},
+    "Denmark": {"pt": "Dinamarca", "flag": "🇩🇰", "rank": 9},
+    "England": {"pt": "Inglaterra", "flag": "🏴󠁧󠁢󠁥󠁮󠁧󠁿", "rank": 6},
+    "France": {"pt": "França", "flag": "🇫🇷", "rank": 4},
+    "Germany": {"pt": "Alemanha", "flag": "🇩🇪", "rank": 3},
+    "Hungary": {"pt": "Hungria", "flag": "🇭🇺", "rank": 17},
+    "Iraq": {"pt": "Iraque", "flag": "🇮🇶", "rank": 23},
+    "Italy": {"pt": "Itália", "flag": "🇮🇹", "rank": 5},
+    "Mexico": {"pt": "México", "flag": "🇲🇽", "rank": 10},
+    "Morocco": {"pt": "Marrocos", "flag": "🇲🇦", "rank": 14},
+    "Northern Ireland": {"pt": "Irlanda do Norte", "flag": "🇬🇧", "rank": 19},
+    "Paraguay": {"pt": "Paraguai", "flag": "🇵🇾", "rank": 15},
+    "Poland": {"pt": "Polónia", "flag": "🇵🇱", "rank": 12},
+    "Portugal": {"pt": "Portugal", "flag": "🇵🇹", "rank": 13},
+    "Scotland": {"pt": "Escócia", "flag": "🏴󠁧󠁢󠁳󠁣󠁴󠁿", "rank": 18},
+    "South Korea": {"pt": "Coreia do Sul", "flag": "🇰🇷", "rank": 22},
+    "Soviet Union": {"pt": "URSS", "flag": "🚩", "rank": 8},
+    "Spain": {"pt": "Espanha", "flag": "🇪🇸", "rank": 7},
+    "Uruguay": {"pt": "Uruguai", "flag": "🇺🇾", "rank": 16}
+  },
+  "groups": [
+    {"name": "A", "teams": ["Argentina", "Italy", "Bulgaria", "South Korea"], "matches": [
+      ["Bulgaria", "Italy", 1, 1],
+      ["Argentina", "South Korea", 3, 1],
+      ["Italy", "Argentina", 1, 1],
+      ["South Korea", "Bulgaria", 1, 1],
+      ["Argentina", "Bulgaria", 2, 0],
+      ["Italy", "South Korea", 3, 2]
+    ]},
+    {"name": "B", "teams": ["Mexico", "Paraguay", "Belgium", "Iraq"], "matches": [
+      ["Belgium", "Mexico", 1, 2],
+      ["Paraguay", "Iraq", 1, 0],
+      ["Mexico", "Paraguay", 1, 1],
+      ["Iraq", "Belgium", 1, 2],
+      ["Iraq", "Mexico", 0, 1],
+      ["Paraguay", "Belgium", 2, 2]
+    ]},
+    {"name": "C", "teams": ["Soviet Union", "France", "Hungary", "Canada"], "matches": [
+      ["Canada", "France", 0, 1],
+      ["Soviet Union", "Hungary", 6, 0],
+      ["France", "Soviet Union", 1, 1],
+      ["Hungary", "Canada", 2, 0],
+      ["France", "Hungary", 3, 0],
+      ["Soviet Union", "Canada", 2, 0]
+    ]},
+    {"name": "D", "teams": ["Brazil", "Spain", "Northern Ireland", "Algeria"], "matches": [
+      ["Spain", "Brazil", 0, 1],
+      ["Algeria", "Northern Ireland", 1, 1],
+      ["Northern Ireland", "Spain", 1, 2],
+      ["Brazil", "Algeria", 1, 0],
+      ["Northern Ireland", "Brazil", 0, 3],
+      ["Algeria", "Spain", 0, 3]
+    ]},
+    {"name": "E", "teams": ["Denmark", "Germany", "Uruguay", "Scotland"], "matches": [
+      ["Uruguay", "Germany", 1, 1],
+      ["Scotland", "Denmark", 0, 1],
+      ["Denmark", "Uruguay", 6, 1],
+      ["Germany", "Scotland", 2, 1],
+      ["Scotland", "Uruguay", 0, 0],
+      ["Denmark", "Germany", 2, 0]
+    ]},
+    {"name": "F", "teams": ["Morocco", "England", "Poland", "Portugal"], "matches": [
+      ["Morocco", "Poland", 0, 0],
+      ["Portugal", "England", 1, 0],
+      ["England", "Morocco", 0, 0],
+      ["Poland", "Portugal", 1, 0],
+      ["England", "Poland", 3, 0],
+      ["Morocco", "Portugal", 3, 1]
+    ]}
+  ],
+  "knockout": {
+    "rounds": [
+      {"name": "Oitavos de final", "short": "Oitavos", "ties": ["R16-1", "R16-2", "R16-3", "R16-4", "R16-5", "R16-6", "R16-7", "R16-8"]},
+      {"name": "Quartos de final", "short": "Quartos", "ties": ["QF-1", "QF-2", "QF-3", "QF-4"]},
+      {"name": "Meias-finais", "short": "Meias", "ties": ["SF-1", "SF-2"]},
+      {"name": "Final", "short": "Final", "ties": ["FIN"]}
+    ],
+    "ties": {
+      "R16-1": {"round": "Oitavos", "home": "Brazil", "away": "Poland", "hg": 4, "ag": 0},
+      "R16-2": {"round": "Oitavos", "home": "France", "away": "Italy", "hg": 2, "ag": 0},
+      "R16-3": {"round": "Oitavos", "home": "Germany", "away": "Morocco", "hg": 1, "ag": 0},
+      "R16-4": {"round": "Oitavos", "home": "Mexico", "away": "Bulgaria", "hg": 2, "ag": 0},
+      "R16-5": {"round": "Oitavos", "home": "Argentina", "away": "Uruguay", "hg": 1, "ag": 0},
+      "R16-6": {"round": "Oitavos", "home": "England", "away": "Paraguay", "hg": 3, "ag": 0},
+      "R16-7": {"round": "Oitavos", "home": "Belgium", "away": "Soviet Union", "hg": 4, "ag": 3},
+      "R16-8": {"round": "Oitavos", "home": "Spain", "away": "Denmark", "hg": 5, "ag": 1},
+      "QF-1": {"round": "Quartos", "home": "France", "away": "Brazil", "hg": 1, "ag": 1, "pens": [4, 3]},
+      "QF-2": {"round": "Quartos", "home": "Germany", "away": "Mexico", "hg": 0, "ag": 0, "pens": [4, 1]},
+      "QF-3": {"round": "Quartos", "home": "Argentina", "away": "England", "hg": 2, "ag": 1},
+      "QF-4": {"round": "Quartos", "home": "Belgium", "away": "Spain", "hg": 1, "ag": 1, "pens": [5, 4]},
+      "SF-1": {"round": "Meias", "home": "Germany", "away": "France", "hg": 2, "ag": 0},
+      "SF-2": {"round": "Meias", "home": "Argentina", "away": "Belgium", "hg": 2, "ag": 0},
+      "FIN": {"round": "Final", "home": "Argentina", "away": "Germany", "hg": 3, "ag": 2}
+    },
+    "third": {"id": "TP", "round": "3.º/4.º lugar", "home": "France", "away": "Belgium", "hg": 4, "ag": 2}
+  }
+}
